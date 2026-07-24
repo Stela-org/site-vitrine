@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => (b.data.updatedDate ?? b.data.pubDate).valueOf() - (a.data.updatedDate ?? a.data.pubDate).valueOf(),
+);
+const CLUSTER_LABEL: Record<string, string> = {
+  geo: "Visibilité IA (GEO)",
+  "google-business-profile": "Google Business Profile",
+  guide: "Guide",
+  ville: "Par ville",
+};
+---
+<Base
+  title="Blog Stela | Avis Google, réputation locale et visibilité IA"
+  description="Guides pratiques sur les avis Google, la réputation des commerces locaux et la visibilité dans les moteurs IA (ChatGPT, Gemini, Perplexity)."
+  path="/blog"
+>
+  <section>
+    <div class="container">
+      <p class="eyebrow">Le blog</p>
+      <h1>Avis Google, réputation locale et visibilité IA</h1>
+      <p class="lead" style="max-width:60ch;">Des guides concrets pour développer votre réputation, en toute conformité avec les règles de Google.</p>
+
+      <div class="post-grid">
+        {posts.map((p) => (
+          <a class="card post-card" href={`/blog/${p.id}`}>
+            <span class="post-cluster">{CLUSTER_LABEL[p.data.cluster]}</span>
+            <h2>{p.data.title}</h2>
+            <p>{p.data.description}</p>
+            <span class="post-more">Lire</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .post-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 2rem; }
+  @media (max-width: 760px) { .post-grid { grid-template-columns: 1fr; } }
+  .post-card { display: flex; flex-direction: column; color: inherit; transition: transform .15s ease, box-shadow .15s ease; }
+  .post-card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(21,35,63,.1); }
+  .post-card h2 { font-size: 1.2rem; color: var(--ink); }
+  .post-cluster { display: inline-block; align-self: flex-start; background: var(--accent, var(--cream)); color: var(--brass);
+    border: 1px solid var(--border); border-radius: 999px; padding: .15rem .6rem; font-size: .72rem; font-weight: 700; margin-bottom: .6rem; }
+  .post-more { margin-top: auto; padding-top: .75rem; color: var(--brass); font-weight: 700; font-size: .9rem; }
+  .post-more::after { content: " \2192"; }
+</style>
