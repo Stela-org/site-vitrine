@@ -149,18 +149,26 @@ La couche de visibilité, traitée comme un livrable, pas un vernis.
 ### VIT-4 : Contenu (blog, villes, piliers GEO, comparatif, migration 301)
 Le capital éditorial et la reprise SEO.
 
-- [ ] Migration des 14 articles existants, **réécrits sans discours de gating**,
-      re-brandés Stela.
-- [ ] 9 pages villes améliorées (différenciées, pas des clones ; données locales
-      réelles) ou consolidées si thin content.
-- [ ] **3 piliers GEO** (terrain neuf en FR) : être recommandé par
-      ChatGPT / Gemini / Perplexity quand on est un commerce local.
-- [ ] **Page comparative « Stela vs Dokaa »** : factuelle, sourcée (règles Google
-      pour la conformité), zéro dénigrement.
-- [ ] **Calendrier éditorial 12 semaines** (actu Google Business Profile + cluster
-      GEO) livré en `docs/`.
-- [ ] **301 `avistars.fr` → `www.mystela.fr`** (page à page) + Change of Address
-      Search Console. Toutes les anciennes URL indexées redirigées (0 orpheline).
+- [x] Migration des articles existants, **réécrits sans gating**, re-brandés Stela :
+      5 guides (`repondre-avis-negatif-google-restaurant`, `comment-avoir-plus-avis-google-restaurant`,
+      `supprimer-mauvais-avis-google-restaurant` recadré, `e-reputation-commerce-local-guide`,
+      `qr-code-avis-google`). Les 9 articles de blog « ville » (thin content,
+      cannibalisation) sont **consolidés** dans les landing pages villes (301).
+- [x] 9 pages villes **réellement différenciées** (`/restaurants-{ville}`) via
+      `content/cities.ts` : contexte local factuel par ville (quartiers réels,
+      tissu commercial), aucun chiffre inventé. Intention commerciale distincte
+      du blog (informationnel) pour éviter la cannibalisation.
+- [x] **3 piliers GEO** étoffés (1200-1800 mots, exemples par secteur, méthode
+      pas à pas, tableau récapitulatif) : recommandé par ChatGPT/Gemini/Perplexity,
+      GEO ou SEO, mesurer sa visibilité IA.
+- [x] **Page comparative « Stela vs Dokaa »** : factuelle, sourcée (lien règles
+      Google), zéro dénigrement (points non vérifiables = « à vérifier »).
+- [x] **Calendrier éditorial 12 semaines** livré (`docs/CALENDRIER-EDITORIAL.md`).
+- [x] **301 page à page** dans `vercel.json` (sans host, donc actif sur www ET sur
+      avistars.fr une fois le domaine attaché) : guides renommés, articles ville →
+      landing ville, `.html` → URL propre, `qui-sommes-nous` → home ; fallback
+      catch-all avistars → home. **Reste manuel** : attacher `avistars.fr` au projet
+      Vercel + Change of Address Search Console (Nicolas, fin de projet).
 
 ### VIT-5 : Polish (motion, mockups animés, success stories, a11y, page présence)
 Finition haut de gamme.
@@ -230,4 +238,5 @@ VIT-1 est minimale mais complète (promesse, prix, CTA, conformité, Q&A).
 | 24/07/2026 | VIT-2 | Validé. Mergé `lot-vit-2` → `main` et **poussé** (déploiement Vercel de Stela sur www.mystela.fr, fin de l'ancien site Avistars en prod). Domaines redirect avistars.fr ajoutés par Nicolas en fin de projet (acté). |
 | 24/07/2026 | VIT-3 | Sur `lot-vit-3` : schema `WebSite` ajouté + garde-fou `check:schema` (63 blocs JSON-LD validés) ; sitemap avec priorités par intention + lastmod ; maillage interne (nav en dropdowns `<details>` sans JS vers les pages dédiées, cartes home liées aux fonctionnalités, liens croisés) ; harmonisation des ancres de nav ; Q&A citables confirmés ; no-JS vérifié. Gate complet vert (lint:copy + check:brand + audit + build 18 pages + check:links 737 + check:schema 63). |
 | 24/07/2026 | VIT-3 | Validé superviseur (prod vérifiée : Stela servi, cleanUrls OK, en-têtes sécurité actifs, 0 discours interdit). Mergé `lot-vit-3` → `main` et poussé. |
-| 24/07/2026 | VIT-4 | Sur `lot-vit-4`, **échantillon de calage du ton** (avant de dérouler les 11 autres articles) : infrastructure blog (content collection Markdown, renderer avec schema `Article` + fil d'Ariane, index `/blog`) ; 1 article migré réécrit sans gating (`repondre-avis-negatif-google-restaurant`, avec `legacyHtml` pour le 301) ; 1 pilier GEO (`etre-recommande-par-chatgpt-commerce-local`) ; page comparative `/stela-vs-dokaa` (factuelle, sourcée règles Google, zéro dénigrement, points non vérifiables marqués « à vérifier auprès de l'éditeur ») ; `docs/CALENDRIER-EDITORIAL.md` (12 semaines). Nav + footer enrichis (Blog, comparatif). Gate vert (22 pages, check:links 951, check:schema 77). **Point d'arrêt : échantillon présenté pour validation du ton avant les 11 articles restants + pages villes + mapping 301 cross-domain.** |
+| 24/07/2026 | VIT-4 | Sur `lot-vit-4`, **échantillon de calage du ton** : infra blog + 1 article migré + 1 pilier GEO + comparative + calendrier. Gate vert (22 pages). Échantillon présenté. |
+| 24/07/2026 | VIT-4 | Échantillon validé (ton, structure « En bref », angle comparative). Déroulé complet : 3 piliers GEO étoffés (1200-1800 mots) ; 5 guides migrés (dont `supprimer-mauvais` recadré, titre honnête sans promesse de suppression) ; 9 pages villes différenciées (`content/cities.ts`, contexte local factuel) ; consolidation des 9 articles ville → landing villes ; mapping 301 page à page dans `vercel.json` (10 redirects). Gate complet vert : lint:copy + check:brand + audit 0 + build **37 pages** + check:links **1660** + check:schema **137 blocs**. **Point d'arrêt final VIT-4 : en attente de validation avant merge/push.** |

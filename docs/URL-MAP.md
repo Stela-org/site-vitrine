@@ -42,8 +42,26 @@ redirige (301) vers le slug sans extension.
 | `robots.txt`, `sitemap.xml` | Régénérés sur `www.mystela.fr` (sitemap Astro : `sitemap-index.xml`). |
 | `CNAME` (avistars.fr) | Retiré de la racine Astro. Préservé sur la branche `legacy-avistars` (voir README). |
 
-## Redirections à implémenter (VIT-4, `vercel.json`)
-- `avistars.fr/*` → `https://www.mystela.fr/*` (301, page à page) + Change of
-  Address Search Console.
-- `mystela.fr` → `www.mystela.fr` (301).
-- `/blog/*.html` → `/blog/*` (301).
+## Redirections implémentées (VIT-4, `vercel.json`, 301)
+Règles sans contrainte de host : actives sur `www.mystela.fr` ET sur
+`avistars.fr` une fois le domaine attaché au projet Vercel (page à page).
+
+- `/blog/e-reputation-restaurant-guide-complet.html` → `/blog/e-reputation-commerce-local-guide` (slug renommé)
+- `/blog/qr-code-avis-google-restaurant.html` → `/blog/qr-code-avis-google` (slug renommé)
+- `/blog/avis-google-restaurant-:ville.html` → `/restaurants-:ville` (**consolidation** : articles ville thin content → landing ville)
+- `/blog/:slug.html` → `/blog/:slug` (guides à slug conservé)
+- `/blog/index.html` → `/blog`
+- `/restaurants-:ville.html` → `/restaurants-:ville`
+- `/qui-sommes-nous.html` → `/`
+- `mystela.fr` → `www.mystela.fr` (host)
+- `avistars.fr/*` et `www.avistars.fr/*` → `https://www.mystela.fr/` (catch-all fallback)
+
+**Reste manuel (Nicolas, fin de projet)** : attacher `avistars.fr` au projet
+Vercel en redirect + Change of Address dans Search Console.
+
+## Décision de consolidation (VIT-4)
+Les 9 anciens articles de blog `/blog/avis-google-restaurant-{ville}.html` (quasi
+clones, cannibalisation avec les landing villes) ne sont PAS remigrés en articles :
+leur contenu et leur SEO sont consolidés dans les pages `/restaurants-{ville}`
+(intention commerciale, réellement différenciées), vers lesquelles ils redirigent.
+Le blog conserve les guides et les piliers GEO.

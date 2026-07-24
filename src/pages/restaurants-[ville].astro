@@ -1,0 +1,128 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../config/site";
+import { CITIES } from "../content/cities";
+
+export function getStaticPaths() {
+  return CITIES.map((c) => ({ params: { ville: c.slug }, props: { c } }));
+}
+const { c } = Astro.props;
+const url = new URL(`/restaurants-${c.slug}`, SITE.url).href;
+
+const faq = [
+  {
+    q: `Comment collecter plus d'avis Google pour un restaurant ${c.prep} ?`,
+    a: `En invitant chaque client à laisser un avis public au bon moment, avec un QR code en salle ou un message après la visite. Stela automatise cette collecte pour les restaurants ${c.prep}, sans jamais filtrer les avis selon la note.`,
+  },
+  {
+    q: "Faut-il éviter de solliciter les clients mécontents ?",
+    a: "Non. Tous les clients doivent être invités à s'exprimer publiquement. Trier les avis selon la satisfaction est interdit par Google et met votre fiche en danger.",
+  },
+  {
+    q: `Stela convient-il à un restaurant indépendant ${c.prep} ?`,
+    a: `Oui. L'offre de départ à 49 € par mois est pensée pour un établissement indépendant, avec un essai gratuit et sans engagement.`,
+  },
+];
+const faqLd = {
+  "@context": "https://schema.org", "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+const breadcrumbLd = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: SITE.url },
+    { "@type": "ListItem", position: 2, name: `Restaurants ${c.prep}`, item: url },
+  ],
+};
+const others = CITIES.filter((x) => x.slug !== c.slug);
+---
+<Base
+  title={`Avis Google pour restaurants ${c.prep} | Stela`}
+  description={`Collectez plus d'avis Google pour votre restaurant ${c.prep}, en toute conformité. Réponses IA, QR codes et fidélisation. Prix transparents, essai gratuit.`}
+  path={`/restaurants-${c.slug}`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
+
+  <section class="hero">
+    <div class="container" style="max-width:820px;">
+      <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a></nav>
+      <p class="eyebrow">Restaurants {c.prep} · {c.region}</p>
+      <h1>Plus d'avis Google pour votre restaurant {c.prep}</h1>
+      <p class="lead">{c.intro}</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+        <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container" style="max-width:820px;">
+      <h2>La réputation, une affaire de quartier {c.prep}</h2>
+      <p>
+        {c.contexte} Que vous soyez installé à {c.quartiers.slice(0, 3).join(", ")} ou ailleurs dans la ville,
+        vos futurs clients regardent d'abord votre note et vos avis récents.
+      </p>
+      <p>
+        Stela vous aide à collecter ces avis auprès de tous vos clients, à y répondre grâce à l'IA, et à
+        garder le lien pour les faire revenir. Le tout dans le strict respect des règles de Google : aucun
+        filtrage, aucune récompense contre un avis.
+      </p>
+      <ul class="check-list">
+        <li>Collecte d'avis en salle et après la visite, sans filtrage.</li>
+        <li>Réponses aux avis assistées par l'IA, à votre ton.</li>
+        <li>QR codes et supports fournis pour toute l'équipe.</li>
+      </ul>
+      <p style="margin-top:1.25rem;">
+        Pour aller plus loin, lisez notre guide
+        <a href="/blog/comment-avoir-plus-avis-google-restaurant">pour obtenir plus d'avis Google</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="container" style="max-width:820px;">
+      <h2>Questions fréquentes</h2>
+      <div class="faq-list">
+        {faq.map((f) => (
+          <div class="faq-item"><h3>{f.q}</h3><p>{f.a}</p></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="others">
+    <div class="container" style="max-width:820px;">
+      <h2>Stela dans d'autres villes</h2>
+      <div class="others-links">
+        {others.map((o) => <a href={`/restaurants-${o.slug}`} class="others-link">{o.name}</a>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <div class="container">
+      <h2>Prêt à faire grandir votre réputation {c.prep} ?</h2>
+      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .crumbs { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
+  .crumbs a { color: var(--text-muted); }
+  .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .check-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+  .check-list li { position: relative; padding-left: 1.6rem; margin-bottom: .5rem; color: var(--text-secondary); }
+  .check-list li::before { content: "✓"; position: absolute; left: 0; color: var(--brass); font-weight: 800; }
+  .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+  @media (max-width: 760px) { .faq-list { grid-template-columns: 1fr; } }
+  .faq-item h3 { margin-bottom: .35rem; }
+  .others { background: var(--cream); }
+  .others-links { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+  .others-link { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: .5rem 1rem; font-weight: 600; }
+  .cta-final { background: var(--ink); text-align: center; }
+  .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
+</style>
