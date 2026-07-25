@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import AppMockup from "../components/AppMockup.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE , TARIFS_URL } from "../config/site";
 import { FEATURES } from "../content/features";
 
@@ -19,27 +20,16 @@ const faqLd = {
     acceptedAnswer: { "@type": "Answer", text: q.a },
   })),
 };
-const breadcrumbLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Accueil", item: SITE.url },
-    { "@type": "ListItem", position: 2, name: "Fonctionnalités", item: new URL("/#fonctionnalites", SITE.url).href },
-    { "@type": "ListItem", position: 3, name: f.navLabel, item: url },
-  ],
-};
-
 // Maillage : les autres fonctionnalités.
 const others = FEATURES.filter((x) => x.slug !== f.slug);
 ---
 <Base title={f.title} description={f.metaDescription} path={`/${f.slug}`}>
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
-  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
 
+  <div class="container"><Breadcrumb items={[{ label: "Fonctionnalités", href: "/fonctionnalites" }, { label: f.navLabel }]} /></div>
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a> <span>/</span> <a href="/#fonctionnalites">Fonctionnalités</a></nav>
         <p class="eyebrow">{f.keyword}</p>
         <h1>{f.h1}</h1>
         <p class="lead">{f.lead}</p>

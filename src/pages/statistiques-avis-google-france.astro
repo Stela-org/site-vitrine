@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
 
 // Page-données pensée comme aimant à backlinks et citations IA. 100 % sourcée.
@@ -41,6 +42,7 @@ const faqLd = {
   <script type="application/ld+json" set:html={JSON.stringify(datasetLd)} is:inline />
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
 
+  <div class="container" style="max-width:820px;"><Breadcrumb items={[{ label: "Statistiques des avis en France" }]} /></div>
   <section class="hero">
     <div class="container" style="max-width:820px;">
       <p class="eyebrow">Édition 2026 · données sourcées</p>

@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
 
 const founders = [
@@ -20,13 +21,6 @@ const aboutLd = {
     image: new URL(f.photo, SITE.url).href, url: new URL("/notre-histoire", SITE.url).href + "#" + f.name.toLowerCase().replace(/\s+/g, "-"),
   })),
 };
-const breadcrumbLd = {
-  "@context": "https://schema.org", "@type": "BreadcrumbList",
-  itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Accueil", item: SITE.url },
-    { "@type": "ListItem", position: 2, name: "Notre histoire", item: new URL("/notre-histoire", SITE.url).href },
-  ],
-};
 ---
 <Base
   title="Notre histoire | Stela"
@@ -34,8 +28,8 @@ const breadcrumbLd = {
   path="/notre-histoire"
 >
   <script type="application/ld+json" set:html={JSON.stringify(aboutLd)} is:inline />
-  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
 
+  <div class="container"><Breadcrumb items={[{ label: "Notre histoire" }]} /></div>
   <section class="hero">
     <div class="container" style="max-width:760px;">
       <p class="eyebrow">Notre histoire</p>

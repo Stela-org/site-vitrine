@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE } from "../config/site";
 
 const chapters = [
@@ -15,6 +16,7 @@ const chapters = [
   description="Recevez gratuitement notre guide pour maîtriser votre fiche Google, collecter des avis en toute conformité et être visible dans les moteurs IA. PDF par email."
   path="/guide-google-commercant-local"
 >
+  <div class="container"><Breadcrumb items={[{ label: "Guide gratuit" }]} /></div>
   <section class="hero">
     <div class="container guide-grid">
       <div>

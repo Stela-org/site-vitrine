@@ -183,6 +183,16 @@ export const CHANNELS = [
 
 export const CHANNELS_COUNT = CHANNELS.length;
 
+// Clips produit courts (fournis plus tard par le superviseur). Emplacements PRÊTS :
+// tant que la liste d'un slot est vide, AUCUNE section vidéo n'est rendue (pas de
+// placeholder disgracieux). Pour activer : déposer webm/mp4 dans public/video/ +
+// un poster réel, puis renseigner l'entrée ici. Composant : ProductVideo.astro.
+export type ProductClip = { poster: string; alt: string; webm?: string; mp4?: string; width: number; height: number };
+export const PRODUCT_VIDEOS: { home: ProductClip | null; fonctionnalites: ProductClip | null } = {
+  home: null,
+  fonctionnalites: null,
+};
+
 // Liens de navigation principaux (navbar). Parcours court et évident.
 export const NAV_LINKS = [
   { href: "/fonctionnalites", label: "Fonctionnalités" },
