@@ -13,8 +13,9 @@
    Sans la case : ni envoi, ni lead. Fonctionne **sans JS** (POST natif). Honeypot anti-bot.
 2. **`api/lead-subscribe.js`** (via `lib/leads.js`) :
    - honeypot + validation email + consentement + **rate limit** (par email et par IP) ;
-   - **envoie le guide immédiatement** (email 1) et **planifie une relance à J+3** (email 2,
-     `scheduled_at: "in 3 days"` côté Resend, aucun cron requis) ;
+   - **planifie la relance J+3 EN PREMIER** (email 2, `scheduled_at: "in 3 days"` côté Resend,
+     aucun cron) pour récupérer son **id Resend**, puis **envoie le guide immédiatement**
+     (email 1) dont le lien de désinscription **porte cet id** (signé HMAC) ;
    - **pousse le lead vers le CRM** : `POST https://app.mystela.fr/api/leads`,
      `Authorization: Bearer ${LEADS_INGEST_SECRET}` (env, jamais en dur),
      payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at }`,
@@ -23,8 +24,10 @@
 3. **Console admin (app.mystela.fr)** : le lead apparaît dans le CRM, où il alimente les
    **campagnes** (segmentation, relances). La vitrine ne stocke rien en propre.
 4. **Désinscription** (`api/lead-unsubscribe.js`) : lien signé **HMAC** présent dans chaque
-   email → vérifie le jeton (email signé, sans expiration) → `POST /api/leads` avec
-   `marketing_consent:false` → page `/desinscrit`.
+   email → vérifie le jeton (email + id de relance, sans expiration) → **annule la relance
+   J+3 encore en attente** (Resend `POST /emails/:id/cancel`, sans bruit si déjà partie) →
+   `POST /api/leads` avec `marketing_consent:false` → page `/desinscrit`.
+   Ainsi un lead désinscrit **ne reçoit jamais** la relance planifiée après coup.
 
 ## Les deux emails (charte Stela)
 Gabarit unique dans `lib/leads.js` : fond crème, carte blanche, **bouton laiton**,
@@ -59,6 +62,25 @@ configuré, le garde-fou se désactive proprement (ne bloque jamais un vrai lead
 - Génération : `npm run build:guide` (Playwright/chromium → `public/guides/...pdf`).
 - Servi en statique → valeur par défaut de `LEAD_GUIDE_URL`. Pour mettre à jour :
   éditer le HTML, relancer `npm run build:guide`, committer le PDF.
+
+## Annulation de la relance J+3 à la désinscription
+Pour éviter qu'un lead désinscrit reçoive quand même la relance planifiée :
+- l'id Resend de la relance est **capturé** (retour de `sendEmail`) puis **encodé signé**
+  dans le lien de désinscription du guide (le jeton HMAC couvre email + id, non falsifiable).
+  Il n'est **pas** transmis au CRM : seul le lien en a besoin ;
+- à la désinscription, `api/lead-unsubscribe.js` appelle **`POST /emails/:id/cancel`** de
+  Resend (endpoint officiel d'annulation d'un envoi planifié) **avant** de marquer le lead
+  désinscrit. Si l'email est déjà parti, Resend renvoie une erreur → on continue sans bruit.
+
+## Délivrabilité (arriver dans la boîte principale, pas dans Promotions)
+- **Expéditeur** : « Corentin de Stela <contact@mystela.fr> » (une personne, pas une marque).
+- **HTML minimal, façon personne à personne** : pas de carte, pas de bouton, pas de logo en
+  tête ; texte court, 2 liens texte maximum (le PDF + un lien tarifs), aucun émoji, ton sobre,
+  signature texte « Corentin, cofondateur de Stela », désinscription en une ligne discrète.
+- **En-têtes de désinscription** sur les deux emails (via Resend `headers`) :
+  `List-Unsubscribe: <url>` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058).
+  L'endpoint `api/lead-unsubscribe.js` accepte le **POST One-Click** (répond 200) en plus du
+  clic navigateur (GET → page `/desinscrit`).
 
 ## À fournir / faire (Nicolas)
 - **`LEADS_INGEST_SECRET`** posé identique sur la vitrine ET l'app (le endpoint CRM
