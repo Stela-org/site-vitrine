@@ -30,21 +30,24 @@ const chapters = [
 
       <div class="guide-form-card card">
         <h2>Recevez-le par email</h2>
-        <p class="gf-sub">Renseignez votre email, confirmez, et le guide arrive dans votre boîte.</p>
+        <p class="gf-sub">Votre prénom, votre email, et le guide arrive dans votre boîte.</p>
         <form method="POST" action="/api/lead-subscribe" class="lead-form">
           {/* Honeypot anti-bot : invisible, doit rester vide. */}
           <div class="hp" aria-hidden="true">
             <label>Ne pas remplir<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
           </div>
+          <label class="lead-field">Votre prénom
+            <input type="text" name="first_name" required placeholder="Camille" autocomplete="given-name" maxlength="40" />
+          </label>
           <label class="lead-field">Votre email professionnel
             <input type="email" name="email" required placeholder="vous@etablissement.fr" autocomplete="email" />
           </label>
           <label class="lead-consent">
             <input type="checkbox" name="consent" value="1" required />
-            <span>J'accepte de recevoir le guide et des conseils de Stela par email. Désinscription à tout moment. Voir la <a href="/politique-confidentialite">politique de confidentialité</a>.</span>
+            <span>Je souhaite recevoir le guide et les conseils Stela par email (désinscription en un clic).</span>
           </label>
           <button type="submit" class="btn btn-primary">Recevoir le guide gratuit</button>
-          <p class="lead-rgpd">Double opt-in : vous recevrez un email pour confirmer votre demande. Vos données ne sont ni revendues, ni cédées.</p>
+          <p class="lead-rgpd">Sans cette case, pas d'envoi. Vos données ne sont ni revendues, ni cédées. Voir la <a href="/politique-confidentialite">politique de confidentialité</a>.</p>
         </form>
       </div>
     </div>

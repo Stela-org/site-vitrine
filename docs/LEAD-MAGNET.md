@@ -1,51 +1,73 @@
-# LEAD-MAGNET.md : guide gratuit + double opt-in (VIT-7)
+# LEAD-MAGNET.md : guide gratuit + simple opt-in (VIT-9)
 
 > Seul point de collecte d'emails du site. Landing `/guide-google-commercant-local`,
-> fonctions serverless dans `api/`. Double opt-in RGPD sans stockage (jeton HMAC).
+> fonctions serverless dans `api/`, logique partagée dans `lib/leads.js`.
+> **Simple opt-in** : une seule case de consentement obligatoire (non pré-cochée).
 
-## Flux
-1. `/guide-google-commercant-local` : formulaire (email + consentement + honeypot).
-   Fonctionne **sans JS** (POST natif vers `/api/lead-subscribe`).
-2. `api/lead-subscribe.js` : honeypot + validation email + consentement. Génère un
-   **jeton HMAC** (email + horodatage signés), envoie un email de confirmation
-   (Resend) avec un lien vers `api/lead-confirm`, puis redirige vers `/merci`.
-3. `api/lead-confirm.js` : vérifie le jeton (signature + fenêtre 48 h,
-   `timingSafeEqual`), envoie le guide (lien PDF) par email, redirige vers
-   `/confirme`.
+## Circuit complet
+**Formulaire → guide + CRM → visible dans la console admin → campagnes.**
 
-`/merci` et `/confirme` sont en **noindex** et hors sitemap.
+1. **Formulaire** (`src/pages/guide-google-commercant-local.astro`) : **prénom + email**
+   + **une case de consentement obligatoire, non pré-cochée** :
+   « Je souhaite recevoir le guide et les conseils Stela par email (désinscription en un clic). »
+   Sans la case : ni envoi, ni lead. Fonctionne **sans JS** (POST natif). Honeypot anti-bot.
+2. **`api/lead-subscribe.js`** (via `lib/leads.js`) :
+   - honeypot + validation email + consentement + **rate limit** (par email et par IP) ;
+   - **envoie le guide immédiatement** (email 1) et **planifie une relance à J+3** (email 2,
+     `scheduled_at: "in 3 days"` côté Resend, aucun cron requis) ;
+   - **pousse le lead vers le CRM** : `POST https://app.mystela.fr/api/leads`,
+     `Authorization: Bearer ${LEADS_INGEST_SECRET}` (env, jamais en dur),
+     payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at }`,
+     **fire-and-forget + 1 retry** : un échec CRM ne bloque JAMAIS l'envoi du guide ;
+   - redirige vers `/guide-google-commercant-local/merci` (noindex, hors sitemap).
+3. **Console admin (app.mystela.fr)** : le lead apparaît dans le CRM, où il alimente les
+   **campagnes** (segmentation, relances). La vitrine ne stocke rien en propre.
+4. **Désinscription** (`api/lead-unsubscribe.js`) : lien signé **HMAC** présent dans chaque
+   email → vérifie le jeton (email signé, sans expiration) → `POST /api/leads` avec
+   `marketing_consent:false` → page `/desinscrit`.
 
-## Variables d'environnement (à créer côté Vercel)
+## Les deux emails (charte Stela)
+Gabarit unique dans `lib/leads.js` : fond crème, carte blanche, **bouton laiton**,
+**logo image hébergée** (`/images/logo-monogramme-512.png`, jamais le glyphe étoile en texte),
+pied légal + **lien de désinscription**. Salutation **au prénom** quand il existe
+(« Bonjour Camille, »), neutre sinon.
+- **Email 1 (immédiat)** : livraison du guide (PDF) + mini-pitch + CTA essai 7 jours.
+- **Email 2 (J+3, planifié)** : relance douce orientée passage à l'action.
+
+## Variables d'environnement (Vercel)
 | Variable | Rôle |
 |---|---|
-| `LEAD_HMAC_SECRET` | Secret de signature du jeton double opt-in (chaîne aléatoire longue). **Obligatoire.** |
-| `RESEND_API_KEY` | Clé API Resend pour l'envoi des emails. **Obligatoire.** |
-| `LEAD_FROM` | Expéditeur, défaut `Stela <contact@mystela.fr>` (domaine à vérifier chez Resend). Optionnel. |
-| `LEAD_GUIDE_URL` | URL du PDF envoyé. **Optionnel** : par défaut, le PDF servi en statique `https://www.mystela.fr/guides/guide-google-commercant-local.pdf` (généré par `npm run build:guide`). Ne définir que pour pointer un autre fichier. |
+| `LEAD_HMAC_SECRET` | Signature du jeton de **désinscription**. **Obligatoire.** |
+| `RESEND_API_KEY` | Clé API Resend (envoi + planification J+3). **Obligatoire.** |
+| `LEADS_INGEST_SECRET` | Secret partagé vitrine↔CRM (header `Authorization: Bearer`). Même valeur des deux côtés. **Requis pour alimenter le CRM** (sinon guide envoyé, lead non poussé). |
+| `LEAD_FROM` | Expéditeur, défaut `Stela <contact@mystela.fr>`. Optionnel. |
+| `LEAD_GUIDE_URL` | URL du PDF. Optionnel : par défaut le PDF statique `https://www.mystela.fr/guides/guide-google-commercant-local.pdf`. |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Store du **rate limit**. Optionnel mais **fortement recommandé avant toute mise en avant publicitaire** : sans lui, le rate limit se désactive (le formulaire n'est jamais bloqué). |
 
-Seules **`LEAD_HMAC_SECRET` + `RESEND_API_KEY`** sont nécessaires : sans elles,
-l'endpoint répond « Service non configuré » (aucune fuite, aucun envoi). Le PDF
-est fourni par défaut, plus besoin de renseigner `LEAD_GUIDE_URL`.
+Sans `LEAD_HMAC_SECRET` + `RESEND_API_KEY`, l'endpoint répond « Service non configuré »
+(aucune fuite, aucun envoi).
 
-## Le PDF du guide (VIT-8, post-clôture)
-- Contenu source : `scripts/guide-google-commercant-local.html` (charte Stela,
-  contenu original réorganisé à partir du guide et des piliers du site, auteur
-  Corentin Janin).
-- Génération : `npm run build:guide` (Playwright/chromium → `public/guides/guide-google-commercant-local.pdf`, 8 pages A4).
-- Servi automatiquement à la racine statique → devient la valeur par défaut de `LEAD_GUIDE_URL`.
-- Pour mettre à jour le guide : éditer le HTML source, relancer `npm run build:guide`, committer le PDF.
+## Rate limit
+`lib/leads.js` → `rateLimit(key)` via Upstash Redis REST (`INCR` + `EXPIRE NX`).
+Fenêtres : **3 demandes / h par email**, **10 / h par IP**. Dépassement → page de succès
+affichée sans envoi ni push (pas d'indice pour un attaquant). Si Upstash n'est pas
+configuré, le garde-fou se désactive proprement (ne bloque jamais un vrai lead).
+
+## Le PDF du guide
+- Source : `scripts/guide-google-commercant-local.html` (charte Stela, contenu original,
+  auteur Corentin Janin). **7 pages A4**, page de closing renforcée (offre + essai 7 jours).
+- Génération : `npm run build:guide` (Playwright/chromium → `public/guides/...pdf`).
+- Servi en statique → valeur par défaut de `LEAD_GUIDE_URL`. Pour mettre à jour :
+  éditer le HTML, relancer `npm run build:guide`, committer le PDF.
 
 ## À fournir / faire (Nicolas)
-- **Le PDF** du guide, déposé (ex. `public/guide/…pdf`) ou hébergé, et
-  `LEAD_GUIDE_URL` renseigné.
+- **`LEADS_INGEST_SECRET`** posé identique sur la vitrine ET l'app (le endpoint CRM
+  `POST /api/leads` est prêt et validé côté superviseur).
 - **Domaine Resend** vérifié (SPF/DKIM) pour `contact@mystela.fr`.
-- **Rate limit fort** : le honeypot + le consentement + la validation serveur
-  filtrent l'essentiel, mais un rate limit par IP/email nécessite un store
-  (Vercel KV ou Upstash Redis). À brancher dans `api/lead-subscribe.js` avant la
-  mise en avant publicitaire.
+- **Upstash Redis** (URL + token) avant toute campagne publicitaire payante.
 
 ## Déploiement
-Les fonctions `api/*.js` sont des Serverless Functions Vercel (runtime Node),
-déployées automatiquement en plus du site statique Astro. Vérifier après le
-premier déploiement que `POST /api/lead-subscribe` répond (302 vers `/merci`).
-La CSP autorise déjà ce POST (`form-action 'self'`).
+Fonctions `api/*.js` = Serverless Functions Vercel (runtime Node), déployées avec le site
+statique. `lib/leads.js` est bundlé automatiquement (hors `/api`, donc non routé).
+La CSP autorise le POST (`form-action 'self'`). Après déploiement, vérifier que
+`POST /api/lead-subscribe` répond 303 vers `/merci`.

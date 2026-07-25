@@ -1,20 +1,21 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { TARIFS_URL } from "../../config/site";
 ---
 <Base
-  title="Vérifiez votre email | Stela"
-  description="Votre demande de guide est presque validée : confirmez via l'email que nous venons de vous envoyer."
+  title="Votre guide arrive | Stela"
+  description="Votre guide Google du commerçant local vous a été envoyé par email."
   path="/guide-google-commercant-local/merci"
   noindex={true}
   closing={false}
 >
   <section>
     <div class="container" style="max-width:620px; text-align:center; padding-block:5rem;">
-      <p class="eyebrow">Presque terminé</p>
-      <h1>Vérifiez votre boîte email</h1>
-      <p class="lead">Nous venons de vous envoyer un email de confirmation. Cliquez sur le lien qu'il contient pour recevoir « Le guide Google du commerçant local ».</p>
-      <p style="color:var(--text-muted); font-size:.9rem;">Pensez à vérifier vos spams. Rien reçu après quelques minutes ? Réessayez depuis la <a href="/guide-google-commercant-local">page du guide</a>.</p>
-      <p style="margin-top:2rem;"><a class="btn btn-ghost" href="/">Retour à l'accueil</a></p>
+      <p class="eyebrow">Merci</p>
+      <h1>Votre guide est en route</h1>
+      <p class="lead">Nous venons de vous envoyer « Le guide Google du commerçant local » par email. Il arrive dans quelques instants, bonne lecture !</p>
+      <p style="color:var(--text-muted); font-size:.9rem;">Rien reçu après quelques minutes ? Pensez à vérifier vos spams, ou réessayez depuis la <a href="/guide-google-commercant-local">page du guide</a>.</p>
+      <p style="margin-top:2rem;"><a class="btn btn-primary" href={TARIFS_URL}>Essayer Stela, 7 jours gratuits</a></p>
     </div>
   </section>
 </Base>
