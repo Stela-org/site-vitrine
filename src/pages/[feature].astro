@@ -55,7 +55,7 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
   <section>
     <div class="container">
       <h2>Ce que ça change pour vous</h2>
-      <div class="grid-3">
+      <div class="grid-3 reveal-stagger">
         {f.benefits.map((b) => (
           <div class="card"><h3>{b.t}</h3><p>{b.d}</p></div>
         ))}
@@ -66,7 +66,7 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
   <section class="steps-sec">
     <div class="container">
       <h2>Comment ça marche</h2>
-      <ol class="steps">
+      <ol class="steps reveal-stagger">
         {f.steps.map((s, i) => (
           <li><span class="step-n">{i + 1}</span><div><h3>{s.t}</h3><p>{s.d}</p></div></li>
         ))}
@@ -77,7 +77,7 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
   <section class="faq">
     <div class="container">
       <h2>Questions fréquentes</h2>
-      <div class="faq-list">
+      <div class="faq-list reveal-stagger">
         {f.faq.map((q) => (
           <div class="faq-item"><h3>{q.q}</h3><p>{q.a}</p></div>
         ))}

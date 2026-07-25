@@ -173,14 +173,21 @@ Le capital éditorial et la reprise SEO.
 ### VIT-5 : Polish (motion, mockups animés, success stories, a11y, page présence)
 Finition haut de gamme.
 
-- [ ] Motion design final : morph transitions, révélations au scroll,
-      micro-interactions, mockups animés. Progressive enhancement strict,
-      `prefers-reduced-motion` respecté, 0 impact Lighthouse (perf ≥ 95).
-- [ ] Success stories : template avec un chiffre réel en titre (rempli quand des
-      cas clients instrumentés sont disponibles).
-- [ ] Accessibilité (contraste, navigation clavier, focus visibles, alt).
-- [ ] Page « présence sur 20+ plateformes » en **noindex** (publiée quand la
-      gestion de présence sort ; angle « visible aussi dans ChatGPT via Bing »).
+- [x] Motion design : révélations au scroll + mockups animés **100 % CSS**
+      (`animation-timeline: view()`), donc **zéro JavaScript** : contenu visible
+      par défaut si non supporté ou JS coupé (contre-exemple Dokaa évité).
+      Désactivé sous `prefers-reduced-motion`. Micro-interactions (hover cartes/
+      boutons) déjà en place. 0 impact Lighthouse (aucun JS ajouté).
+- [x] Success stories : **structure prête** (`content/stories.ts`, `metric` =
+      chiffre réel en titre) ; tableau vide volontairement ; la home affiche un
+      état honnête « à venir » tant qu'aucun cas réel n'est saisi (aucun faux chiffre).
+- [x] Accessibilité : lien d'évitement, `:focus-visible` global, landmarks
+      (`header`/`main`/`footer`/`nav` étiquetés), `aria-label` sur le logo, le
+      mockup (`role=img`) et le toggle tarifaire, un seul `h1` par page,
+      `lang=fr`, dropdowns clavier natifs (`<details>`).
+- [x] Page « présence sur 20+ plateformes » (`/presence-plateformes`) en
+      **noindex** + hors sitemap, angle « visible aussi dans ChatGPT via Bing ».
+      À publier (retirer le noindex) quand la gestion de présence sortira.
 
 ---
 
@@ -239,4 +246,6 @@ VIT-1 est minimale mais complète (promesse, prix, CTA, conformité, Q&A).
 | 24/07/2026 | VIT-3 | Sur `lot-vit-3` : schema `WebSite` ajouté + garde-fou `check:schema` (63 blocs JSON-LD validés) ; sitemap avec priorités par intention + lastmod ; maillage interne (nav en dropdowns `<details>` sans JS vers les pages dédiées, cartes home liées aux fonctionnalités, liens croisés) ; harmonisation des ancres de nav ; Q&A citables confirmés ; no-JS vérifié. Gate complet vert (lint:copy + check:brand + audit + build 18 pages + check:links 737 + check:schema 63). |
 | 24/07/2026 | VIT-3 | Validé superviseur (prod vérifiée : Stela servi, cleanUrls OK, en-têtes sécurité actifs, 0 discours interdit). Mergé `lot-vit-3` → `main` et poussé. |
 | 24/07/2026 | VIT-4 | Sur `lot-vit-4`, **échantillon de calage du ton** : infra blog + 1 article migré + 1 pilier GEO + comparative + calendrier. Gate vert (22 pages). Échantillon présenté. |
-| 24/07/2026 | VIT-4 | Échantillon validé (ton, structure « En bref », angle comparative). Déroulé complet : 3 piliers GEO étoffés (1200-1800 mots) ; 5 guides migrés (dont `supprimer-mauvais` recadré, titre honnête sans promesse de suppression) ; 9 pages villes différenciées (`content/cities.ts`, contexte local factuel) ; consolidation des 9 articles ville → landing villes ; mapping 301 page à page dans `vercel.json` (10 redirects). Gate complet vert : lint:copy + check:brand + audit 0 + build **37 pages** + check:links **1660** + check:schema **137 blocs**. **Point d'arrêt final VIT-4 : en attente de validation avant merge/push.** |
+| 24/07/2026 | VIT-4 | Échantillon validé (ton, structure « En bref », angle comparative). Déroulé complet : 3 piliers GEO étoffés (1200-1800 mots) ; 5 guides migrés (dont `supprimer-mauvais` recadré, titre honnête sans promesse de suppression) ; 9 pages villes différenciées (`content/cities.ts`, contexte local factuel) ; consolidation des 9 articles ville → landing villes ; mapping 301 page à page dans `vercel.json` (10 redirects). Gate complet vert : lint:copy + check:brand + audit 0 + build **37 pages** + check:links **1660** + check:schema **137 blocs**. |
+| 24/07/2026 | VIT-4 | Presque validé. 2 corrections : (1) longueur des piliers GEO respectée pour les 3 (geo-ou-seo +tableau signaux Google/IA +3 cas secteurs → ~1379 mots ; mesurer-visibilite +protocole mensuel +grille 0-27 +exemple 3 mois → ~1306 mots) ; (2) meta descriptions des 9 villes rendues **uniques** (angle local). Gate vert. Mergé `lot-vit-4` → `main` et **poussé**. |
+| 24/07/2026 | VIT-5 | Sur `lot-vit-5` : motion design 100 % CSS (révélations scroll + mockups animés, `animation-timeline`, zéro JS, reduced-motion) ; success stories (structure prête, état honnête « à venir ») ; passe a11y ; page `/presence-plateformes` en noindex + hors sitemap. Gate complet vert : lint:copy + check:brand + audit 0 + build **38 pages** + check:links **1698** + check:schema **139 blocs**, 0 script externe sur la home. **Point d'arrêt final VIT-5 (fin du PRD) : en attente de validation avant merge/push.** |

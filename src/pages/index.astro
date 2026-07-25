@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { SITE, PLANS } from "../config/site";
 import { FEATURES } from "../content/features";
+import { STORIES } from "../content/stories";
 
 // Maillage : les cartes de la home pointent vers les pages fonctionnalités
 // dédiées (source unique content/features.ts).
@@ -90,7 +91,7 @@ const websiteLd = {
     <div class="container">
       <p class="eyebrow">Ce que fait Stela</p>
       <h2>Tout pour votre réputation locale, au même endroit</h2>
-      <div class="grid-3">
+      <div class="grid-3 reveal-stagger">
         {features.map((f) => (
           <a class="card feature-card" href={`/${f.slug}`}>
             <h3>{f.t}</h3>
@@ -124,6 +125,32 @@ const websiteLd = {
     </div>
   </section>
 
+  {/* SUCCESS STORIES (structure prête ; chiffre réel en titre). Rendu seulement
+      si des cas réels existent, sinon un état honnête « à venir ». */}
+  <section class="stories">
+    <div class="container">
+      <p class="eyebrow">Résultats clients</p>
+      <h2>Des chiffres réels, quand ils sont là</h2>
+      {STORIES.length > 0 ? (
+        <div class="grid-3 reveal-stagger">
+          {STORIES.map((s) => (
+            <div class="card story-card">
+              <p class="story-metric">{s.metric}</p>
+              <h3>{s.title}</h3>
+              <p class="story-quote">« {s.quote} »</p>
+              <p class="story-author">{s.author} · {s.sector}{s.city ? `, ${s.city}` : ""}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="card story-soon">
+          <p>Nos premiers résultats clients instrumentés seront publiés ici, avec des chiffres réels et vérifiables. Nous préférons attendre de vraies mesures plutôt que d'afficher des promesses.</p>
+          <a class="btn btn-ghost" href={SITE.appUrl}>Devenir l'un de nos premiers cas</a>
+        </div>
+      )}
+    </div>
+  </section>
+
   {/* TARIFS (toggle mensuel/annuel, 100 % CSS, fonctionne sans JS) */}
   <section id="tarifs" class="tarifs">
     <div class="container">
@@ -131,7 +158,7 @@ const websiteLd = {
       <h2>Un prix affiché, un essai gratuit, sans engagement</h2>
 
       <div class="billing-toggle">
-        <input type="checkbox" id="billing" class="billing-input" />
+        <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (2 mois offerts)" />
         <label for="billing" class="billing-switch">
           <span class="opt opt-m">Mensuel</span>
           <span class="opt opt-y">Annuel <span class="save">2 mois offerts</span></span>
@@ -139,7 +166,7 @@ const websiteLd = {
         </label>
       </div>
 
-      <div class="grid-plans">
+      <div class="grid-plans reveal-stagger">
         {PLANS.map((p) => (
           <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
             {p.highlight && <span class="plan-badge">Le plus complet</span>}
@@ -167,7 +194,7 @@ const websiteLd = {
     <div class="container">
       <p class="eyebrow">Questions fréquentes</p>
       <h2>Ce qu'il faut savoir</h2>
-      <div class="faq-list">
+      <div class="faq-list reveal-stagger">
         {faq.map((f) => (
           <div class="faq-item">
             <h3>{f.q}</h3>
@@ -261,6 +288,14 @@ const websiteLd = {
   .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }
   @media (max-width: 760px) { .faq-list { grid-template-columns: 1fr; } }
   .faq-item h3 { margin-bottom: .35rem; }
+
+  .stories { background: #fff; }
+  .story-card { display: flex; flex-direction: column; }
+  .story-metric { font-size: 2rem; font-weight: 800; color: var(--brass); margin-bottom: .25rem; }
+  .story-quote { color: var(--text-secondary); font-style: italic; }
+  .story-author { color: var(--text-muted); font-size: .85rem; font-weight: 600; margin: 0; }
+  .story-soon { max-width: 680px; }
+  .story-soon p { margin-bottom: 1rem; }
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }

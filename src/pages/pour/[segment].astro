@@ -42,7 +42,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
 
   <section>
     <div class="container">
-      <div class="grid-3">
+      <div class="grid-3 reveal-stagger">
         {s.points.map((p) => (
           <div class="card"><h3>{p.t}</h3><p>{p.d}</p></div>
         ))}
@@ -53,7 +53,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   <section class="faq">
     <div class="container">
       <h2>Questions fréquentes</h2>
-      <div class="faq-list">
+      <div class="faq-list reveal-stagger">
         {s.faq.map((q) => (
           <div class="faq-item"><h3>{q.q}</h3><p>{q.a}</p></div>
         ))}
