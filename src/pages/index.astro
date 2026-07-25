@@ -7,7 +7,7 @@ import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
 import ReviewCard from "../components/ReviewCard.astro";
 import GiftWheelMini from "../components/GiftWheelMini.astro";
-import MiniMockup from "../components/MiniMockup.astro";
+import FeatureVisual from "../components/FeatureVisual.astro";
 import ROICard from "../components/ROICard.astro";
 import StatBand from "../components/StatBand.astro";
 import TripleZero from "../components/TripleZero.astro";
@@ -27,8 +27,12 @@ const features = FEATURES.map((f) => ({ slug: f.slug, t: f.navLabel, d: f.benefi
 
 const faq = [
   {
-    q: "Stela filtre-t-il les avis négatifs ?",
-    a: "Non. Stela invite tous vos clients à laisser un avis public sur Google, quelle que soit leur satisfaction. Filtrer les avis selon la note est contraire aux règles de Google : Stela ne le fait jamais.",
+    q: "Que se passe-t-il quand un client est déçu ?",
+    a: "Il vous le dit en privé d'abord, grâce à un canal privé. Vous le rattrapez avant que ça devienne public, et souvent il revient. Si l'avis est tout de même publié, Nova vous aide à y répondre calmement. Vos avis publics, eux, restent toujours libres et jamais filtrés.",
+  },
+  {
+    q: "Est-ce conforme aux règles de Google ?",
+    a: "Oui, à 100 %, et c'est justement ce qui protège votre fiche. Stela n'utilise aucun filtrage interdit : votre établissement ne risque pas de sanction, et vous gagnez durablement en visibilité, sur Google comme dans les réponses des IA.",
   },
   {
     q: "Combien coûte Stela ?",
@@ -103,7 +107,7 @@ const websiteLd = {
     <div class="container">
       <p class="eyebrow">Voici ce que ça donne</p>
       <h2>Des avis qui arrivent, des réponses déjà prêtes</h2>
-      <p class="reviews-note">Nova, votre assistante, écrit la réponse en 10 secondes. Vous relisez, vous envoyez. Exemples illustratifs, avis anonymisés.</p>
+      <p class="reviews-note">Nova, votre assistante, écrit la réponse en 10 secondes, et chaque réponse renforce votre visibilité sur Google. Vous relisez, vous envoyez. Exemples illustratifs, avis anonymisés.</p>
       <div class="reviews-band reveal-stagger">
         {demoReviews.map((r) => <ReviewCard {...r} />)}
       </div>
@@ -131,7 +135,7 @@ const websiteLd = {
       <div class="grid-3 reveal-stagger">
         {features.map((f) => (
           <a class="card feature-card" href={`/${f.slug}`}>
-            <MiniMockup module={f.mockup.module} rows={f.mockup.rows} />
+            <FeatureVisual slug={f.slug} />
             <h3>{f.t}</h3>
             <p>{f.d}</p>
             <span class="feature-more">Découvrir</span>
@@ -308,7 +312,8 @@ const websiteLd = {
 </Base>
 
 <style>
-  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  /* Le hero garde sa respiration malgré la densité globale (VIT-9e). */
+  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-block: clamp(44px, 7vw, 92px); }
   .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; }
   .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.75rem 0 1rem; }
   .hero-trust { font-size: .9rem; color: var(--text-muted); margin: 0; }
@@ -337,10 +342,10 @@ const websiteLd = {
   /* Bande d'avis illustratifs */
   .reviews { background: var(--cream); }
   .reviews-note { color: var(--text-muted); font-size: .9rem; margin: -.25rem 0 0; }
-  .reviews-band { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; align-items: start; }
+  .reviews-band { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem; align-items: start; }
   @media (max-width: 860px) { .reviews-band { grid-template-columns: 1fr; } }
 
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem; }
   @media (max-width: 860px) { .grid-3 { grid-template-columns: 1fr; } }
   .feature-card { display: flex; flex-direction: column; color: inherit; transition: transform .15s ease, box-shadow .15s ease; }
   .feature-card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(21,35,63,.1); }
@@ -423,14 +428,14 @@ const websiteLd = {
   .story-metric { font-size: 2rem; font-weight: 800; color: var(--brass); margin-bottom: .25rem; }
   .story-quote { color: var(--text-secondary); font-style: italic; }
   .story-author { color: var(--text-muted); font-size: .85rem; font-weight: 600; margin: 0; }
-  .results { margin-top: 1.5rem; }
-  .results-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .results { margin-top: 1rem; }
+  .results-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
   @media (max-width: 720px) { .results-stats { grid-template-columns: 1fr; } }
-  .stat { background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.5rem 1.6rem; }
+  .stat { background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.2rem 1.4rem; }
   .stat-num { font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0 0 .5rem; letter-spacing: -.02em; }
   .stat-label { color: #e6ebf4; margin: 0 0 .6rem; font-weight: 600; }
   .stat-src { color: #8ea0bd; font-size: .74rem; margin: 0; }
-  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: center; margin-top: 1.5rem; }
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: center; margin-top: 1rem; }
   @media (max-width: 820px) { .results-grid { grid-template-columns: 1fr; } }
   .calc h3 { font-size: 1.15rem; margin-bottom: 1rem; }
   .calc-form { display: grid; gap: 1rem; }
@@ -445,8 +450,8 @@ const websiteLd = {
     border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem; vertical-align: middle; }
   .calc-note { font-size: .78rem; color: var(--text-muted); margin: 0; }
   .story-mock { max-width: 400px; margin-inline: auto; }
-  .results-cred { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 2rem auto 0; max-width: 60ch; }
-  .results-cta { text-align: center; margin-top: 1.25rem; }
+  .results-cred { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 1.25rem auto 0; max-width: 60ch; }
+  .results-cta { text-align: center; margin-top: 1rem; }
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }

@@ -1,0 +1,113 @@
+---
+// Mini-visuel produit DISTINCT par fonctionnalité (VIT-9e). Décoratif
+// (aria-hidden : la carte porte le texte h3 + description). 100 % SVG/CSS inline
+// (CSP : aucun hôte externe), charte encre/laiton/crème, sans animation (sobre).
+// Un visuel par slug ; chacun raconte concrètement ce que fait la fonction.
+interface Props { slug: string; }
+const { slug } = Astro.props;
+// Motif « QR » décoratif (déterministe, pas d'aléatoire au build).
+const qr = [1,0,1,1,0,1, 0,1,0,0,1,0, 1,0,1,1,0,1, 1,1,0,0,1,1, 0,1,1,0,1,0, 1,0,0,1,0,1];
+---
+<div class="fv" aria-hidden="true">
+  {slug === "collecte-avis-google" && (
+    <div class="fv-review">
+      <div class="fv-review-top"><span class="fv-review-place">Le Bistrot du Marais</span></div>
+      <div class="fv-review-stars">★★★★★</div>
+      <span class="fv-review-teaser">Un cadeau à gagner après votre avis</span>
+    </div>
+  )}
+
+  {slug === "reponse-automatique-avis" && (
+    <div class="fv-reply">
+      <span class="fv-reply-who">Réponse de Nova</span>
+      <p class="fv-reply-txt">Merci ! Au plaisir dans notre <span class="fv-kw">pizzeria à Belleville</span>, pour une <span class="fv-kw">pizza au feu de bois</span>.</p>
+    </div>
+  )}
+
+  {slug === "avis-multi-plateformes" && (
+    <div class="fv-ia">
+      <div class="fv-ia-q">« un resto italien à Belleville ? »</div>
+      <div class="fv-ia-a"><span class="fv-ia-dot"></span><span>Le Bistrot du Marais, très bien noté <span class="fv-ia-star">★ 4,8</span></span></div>
+    </div>
+  )}
+
+  {slug === "analyse-des-avis" && (
+    <div class="fv-spark">
+      <svg viewBox="0 0 120 48" width="100%" height="48" preserveAspectRatio="none" role="presentation">
+        <polyline points="2,42 22,36 42,38 62,26 82,22 102,12 118,6" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="118" cy="6" r="3.2" fill="var(--brass)" />
+      </svg>
+      <span class="fv-spark-label">Tendance de vos avis <span class="fv-spark-up">en hausse</span></span>
+    </div>
+  )}
+
+  {slug === "centralisation-reservations" && (
+    <div class="fv-resa">
+      <div class="fv-resa-row"><span class="fv-resa-when">20:00 · Table Durand</span><span class="fv-badge">Confirmée</span></div>
+      <div class="fv-resa-row"><span class="fv-resa-when">21:15 · Table Léa</span><span class="fv-badge fv-badge-soft">Avis après visite</span></div>
+    </div>
+  )}
+
+  {slug === "sms-fidelisation" && (
+    <div class="fv-sms">
+      <div class="fv-qr">{qr.map((c) => <span class={c ? "on" : ""}></span>)}</div>
+      <div class="fv-sms-side">
+        <div class="fv-sms-bubble">Merci de votre visite, à très vite !</div>
+        <span class="fv-sms-tag">SMS + WhatsApp</span>
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .fv { height: 132px; margin-bottom: 1rem; border-radius: 12px; border: 1px solid var(--border);
+    background: linear-gradient(180deg, #fff, #fbf9f5); padding: .8rem .9rem; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center; }
+
+  /* 1. Collecte : mini page d'avis */
+  .fv-review { text-align: center; }
+  .fv-review-top { background: var(--ink); color: #fff; border-radius: 8px; padding: .4rem; margin-bottom: .5rem; }
+  .fv-review-place { font-weight: 800; font-size: .82rem; }
+  .fv-review-stars { color: #E7B008; font-size: 1.4rem; letter-spacing: 3px; }
+  .fv-review-teaser { display: inline-block; margin-top: .4rem; font-size: .66rem; font-weight: 700; color: var(--brass);
+    background: rgba(176,138,62,.12); border-radius: 999px; padding: .18rem .6rem; }
+
+  /* 2. Réponses Nova : bulle avec mots-clés soulignés */
+  .fv-reply { background: var(--cream); border-radius: 10px; padding: .6rem .7rem; position: relative; }
+  .fv-reply-who { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--brass); }
+  .fv-reply-txt { margin: .3rem 0 0; font-size: .82rem; color: var(--ink); line-height: 1.45; }
+  .fv-kw { text-decoration: underline; text-decoration-color: var(--brass); text-decoration-thickness: 2px;
+    text-underline-offset: 2px; font-weight: 600; }
+
+  /* 3. Multi-plateformes / IA : mini chat citant l'établissement */
+  .fv-ia { display: flex; flex-direction: column; gap: .4rem; }
+  .fv-ia-q { align-self: flex-start; background: #fff; border: 1px solid var(--border); border-radius: 12px 12px 12px 4px;
+    padding: .35rem .6rem; font-size: .76rem; color: var(--text-secondary); }
+  .fv-ia-a { align-self: flex-end; display: flex; align-items: center; gap: .4rem; background: var(--ink); color: #eaf0fb;
+    border-radius: 12px 12px 4px 12px; padding: .4rem .6rem; font-size: .76rem; max-width: 92%; }
+  .fv-ia-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); flex: none; }
+  .fv-ia-star { color: #E7B008; font-weight: 700; white-space: nowrap; }
+
+  /* 4. Analyse : sparkline qui monte */
+  .fv-spark { display: flex; flex-direction: column; justify-content: center; gap: .5rem; }
+  .fv-spark-label { font-size: .78rem; color: var(--text-secondary); font-weight: 600; }
+  .fv-spark-up { color: var(--brass); font-weight: 800; }
+
+  /* 5. Réservations : lignes avec heure + badge */
+  .fv-resa { display: flex; flex-direction: column; gap: .45rem; }
+  .fv-resa-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: .45rem .6rem; }
+  .fv-resa-when { font-size: .78rem; font-weight: 700; color: var(--ink); }
+  .fv-badge { font-size: .64rem; font-weight: 800; border-radius: 999px; padding: .16rem .5rem; background: rgba(176,138,62,.14); color: var(--brass); white-space: nowrap; }
+  .fv-badge-soft { background: #ece4d4; color: var(--text-muted); }
+
+  /* 6. SMS + QR : carré QR + bulle message */
+  .fv-sms { display: flex; align-items: center; gap: .8rem; }
+  .fv-qr { flex: none; width: 66px; height: 66px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 5px; }
+  .fv-qr span { border-radius: 1px; background: transparent; }
+  .fv-qr span.on { background: var(--ink); }
+  .fv-sms-side { display: flex; flex-direction: column; gap: .4rem; }
+  .fv-sms-bubble { background: var(--cream); border-radius: 10px 10px 10px 3px; padding: .45rem .6rem; font-size: .78rem; color: var(--ink); }
+  .fv-sms-tag { font-size: .64rem; font-weight: 800; color: var(--brass); text-transform: uppercase; letter-spacing: .05em; }
+</style>
