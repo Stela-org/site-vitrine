@@ -12,7 +12,14 @@ import {
 const PAGE = "/guide-google-commercant-local";
 
 export default async function handler(req, res) {
-  const redirect = (path) => {
+  // POST = désinscription One-Click (RFC 8058, déclenchée par Gmail/Outlook) :
+  // on répond 200 sans redirection. GET = clic navigateur : page /desinscrit.
+  const isOneClick = req.method === "POST";
+  const done = (path) => {
+    if (isOneClick) {
+      res.statusCode = 200;
+      return res.end("OK");
+    }
     res.statusCode = 303;
     res.setHeader("Location", SITE + path);
     res.end();
@@ -20,7 +27,7 @@ export default async function handler(req, res) {
 
   const token = new URL(req.url, SITE).searchParams.get("token");
   const parsed = token ? verifyUnsub(token) : null;
-  if (!parsed) return redirect(`${PAGE}?erreur=lien`);
+  if (!parsed) return done(`${PAGE}?erreur=lien`);
   const { email, scheduledId } = parsed;
 
   // 1) Annuler la relance J+3 encore en attente AVANT de marquer la
@@ -34,5 +41,5 @@ export default async function handler(req, res) {
   //    déduplique/rejoue de son côté).
   await markUnsubscribedInCrm(email).catch(() => {});
 
-  return redirect(`${PAGE}/desinscrit`);
+  return done(`${PAGE}/desinscrit`);
 }

@@ -18,7 +18,7 @@
      (email 1) dont le lien de désinscription **porte cet id** (signé HMAC) ;
    - **pousse le lead vers le CRM** : `POST https://app.mystela.fr/api/leads`,
      `Authorization: Bearer ${LEADS_INGEST_SECRET}` (env, jamais en dur),
-     payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at, scheduled_email_id }`,
+     payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at }`,
      **fire-and-forget + 1 retry** : un échec CRM ne bloque JAMAIS l'envoi du guide ;
    - redirige vers `/guide-google-commercant-local/merci` (noindex, hors sitemap).
 3. **Console admin (app.mystela.fr)** : le lead apparaît dans le CRM, où il alimente les
@@ -65,22 +65,26 @@ configuré, le garde-fou se désactive proprement (ne bloque jamais un vrai lead
 
 ## Annulation de la relance J+3 à la désinscription
 Pour éviter qu'un lead désinscrit reçoive quand même la relance planifiée :
-- l'id Resend de la relance est **capturé** (retour de `sendEmail`), **stocké côté CRM**
-  (`scheduled_email_id` dans le payload) ET **encodé signé** dans le lien de désinscription
-  du guide (le jeton HMAC couvre email + id, non falsifiable) ;
+- l'id Resend de la relance est **capturé** (retour de `sendEmail`) puis **encodé signé**
+  dans le lien de désinscription du guide (le jeton HMAC couvre email + id, non falsifiable).
+  Il n'est **pas** transmis au CRM : seul le lien en a besoin ;
 - à la désinscription, `api/lead-unsubscribe.js` appelle **`POST /emails/:id/cancel`** de
   Resend (endpoint officiel d'annulation d'un envoi planifié) **avant** de marquer le lead
   désinscrit. Si l'email est déjà parti, Resend renvoie une erreur → on continue sans bruit.
 
-> **Côté CRM (à coordonner)** : ajouter une **colonne `scheduled_email_id`** (migration) sur
-> la table des leads pour recevoir/stocker l'id transmis. La vitrine, elle, n'a pas besoin du
-> CRM pour annuler (l'id revient via le jeton signé), mais le stockage CRM permet la
-> réconciliation et une éventuelle annulation côté serveur.
+## Délivrabilité (arriver dans la boîte principale, pas dans Promotions)
+- **Expéditeur** : « Corentin de Stela <contact@mystela.fr> » (une personne, pas une marque).
+- **HTML minimal, façon personne à personne** : pas de carte, pas de bouton, pas de logo en
+  tête ; texte court, 2 liens texte maximum (le PDF + un lien tarifs), aucun émoji, ton sobre,
+  signature texte « Corentin, cofondateur de Stela », désinscription en une ligne discrète.
+- **En-têtes de désinscription** sur les deux emails (via Resend `headers`) :
+  `List-Unsubscribe: <url>` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058).
+  L'endpoint `api/lead-unsubscribe.js` accepte le **POST One-Click** (répond 200) en plus du
+  clic navigateur (GET → page `/desinscrit`).
 
 ## À fournir / faire (Nicolas)
 - **`LEADS_INGEST_SECRET`** posé identique sur la vitrine ET l'app (le endpoint CRM
   `POST /api/leads` est prêt et validé côté superviseur).
-- **Migration CRM** : colonne `scheduled_email_id` sur la table des leads (voir ci-dessus).
 - **Domaine Resend** vérifié (SPF/DKIM) pour `contact@mystela.fr`.
 - **Upstash Redis** (URL + token) avant toute campagne publicitaire payante.
 

@@ -83,12 +83,14 @@ export default async function handler(req, res) {
   //    sa livraison). Best effort : ne bloque jamais le guide.
   let scheduledId = null;
   try {
-    const c = closingEmail({ firstName, unsubUrl: unsubUrlFor(email) });
+    const unsub = unsubUrlFor(email);
+    const c = closingEmail({ firstName, unsubUrl: unsub });
     scheduledId = await sendEmail({
       to: email,
       subject: c.subject,
       html: c.html,
       scheduledAt: "in 3 days",
+      unsubUrl: unsub,
     });
   } catch {
     /* planification indisponible : on continue sans relance */
@@ -97,16 +99,17 @@ export default async function handler(req, res) {
   // 2) Envoyer le guide (immédiat), lien de désinscription porteur de l'id
   //    planifié. Le guide prime : son échec n'est pas divulgué.
   try {
-    const g = guideEmail({ firstName, unsubUrl: unsubUrlFor(email, scheduledId) });
-    await sendEmail({ to: email, subject: g.subject, html: g.html });
+    const unsub = unsubUrlFor(email, scheduledId);
+    const g = guideEmail({ firstName, unsubUrl: unsub });
+    await sendEmail({ to: email, subject: g.subject, html: g.html, unsubUrl: unsub });
   } catch {
     /* échec d'envoi : on ne divulgue rien, on affiche merci */
   }
 
-  // 3) Pousser le lead au CRM (avec l'id planifié) : best effort, non bloquant.
-  await pushLeadToCrm({ email, firstName, consentedAt, scheduledEmailId: scheduledId }).catch(
-    () => {}
-  );
+  // 3) Pousser le lead au CRM : best effort, non bloquant. (L'id de la relance
+  //    n'est PAS transmis au CRM : il revient via le jeton signé du lien de
+  //    désinscription, seul endroit qui en a besoin pour l'annulation.)
+  await pushLeadToCrm({ email, firstName, consentedAt }).catch(() => {});
 
   return redirect(`${PAGE}/merci`);
 }
