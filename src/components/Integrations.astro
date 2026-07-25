@@ -1,22 +1,26 @@
 ---
 import { CHANNELS } from "../config/site";
-// Section « Intégrations » : les plateformes de visibilité et d'avis couvertes.
-// Source = CHANNELS (config), filtrées sur les plateformes. Livré vs bientôt
-// clairement séparés. Pas de logo tiers (marques déposées + CSP sans hôte
-// externe) : cartes sobres et honnêtes, chacune avec son statut.
+// Section « Intégrations » : où Stela vous rend visible + où vos infos se
+// propagent + les caisses/réservations. Source = CHANNELS (config). Pas de logo
+// tiers (marques déposées + CSP sans hôte externe) : cartes sobres et honnêtes.
+// Aucun « Disponible » qui ne soit pas réellement livré dans le produit.
 const plateformes = CHANNELS.filter((c) => c.kind === "plateforme");
-const livre = plateformes.filter((c) => c.status === "live");
-const bientot = plateformes.filter((c) => c.status === "soon");
+// Les plateformes « en aval » (alimentées par Google/Bing) ont leur propre
+// rangée pédagogique : on les retire de la 1re grille pour éviter les doublons.
+const DOWNSTREAM = ["Waze", "Google Maps", "Assistant Google", "ChatGPT", "Microsoft Copilot"];
+const direct = plateformes.filter((c) => c.status === "live" && !DOWNSTREAM.includes(c.name));
+const viaGoogle = ["Waze", "Google Maps", "Assistant Google"];
+const viaBing = ["ChatGPT", "Microsoft Copilot"];
 ---
 <section class="integrations">
   <div class="container">
     <p class="eyebrow">Intégrations</p>
     <h2>Une présence, partout où vos clients regardent</h2>
-    <p class="int-lead">Stela travaille votre visibilité sur Google (fiche, Maps, recherche) et sur Bing, qui alimente aussi ChatGPT et Copilot. Vos avis d'autres plateformes se centralisent au même endroit.</p>
+    <p class="int-lead">Stela travaille votre visibilité sur Google (fiche, Maps, recherche) et sur Bing, qui alimente aussi les réponses des intelligences artificielles. Vos avis des autres plateformes se centralisent au même endroit.</p>
 
     <p class="int-group-title">Disponible aujourd'hui</p>
     <ul class="int-grid">
-      {livre.map((c) => (
+      {direct.map((c) => (
         <li class="int-card">
           <span class="int-name">{c.name}</span>
           <span class="int-status int-live">Disponible</span>
@@ -24,37 +28,79 @@ const bientot = plateformes.filter((c) => c.status === "soon");
       ))}
     </ul>
 
-    {bientot.length > 0 && (
-      <>
-        <p class="int-group-title">Bientôt</p>
-        <ul class="int-grid">
-          {bientot.map((c) => (
-            <li class="int-card int-card-soon">
-              <span class="int-name">{c.name}</span>
-              <span class="int-status int-soon">Bientôt</span>
-            </li>
-          ))}
-          <li class="int-card int-card-soon">
-            <span class="int-name">Caisses et logiciels de réservation</span>
-            <span class="int-status int-soon">À venir</span>
-          </li>
+    {/* 2e rangée (VIT-9d) : propagation en aval. Pédagogie simple : ces surfaces
+        se nourrissent de votre fiche Google et de Bing, que Stela soigne. */}
+    <p class="int-group-title">Et vos informations voyagent partout</p>
+    <p class="int-sub">Une fiche soignée avec Stela, c'est aussi ce que voient les conducteurs sur Waze et ce que répondent les IA comme ChatGPT.</p>
+    <div class="int-flow">
+      <div class="int-flow-col">
+        <span class="int-flow-from">Alimentés par votre fiche Google</span>
+        <ul class="int-chiplist">
+          {viaGoogle.map((n) => <li class="int-chip">{n}</li>)}
         </ul>
-      </>
-    )}
+      </div>
+      <div class="int-flow-col">
+        <span class="int-flow-from">Alimentés par Bing</span>
+        <ul class="int-chiplist">
+          {viaBing.map((n) => <li class="int-chip">{n}</li>)}
+        </ul>
+      </div>
+    </div>
+
+    {/* Caisses et logiciels de réservation (VIT-9f) : nommés, statuts exacts. */}
+    <p class="int-group-title">Caisses et logiciels de réservation</p>
+    <ul class="int-soft">
+      <li class="int-soft-card int-soft-live">
+        <div class="int-soft-head"><span class="int-name">Square</span><span class="int-status int-live">Disponible</span></div>
+        <p class="int-soft-desc">Connectez votre caisse : <strong>vous voyez en euros ce que rapporte chaque campagne</strong>.</p>
+      </li>
+      <li class="int-soft-card int-soft-partner">
+        <div class="int-soft-head"><span class="int-name">TheFork</span><span class="int-status int-partner">Partenaire officiel</span></div>
+        <p class="int-soft-desc">Réservations et avis, dans le cadre de notre partenariat officiel.</p>
+      </li>
+      <li class="int-soft-card int-soft-soon">
+        <div class="int-soft-head"><span class="int-name">Zelty</span><span class="int-status int-soon">À venir</span></div>
+        <p class="int-soft-desc">Caisse et commandes.</p>
+      </li>
+      <li class="int-soft-card int-soft-soon">
+        <div class="int-soft-head"><span class="int-name">Lightspeed</span><span class="int-status int-soon">À venir</span></div>
+        <p class="int-soft-desc">Caisse et encaissement.</p>
+      </li>
+    </ul>
   </div>
 </section>
 <style>
-  .integrations { padding-block: 3rem; }
+  .integrations { padding-block: 2.5rem; }
   .int-lead { color: var(--text-secondary); max-width: 62ch; }
-  .int-group-title { text-transform: uppercase; letter-spacing: .1em; font-size: .74rem; font-weight: 800; color: var(--text-muted); margin: 1.75rem 0 .75rem; }
-  .int-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+  .int-group-title { text-transform: uppercase; letter-spacing: .1em; font-size: .74rem; font-weight: 800; color: var(--text-muted); margin: 1.5rem 0 .6rem; }
+  .int-sub { color: var(--text-secondary); font-size: .92rem; max-width: 60ch; margin: 0 0 .8rem; }
+  .int-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
   @media (max-width: 860px) { .int-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 460px) { .int-grid { grid-template-columns: 1fr; } }
   .int-card { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
-    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .75rem .9rem; }
-  .int-card-soon { background: var(--cream); }
+    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .65rem .8rem; }
   .int-name { font-weight: 700; color: var(--ink); font-size: .9rem; }
-  .int-status { font-size: .68rem; font-weight: 800; border-radius: 999px; padding: .2rem .5rem; white-space: nowrap; }
+  .int-status { font-size: .66rem; font-weight: 800; border-radius: 999px; padding: .2rem .5rem; white-space: nowrap; }
   .int-live { background: rgba(176,138,62,.14); color: var(--brass); }
+  .int-partner { background: var(--ink); color: #fff; }
   .int-soon { background: #ece4d4; color: var(--muted, #6C6558); }
+
+  /* Rangée « voyagent partout » : 2 colonnes source → puces. */
+  .int-flow { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  @media (max-width: 640px) { .int-flow { grid-template-columns: 1fr; } }
+  .int-flow-col { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: .8rem .9rem; }
+  .int-flow-from { display: block; font-size: .74rem; font-weight: 800; color: var(--ink); margin-bottom: .5rem; }
+  .int-chiplist { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .int-chip { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: .3rem .7rem; font-size: .82rem; font-weight: 700; color: var(--ink); }
+
+  /* Caisses : cartes nommées avec statut + une ligne de bénéfice. */
+  .int-soft { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+  @media (max-width: 640px) { .int-soft { grid-template-columns: 1fr; } }
+  .int-soft-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .75rem .9rem; }
+  .int-soft-live { border-color: rgba(176,138,62,.4); }
+  .int-soft-partner { border-color: var(--ink); }
+  .int-soft-soon { background: var(--cream); }
+  .int-soft-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .3rem; }
+  .int-soft-desc { margin: 0; font-size: .84rem; color: var(--text-secondary); }
+  .int-soft-desc strong { color: var(--ink); }
 </style>

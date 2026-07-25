@@ -53,6 +53,31 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
     </div>
   </section>
 
+  {f.seo && (
+    <section class="seo-sec">
+      <div class="container">
+        <p class="eyebrow">Visibilité</p>
+        <h2>{f.seo.title}</h2>
+        <p class="seo-intro">{f.seo.intro}</p>
+        <div class="seo-ba">
+          <div class="seo-card seo-before">
+            <span class="seo-tag">Une réponse simple</span>
+            <p class="seo-reply">{f.seo.before}</p>
+            <p class="seo-note">Correcte, mais elle n'aide pas votre fiche.</p>
+          </div>
+          <div class="seo-arrow" aria-hidden="true">→</div>
+          <div class="seo-card seo-after">
+            <span class="seo-tag seo-tag-on">La même, écrite par Nova</span>
+            <p class="seo-reply">
+              {f.seo.afterTokens.map((tk) => (tk.kw ? <span class="seo-kw">{tk.t}</span> : <span>{tk.t}</span>))}
+            </p>
+            <p class="seo-note">Les mots que vos clients tapent sur Google, glissés naturellement.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
   <section class="steps-sec">
     <div class="container">
       <h2>Comment ça marche</h2>
@@ -86,8 +111,24 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
 </Base>
 
 <style>
-  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-block: clamp(40px, 6vw, 80px); }
   .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+
+  /* Section SEO (VIT-9c) : avant/après d'une réponse, mots-clés soulignés. */
+  .seo-sec { background: var(--cream); }
+  .seo-intro { color: var(--text-secondary); max-width: 68ch; margin-top: .5rem; }
+  .seo-ba { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: stretch; margin-top: 1.25rem; }
+  @media (max-width: 720px) { .seo-ba { grid-template-columns: 1fr; } .seo-arrow { transform: rotate(90deg); justify-self: center; } }
+  .seo-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; }
+  .seo-after { border-color: var(--brass); box-shadow: 0 10px 30px rgba(176,138,62,.12); }
+  .seo-arrow { align-self: center; color: var(--brass); font-weight: 800; font-size: 1.5rem; }
+  .seo-tag { display: inline-block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-muted); background: var(--cream); border-radius: 999px; padding: .18rem .55rem; margin-bottom: .5rem; }
+  .seo-tag-on { color: var(--brass); background: rgba(176,138,62,.12); }
+  .seo-reply { color: var(--ink); font-size: 1rem; margin: 0 0 .5rem; line-height: 1.5; }
+  .seo-kw { text-decoration: underline; text-decoration-color: var(--brass); text-decoration-thickness: 2px;
+    text-underline-offset: 3px; font-weight: 600; }
+  .seo-note { font-size: .8rem; color: var(--text-muted); margin: 0; }
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
   .crumbs { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
   .crumbs a { color: var(--text-muted); } .crumbs span { margin: 0 .35rem; }

@@ -115,7 +115,7 @@ export const PLANS = [
     tagline: "L'essentiel pour collecter et répondre, en toute conformité.",
     features: [
       "Collecte d'avis Google conforme (aucun filtre sur la note)",
-      "Réponses assistées par IA",
+      "Réponses IA qui renforcent votre visibilité sur Google",
       "Récupération client automatisée",
       "Tableau de bord et QR codes fournis",
     ],
@@ -155,13 +155,18 @@ export const CHANNELS = [
   { name: "Google Recherche", kind: "plateforme", status: "live" },
   { name: "Google Maps", kind: "plateforme", status: "live" },
   { name: "Fiche Google Business Profile", kind: "plateforme", status: "live" },
+  { name: "Waze", kind: "plateforme", status: "live" },
+  { name: "Assistant Google", kind: "plateforme", status: "live" },
   { name: "Bing", kind: "plateforme", status: "live" },
   { name: "ChatGPT", kind: "plateforme", status: "live" },
   { name: "Microsoft Copilot", kind: "plateforme", status: "live" },
   { name: "Google Gemini", kind: "plateforme", status: "live" },
   { name: "Perplexity", kind: "plateforme", status: "live" },
   { name: "TripAdvisor", kind: "plateforme", status: "live" },
-  { name: "TheFork", kind: "plateforme", status: "soon" },
+  // TheFork : accord partenaire officiel signé (juillet 2026). L'intégration
+  // produit (avis + réservations) n'est pas encore livrée → statut « partner »
+  // (badge « Partenaire officiel »), jamais « Disponible » tant que non livré.
+  { name: "TheFork", kind: "plateforme", status: "partner" },
   // Canaux de collecte et de relation client
   { name: "Page d'avis Stela", kind: "canal", status: "live" },
   { name: "QR codes", kind: "canal", status: "live" },

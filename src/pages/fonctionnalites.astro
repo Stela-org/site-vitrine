@@ -41,6 +41,9 @@ const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
           <a class="hub-card card" href={`/${f.slug}`}>
             <h3>{f.navLabel}</h3>
             <p>{f.lead}</p>
+            {f.slug === "reponse-automatique-avis" && (
+              <p class="hub-seo">Chaque réponse glisse vos mots-clés locaux : plus de visibilité sur Google.</p>
+            )}
             <span class="hub-card-go">Découvrir &rarr;</span>
           </a>
         ))}
@@ -92,6 +95,8 @@ const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
   .hub-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--brass); text-decoration: none; }
   .hub-card h3 { margin: 0; color: var(--ink); }
   .hub-card p { color: var(--text-secondary); font-size: .92rem; margin: 0; flex: 1; }
+  .hub-seo { color: var(--ink) !important; font-size: .82rem !important; font-weight: 600; flex: none !important;
+    background: rgba(176,138,62,.1); border-radius: 8px; padding: .4rem .6rem; margin-top: .5rem !important; }
   .hub-card-go { color: var(--brass); font-weight: 700; font-size: .9rem; margin-top: .4rem; }
   .hub-segments { padding-block: 1rem 3.5rem; background: var(--cream); }
   .hub-seg-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 640px; margin-inline: auto; }

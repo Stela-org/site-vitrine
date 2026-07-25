@@ -19,6 +19,14 @@ export type Feature = {
   faq: Faq[];
   // Mockup : le module de l'app mis en avant + le contenu du panneau.
   mockup: { module: string; heading: string; rows: { label: string; value: string }[] };
+  // Angle SEO (VIT-9c) : section « chaque réponse travaille pour votre
+  // visibilité », avec un mini avant/après (mots-clés locaux soulignés).
+  seo?: {
+    title: string;
+    intro: string;
+    before: string;
+    afterTokens: { t: string; kw?: boolean }[];
+  };
 };
 
 export const FEATURES: Feature[] = [
@@ -87,6 +95,19 @@ export const FEATURES: Feature[] = [
         { label: "Marie L.  ★★★★★", value: "Réponse proposée par l'IA" },
         { label: "Karim B.  ★★★★☆", value: "Réponse proposée par l'IA" },
         { label: "Réponse automatique", value: "Activée" },
+      ],
+    },
+    seo: {
+      title: "Chaque réponse travaille pour votre visibilité",
+      intro:
+        "Quand Nova répond à un avis, elle glisse naturellement les mots que vos clients tapent sur Google (« pizzeria à Belleville », « coiffeur ouvert le samedi »). Google lit vos réponses : chacune renforce votre fiche dans les recherches et dans les réponses des IA. C'est du référencement local (le fameux « SEO »), fait pour vous, à chaque réponse.",
+      before: "Merci pour votre visite, à bientôt !",
+      afterTokens: [
+        { t: "Merci pour votre visite dans notre " },
+        { t: "pizzeria à Belleville", kw: true },
+        { t: ", au plaisir de vous revoir pour une " },
+        { t: "pizza au feu de bois", kw: true },
+        { t: " !" },
       ],
     },
   },

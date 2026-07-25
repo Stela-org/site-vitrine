@@ -70,7 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { line-height: 1.15; color: var(--ink); margin: 0 0 .5em; font-weight: 800; letter-spacing: -.02em; }
+h1, h2, h3 { line-height: 1.15; color: var(--ink); margin: 0 0 .4em; font-weight: 800; letter-spacing: -.02em; }
 h1 { font-size: clamp(2rem, 5vw, 3.25rem); }
 h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
 h3 { font-size: 1.15rem; font-weight: 700; }
@@ -80,7 +80,10 @@ a:hover { text-decoration: underline; }
 img, svg { max-width: 100%; height: auto; display: block; }
 
 .container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: 20px; }
-section { padding-block: clamp(48px, 8vw, 96px); }
+/* Densité (VIT-9e) : rythme vertical resserré d'environ un tiers pour que chaque
+   écran de scroll montre au moins une information nouvelle complète. Le hero
+   garde sa respiration (surcharge locale par page). */
+section { padding-block: clamp(32px, 5.5vw, 64px); }
 
 /* Boutons */
 .btn { display: inline-flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem;
@@ -103,4 +106,4 @@ section { padding-block: clamp(48px, 8vw, 96px); }
   color: var(--brass); margin-bottom: .75rem; }
 .lead { font-size: clamp(1.05rem, 2vw, 1.3rem); color: var(--text-secondary); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 1.75rem; box-shadow: var(--shadow); }
+  padding: 1.4rem; box-shadow: var(--shadow); }
