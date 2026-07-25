@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../config/site";
+
+const chapters = [
+  "Créer et optimiser sa fiche Google Business Profile, étape par étape",
+  "Collecter des avis en continu, sans jamais enfreindre les règles de Google",
+  "Répondre aux avis, positifs comme négatifs, avec des modèles prêts à l'emploi",
+  "Être visible dans les réponses de ChatGPT, Gemini et Perplexity (GEO)",
+  "Les erreurs qui font suspendre une fiche, et comment les éviter",
+];
+---
+<Base
+  title="Le guide Google du commerçant local (PDF gratuit) | Stela"
+  description="Recevez gratuitement notre guide pour maîtriser votre fiche Google, collecter des avis en toute conformité et être visible dans les moteurs IA. PDF par email."
+  path="/guide-google-commercant-local"
+>
+  <section class="hero">
+    <div class="container guide-grid">
+      <div>
+        <p class="eyebrow">Guide gratuit · PDF</p>
+        <h1>Le guide Google du commerçant local</h1>
+        <p class="lead">Tout ce qu'un commerce local doit savoir pour tirer le meilleur de Google, en toute conformité. Concret, sans jargon, à appliquer dès aujourd'hui.</p>
+        <ul class="check-list">
+          {chapters.map((c) => <li>{c}</li>)}
+        </ul>
+      </div>
+
+      <div class="guide-form-card card">
+        <h2>Recevez-le par email</h2>
+        <p class="gf-sub">Renseignez votre email, confirmez, et le guide arrive dans votre boîte.</p>
+        <form method="POST" action="/api/lead-subscribe" class="lead-form">
+          {/* Honeypot anti-bot : invisible, doit rester vide. */}
+          <div class="hp" aria-hidden="true">
+            <label>Ne pas remplir<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+          </div>
+          <label class="lead-field">Votre email professionnel
+            <input type="email" name="email" required placeholder="vous@etablissement.fr" autocomplete="email" />
+          </label>
+          <label class="lead-consent">
+            <input type="checkbox" name="consent" value="1" required />
+            <span>J'accepte de recevoir le guide et des conseils de Stela par email. Désinscription à tout moment. Voir la <a href="/politique-confidentialite">politique de confidentialité</a>.</span>
+          </label>
+          <button type="submit" class="btn btn-primary">Recevoir le guide gratuit</button>
+          <p class="lead-rgpd">Double opt-in : vous recevrez un email pour confirmer votre demande. Vos données ne sont ni revendues, ni cédées.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .guide-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+  @media (max-width: 860px) { .guide-grid { grid-template-columns: 1fr; } }
+  .check-list { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .check-list li { position: relative; padding-left: 1.7rem; margin-bottom: .6rem; color: var(--text-secondary); }
+  .check-list li::before { content: "✓"; position: absolute; left: 0; color: var(--brass); font-weight: 800; }
+  .guide-form-card { max-width: 440px; }
+  .gf-sub { color: var(--text-secondary); font-size: .95rem; }
+  .lead-form { display: grid; gap: 1rem; margin-top: 1rem; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .lead-field { display: flex; flex-direction: column; gap: .35rem; font-weight: 700; font-size: .9rem; color: var(--ink); }
+  .lead-field input { padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 10px; font: inherit; }
+  .lead-consent { display: flex; gap: .6rem; align-items: flex-start; font-size: .82rem; color: var(--text-secondary); }
+  .lead-consent input { margin-top: .2rem; flex: none; }
+  .lead-form .btn { justify-content: center; }
+  .lead-rgpd { font-size: .76rem; color: var(--text-muted); margin: 0; }
+</style>

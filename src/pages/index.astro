@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, PLANS } from "../config/site";
+import { SITE, PLANS, signupUrl } from "../config/site";
 import { FEATURES } from "../content/features";
 import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
@@ -80,7 +80,7 @@ const websiteLd = {
           Collectez plus d'avis, répondez automatiquement et faites revenir vos clients. Sans filtrer une seule note, parce que la conformité est notre force.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href={signupUrl({ campaign: "home" })}>Essayer gratuitement</a>
           <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
         <div class="hero-trust"><TripleZero /></div>
@@ -194,7 +194,7 @@ const websiteLd = {
 
           <p class="results-cred">L'équipe Stela a équipé plus de 170 restaurants avec la génération précédente de l'outil.</p>
           <div class="results-cta">
-            <a class="btn btn-primary" href={SITE.appUrl}>Devenir l'un de nos premiers cas mesurés</a>
+            <a class="btn btn-primary" href={signupUrl({ campaign: "home" })}>Devenir l'un de nos premiers cas mesurés</a>
           </div>
 
           <script>
@@ -250,7 +250,8 @@ const websiteLd = {
             <ul class="check-list">
               {p.features.map((f) => <li>{f}</li>)}
             </ul>
-            <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} href={SITE.appUrl}>Essayer gratuitement</a>
+            <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta data-plan={p.id}
+              href={signupUrl({ plan: p.id, billing: "monthly", campaign: "home" })}>Essayer gratuitement</a>
           </div>
         ))}
       </div>
@@ -278,7 +279,8 @@ const websiteLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Prêt à faire grandir votre réputation, en toute conformité ?</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={signupUrl({ campaign: "home" })}>Essayer gratuitement</a>
+      <p class="cta-guarantee">✓ Essai gratuit, puis 30 jours satisfait ou remboursé.</p>
       <div class="cta-tz"><TripleZero variant="dark" /></div>
     </div>
   </section>
@@ -423,5 +425,6 @@ const websiteLd = {
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
-  .cta-tz { display: flex; justify-content: center; margin-top: 1.25rem; }
+  .cta-guarantee { color: #9fb0cc; font-size: .9rem; margin: 1rem 0 0; font-weight: 600; }
+  .cta-tz { display: flex; justify-content: center; margin-top: 1rem; }
 </style>

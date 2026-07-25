@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE } from "../config/site";
+import { SITE , signupUrl } from "../config/site";
 
 // Comparaison factuelle. Principe : n'affirmer que des faits vérifiables, sourcer
 // les règles de Google, ton professionnel, aucun dénigrement. Les points non
@@ -103,7 +103,7 @@ const breadcrumbLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Essayez Stela, prix affichés et essai gratuit</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={signupUrl({ campaign: "comparatif" })}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

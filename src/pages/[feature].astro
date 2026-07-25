@@ -1,7 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import AppMockup from "../components/AppMockup.astro";
-import { SITE } from "../config/site";
+import { SITE , signupUrl } from "../config/site";
 import { FEATURES } from "../content/features";
 
 export function getStaticPaths() {
@@ -44,7 +44,7 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
         <h1>{f.h1}</h1>
         <p class="lead">{f.lead}</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href={signupUrl({ campaign: "feature" })}>Essayer gratuitement</a>
           <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
@@ -97,7 +97,7 @@ const others = FEATURES.filter((x) => x.slug !== f.slug);
   <section class="cta-final">
     <div class="container">
       <h2>Prêt à essayer {f.navLabel.toLowerCase()} ?</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={signupUrl({ campaign: "feature" })}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

@@ -1,0 +1,100 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE, signupUrl } from "../config/site";
+
+const founders = [
+  { name: "Nicolas Anquetin", role: "Cofondateur", photo: "/images/equipe-nicolas.png",
+    bio: "Nicolas pilote le produit et la relation avec les commerçants. C'est lui qui a fait le choix, dès le départ, d'une collecte d'avis strictement conforme aux règles de Google." },
+  { name: "Corentin Janin", role: "Cofondateur", photo: "/images/equipe-corentin.png",
+    bio: "Corentin conçoit la technologie de Stela, de la page d'avis aux réponses assistées par IA, avec une obsession : la simplicité pour le commerçant." },
+];
+
+const aboutLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "Notre histoire",
+  url: new URL("/notre-histoire", SITE.url).href,
+  about: { "@type": "Organization", name: SITE.brand, url: SITE.url },
+  mainEntity: founders.map((f) => ({
+    "@type": "Person", name: f.name, jobTitle: f.role, worksFor: { "@type": "Organization", name: SITE.brand },
+    image: new URL(f.photo, SITE.url).href, url: new URL("/notre-histoire", SITE.url).href + "#" + f.name.toLowerCase().replace(/\s+/g, "-"),
+  })),
+};
+const breadcrumbLd = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: SITE.url },
+    { "@type": "ListItem", position: 2, name: "Notre histoire", item: new URL("/notre-histoire", SITE.url).href },
+  ],
+};
+---
+<Base
+  title="Notre histoire | Stela"
+  description="Comment Stela est née de l'expérience de plus de 170 restaurants équipés, et pourquoi nous avons fait le choix d'une collecte d'avis 100 % conforme aux règles de Google."
+  path="/notre-histoire"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(aboutLd)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
+
+  <section class="hero">
+    <div class="container" style="max-width:760px;">
+      <p class="eyebrow">Notre histoire</p>
+      <h1>Nous avons choisi la conformité, dès le premier jour</h1>
+      <p class="lead">Stela n'est pas née d'une idée sur un tableau blanc. Elle vient du terrain, de centaines de commerçants, et d'une conviction : la seule croissance qui dure est celle qui respecte les règles de Google.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container story" style="max-width:760px;">
+      <h2>D'abord, plus de 170 restaurants équipés</h2>
+      <p>Avant Stela, notre équipe a accompagné plus de 170 restaurants avec une première génération de l'outil. Nous avons vu ce qui marche, ce qui agace, et surtout ce qui met une fiche Google en danger. Cette expérience de terrain est le socle de tout ce que fait Stela aujourd'hui.</p>
+
+      <h2>Le choix assumé du 100 % conforme</h2>
+      <p>Beaucoup d'outils promettent des avis en filtrant les clients ou en offrant des cadeaux contre une note. C'est tentant à court terme, et interdit par Google. Nous avons fait le choix inverse : inviter tous les clients à s'exprimer publiquement, sans tri, et récupérer les mécontents en plus, jamais à la place. C'est plus exigeant, c'est surtout la seule voie qui protège votre réputation sur la durée.</p>
+
+      <h2>Aujourd'hui, Stela</h2>
+      <p>Stela réunit la collecte d'avis, les réponses assistées par IA, la réservation, la fidélisation et la visibilité dans les moteurs IA, pour tous les commerces locaux. Toujours avec la même règle : la conformité n'est pas une option, c'est le moteur.</p>
+    </div>
+  </section>
+
+  <section class="founders-sec">
+    <div class="container" style="max-width:820px;">
+      <h2 style="text-align:center;">Les fondateurs</h2>
+      <div class="founders">
+        {founders.map((f) => (
+          <div class="founder card" id={f.name.toLowerCase().replace(/\s+/g, "-")}>
+            <img src={f.photo} alt={`Portrait de ${f.name}, ${f.role} de Stela`} width="400" height="400" loading="lazy" decoding="async" />
+            <div>
+              <h3>{f.name}</h3>
+              <p class="founder-role">{f.role}</p>
+              <p>{f.bio}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <div class="container">
+      <h2>Envie de faire grandir votre réputation avec nous ?</h2>
+      <a class="btn btn-primary" href={signupUrl({ campaign: "histoire" })}>Essayer gratuitement</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .story h2 { margin-top: 2rem; }
+  .story p { color: var(--text-secondary); line-height: 1.8; }
+  .founders-sec { background: var(--cream); }
+  .founders { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+  @media (max-width: 720px) { .founders { grid-template-columns: 1fr; } }
+  .founder { display: flex; gap: 1.1rem; align-items: flex-start; }
+  .founder img { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--surface); box-shadow: var(--shadow); }
+  .founder h3 { margin: 0; }
+  .founder-role { color: var(--brass); font-weight: 700; font-size: .85rem; margin: .1rem 0 .5rem; }
+  .founder p:last-child { color: var(--text-secondary); font-size: .92rem; margin: 0; }
+  .cta-final { background: var(--ink); text-align: center; }
+  .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
+</style>

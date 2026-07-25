@@ -3,21 +3,23 @@
 // clés. Nécessite Playwright + chromium (devDependency). Prend aussi des
 // captures si SHOT=1.
 import { createServer } from "node:http";
-import { readFileSync, existsSync } from "node:fs";
-import { extname, join } from "node:path";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { extname } from "node:path";
 import { chromium } from "playwright";
+
+const isFile = (p) => existsSync(p) && statSync(p).isFile();
 
 const DIST = "dist";
 const WIDTHS = [320, 375, 768, 1280];
-const PAGES = ["/", "/tarifs", "/collecte-avis-google", "/pour/coiffeur", "/restaurants-lyon", "/stela-vs-dokaa", "/blog/repondre-avis-negatif-google-restaurant"];
+const PAGES = ["/", "/tarifs", "/collecte-avis-google", "/pour/coiffeur", "/restaurants-lyon", "/stela-vs-dokaa", "/blog/repondre-avis-negatif-google-restaurant", "/notre-histoire", "/statistiques-avis-google-france", "/guide-google-commercant-local"];
 const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".webp": "image/webp", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".xml": "application/xml", ".txt": "text/plain", ".webmanifest": "application/json", ".json": "application/json", ".woff": "font/woff", ".woff2": "font/woff2" };
 
 function resolve(p) {
   let path = decodeURIComponent(p.split("?")[0]);
   if (path === "/" || path === "") return `${DIST}/index.html`;
   path = path.replace(/\/$/, "");
-  const cands = [`${DIST}${path}`, `${DIST}${path}.html`, `${DIST}${path}/index.html`];
-  return cands.find((c) => existsSync(c));
+  const cands = [`${DIST}${path}.html`, `${DIST}${path}/index.html`, `${DIST}${path}`];
+  return cands.find((c) => isFile(c));
 }
 const server = createServer((req, res) => {
   const file = resolve(req.url);

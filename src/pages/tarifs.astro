@@ -1,7 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, PLANS } from "../config/site";
+import { SITE, PLANS, signupUrl } from "../config/site";
 import TripleZero from "../components/TripleZero.astro";
+
+const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
 
 const faq = [
   { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous créez votre compte et testez Stela sans carte bancaire et sans engagement." },
@@ -26,7 +28,25 @@ const faqLd = {
       <p class="eyebrow">Tarifs transparents</p>
       <h1>Un prix affiché, un essai gratuit, sans engagement</h1>
       <p class="lead" style="max-width:52ch;margin-inline:auto;">Pas de démonstration obligatoire pour connaître nos prix. Vous les voyez, vous essayez, vous décidez.</p>
+    </div>
+  </section>
 
+  {/* Bloc PERTE (avant les prix) : ce que coûte une mauvaise réputation. */}
+  <section class="loss">
+    <div class="container">
+      <div class="loss-inner">
+        <p class="loss-num">-31 %</p>
+        <div>
+          <p class="loss-lead">C'est la baisse de fréquentation que subit un commerce mal noté face à un concurrent mieux noté.</p>
+          <p class="loss-src">Source : Harvard Business School, étude de Michael Luca sur l'impact des avis en ligne.</p>
+        </div>
+      </div>
+      <p class="loss-foot">Une bonne réputation n'est pas un coût, c'est une protection. Voici combien elle vaut :</p>
+    </div>
+  </section>
+
+  <section class="plans-sec">
+    <div class="container" style="text-align:center;">
       <div id="tarifs" class="billing-wrap">
         <div class="billing-toggle">
           <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (2 mois offerts)" />
@@ -47,20 +67,31 @@ const faqLd = {
                 <span class="amount amount-y">{p.yearlyPerMonth} €</span>
                 <span class="per">/ mois</span>
               </p>
+              {p.highlight && <p class="plan-perday">soit moins de 3 € par jour</p>}
               <p class="plan-note plan-note-y">Facturé annuellement, vous économisez {p.yearlySave} € par an.</p>
               {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
               <ul class="check-list">
                 {p.features.map((ft) => <li>{ft}</li>)}
               </ul>
-              <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} href={SITE.appUrl}>Essayer gratuitement</a>
+              <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta data-plan={p.id}
+                href={signupUrl({ plan: p.id, billing: "monthly", campaign: "tarifs" })}>Essayer gratuitement</a>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Garantie 30 jours (GO Nicolas) : sous les cartes. */}
+      <div class="guarantee card">
+        <span class="guarantee-badge">✓ Sans risque</span>
+        <p><strong>30 jours satisfait ou remboursé.</strong> Essayez Constellation en conditions réelles. Si Stela ne vous convient pas dans les 30 premiers jours, nous vous remboursons, sans discuter.</p>
+      </div>
+
+      <p class="compare-link"><a href="/stela-vs-dokaa">Comparez-nous aux autres solutions →</a></p>
       <div class="tarifs-tz"><TripleZero /></div>
       <p class="tarifs-foot">Aucune carte requise pour essayer. Le paiement se fait dans l'application.</p>
     </div>
   </section>
+
 
   <section class="faq">
     <div class="container">
@@ -75,7 +106,23 @@ const faqLd = {
 </Base>
 
 <style>
-  .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-bottom: 1rem; }
+  .loss { background: var(--cream); padding-block: 1rem 0; }
+  .loss-inner { display: flex; align-items: center; gap: 1.5rem; max-width: 760px; margin-inline: auto;
+    background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.5rem 1.75rem; }
+  .loss-num { font-size: clamp(2.6rem, 8vw, 3.6rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0; flex: none; }
+  .loss-lead { color: #fff; font-weight: 600; margin: 0 0 .35rem; }
+  .loss-src { color: #8ea0bd; font-size: .76rem; margin: 0; }
+  .loss-foot { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 1.25rem auto 0; max-width: 52ch; }
+  @media (max-width: 560px) { .loss-inner { flex-direction: column; text-align: center; gap: .75rem; } }
+  .plans-sec { background: var(--cream); }
+  .plan-perday { margin: -.1rem 0 .3rem; font-size: .82rem; font-weight: 700; color: var(--brass); }
+  .guarantee { max-width: 620px; margin: 1.75rem auto 0; display: flex; gap: 1rem; align-items: center; text-align: left; }
+  .guarantee-badge { flex: none; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; border-radius: 999px; padding: .3rem .7rem; }
+  .guarantee p { margin: 0; color: var(--text-secondary); font-size: .95rem; }
+  .guarantee strong { color: var(--ink); }
+  .compare-link { text-align: center; margin-top: 1.5rem; }
+  .compare-link a { font-weight: 700; color: var(--accentBlue, #2D6CDF); }
   .billing-toggle { display: flex; justify-content: center; margin: 2rem 0; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
   .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;

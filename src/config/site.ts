@@ -18,10 +18,28 @@ export const SITE = {
 
   email: "contact@mystela.fr",
 
+  // Profils officiels (schema.org sameAs). À CONFIRMER par Nicolas (URLs exactes).
+  sameAs: [
+    "https://www.linkedin.com/company/stela-avis",
+    "https://www.societe.com/societe/vgn-company-921060737.html",
+  ],
+
   // Vérifications Google Search Console : le FICHIER (public/google...html) ET
   // la balise meta ci-dessous sont conservés tous les deux (VIT-0 décision 10).
   googleSiteVerification: "_riHssD6JYmAWnuKsHPJfztC6RASpMns50XERQ7LObo",
 } as const;
+
+// Tunnel d'achat (VIT-7) : URL d'inscription centralisée. Transmet le plan, la
+// période et l'UTM pour éviter le « mur de connexion » sans contexte. La route
+// `/signup` arrive côté app ; ici, une seule source de vérité.
+export function signupUrl(opts: { plan?: "etoile" | "constellation"; billing?: "monthly" | "yearly"; campaign?: string } = {}): string {
+  const p = new URLSearchParams();
+  if (opts.plan) p.set("plan", opts.plan);
+  if (opts.billing) p.set("billing", opts.billing);
+  p.set("utm_source", "vitrine");
+  p.set("utm_campaign", opts.campaign || "site");
+  return `${SITE.appUrl}/signup?${p.toString()}`;
+}
 
 // Tracking (VIT-0 décision 4) : PostHog + GA4 (nouvelle propriété), avec Google
 // Consent Mode v2 (défaut « denied ») et bannière minimale. L'ancien GA

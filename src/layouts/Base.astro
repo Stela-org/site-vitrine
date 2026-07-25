@@ -4,6 +4,7 @@ import { SITE, analyticsEnabled } from "../config/site";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import CookieBanner from "../components/CookieBanner.astro";
+import StickyCta from "../components/StickyCta.astro";
 
 interface Props {
   title: string;
@@ -28,6 +29,8 @@ const orgLd = {
   slogan: SITE.tagline,
   email: SITE.email,
   logo: new URL("/images/logo-stela.svg", SITE.url).href,
+  sameAs: SITE.sameAs,
+  founder: { "@type": "Person", name: "Nicolas Anquetin", jobTitle: "Cofondateur", url: new URL("/notre-histoire", SITE.url).href },
 };
 const appLd = {
   "@context": "https://schema.org",
@@ -82,6 +85,7 @@ const appLd = {
     </main>
     <Footer />
     {analyticsEnabled() && <CookieBanner />}
+    <StickyCta />
 
     <script>
       // Compteurs animés (progressive enhancement, bundlé = CSP 'self'). Le
@@ -110,6 +114,21 @@ const appLd = {
           }
         }, { threshold: 0.4 });
         nums.forEach((n) => io.observe(n));
+      }
+
+      // Tunnel : synchronise la période (mensuel/annuel) sur les liens
+      // d'inscription porteurs d'un plan. PE : sans JS, le lien reste « monthly ».
+      const billingToggle = document.getElementById("billing") as HTMLInputElement | null;
+      const planCtas = document.querySelectorAll<HTMLAnchorElement>("[data-plan-cta]");
+      if (billingToggle && planCtas.length) {
+        const syncBilling = () => {
+          const billing = billingToggle.checked ? "yearly" : "monthly";
+          planCtas.forEach((a) => {
+            try { const u = new URL(a.href); u.searchParams.set("billing", billing); a.href = u.toString(); } catch { /* noop */ }
+          });
+        };
+        billingToggle.addEventListener("change", syncBilling);
+        syncBilling();
       }
     </script>
   </body>

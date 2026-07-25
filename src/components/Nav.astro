@@ -1,5 +1,5 @@
 ---
-import { SITE } from "../config/site";
+import { SITE , signupUrl } from "../config/site";
 import { FEATURES } from "../content/features";
 import { profils, secteurs } from "../content/segments";
 import Logo from "./Logo.astro";
@@ -28,9 +28,16 @@ import Logo from "./Logo.astro";
             {secteurs().map((s) => <a href={`/pour/${s.slug}`}>{s.navLabel}</a>)}
           </div>
         </details>
-        <a href="/blog">Blog</a>
-        <a href="/stela-vs-dokaa">Stela vs Dokaa</a>
-        <a class="btn btn-primary nav-cta" href={SITE.appUrl}>Essayer gratuitement</a>
+        <details class="nav-dd">
+          <summary>Ressources</summary>
+          <div class="nav-dd-panel">
+            <a href="/blog">Blog</a>
+            <a href="/notre-histoire">Notre histoire</a>
+            <a href="/stela-vs-dokaa">Stela vs Dokaa</a>
+            <a href="/statistiques-avis-google-france">Statistiques des avis en France</a>
+          </div>
+        </details>
+        <a class="btn btn-primary nav-cta" href={signupUrl({ campaign: "nav" })}>Essayer gratuitement</a>
       </nav>
     </details>
   </div>
