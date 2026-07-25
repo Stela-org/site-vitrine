@@ -38,7 +38,7 @@ const others = CITIES.filter((x) => x.slug !== c.slug);
 ---
 <Base
   title={`Avis Google pour restaurants ${c.prep} | Stela`}
-  description={`Collectez plus d'avis Google pour votre restaurant ${c.prep}, en toute conformité. Réponses IA, QR codes et fidélisation. Prix transparents, essai gratuit.`}
+  description={c.metaDesc}
   path={`/restaurants-${c.slug}`}
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />

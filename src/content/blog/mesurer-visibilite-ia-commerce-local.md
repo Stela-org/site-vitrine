@@ -69,6 +69,43 @@ Reproduisez ce tableau chaque mois, une ligne par question et par moteur :
 
 Ce tableau tout simple vous donne, en quelques mois, une tendance claire : progressez-vous, sur quelles questions, et sur quels moteurs ?
 
+## Le protocole mensuel, pas à pas
+
+Pour que la mesure serve à quelque chose, elle doit être régulière et toujours menée de la même façon. Voici un protocole à reproduire une fois par mois, en une vingtaine de minutes.
+
+1. **Choisissez un jour fixe** dans le mois, par exemple le premier lundi. La régularité prime.
+2. **Ouvrez les trois moteurs** (ChatGPT, Gemini, Perplexity) dans des onglets séparés.
+3. **Posez trois questions à chacun**, toujours les mêmes, dans le même ordre :
+   - « Quels sont les meilleurs [activité] à [ville] ? »
+   - « Peux-tu me conseiller un [activité] avec [votre spécificité] à [ville] ? »
+   - « Un [activité] de confiance dans le quartier [quartier] ? »
+4. **Pour chaque réponse, notez selon la grille ci-dessous.**
+5. **Reportez le total dans votre tableau de suivi**, puis comparez au mois précédent.
+
+## Une grille de notation simple
+
+Attribuez de 0 à 3 points par critère, pour chaque moteur, puis faites la somme. Sur trois moteurs, le score mensuel va de 0 à 27.
+
+| Critère | 0 point | 1 point | 2 points | 3 points |
+|---|---|---|---|---|
+| Présence | Absent | Cité une fois sur trois questions | Cité deux fois | Cité aux trois questions |
+| Rang | Jamais nommé | Cité en dernier | Milieu de liste | Cité en premier |
+| Exactitude | Infos fausses | Une info fausse | Mineures à corriger | Tout est exact |
+
+Un score qui monte mois après mois est le signe que votre travail de fond (fiche, avis, contenu) porte ses fruits. Un score qui stagne à zéro indique un socle à revoir en priorité.
+
+## Exemple de suivi sur trois mois
+
+Prenons un restaurant qui se lance dans la démarche. Voici ce que pourrait donner son tableau, un total par mois et par moteur :
+
+| Mois | ChatGPT | Gemini | Perplexity | Total /27 | Observation |
+|---|---|---|---|---|---|
+| Mois 1 | 2 | 1 | 3 | 6 | Absent de Gemini, infos d'horaires fausses |
+| Mois 2 | 5 | 4 | 6 | 15 | Fiche corrigée, premiers avis récents, mieux cité |
+| Mois 3 | 7 | 6 | 8 | 21 | Cité aux trois questions sur Perplexity, vocabulaire fidèle |
+
+La progression de 6 à 21 en trois mois ne vient pas d'un tour de magie : entre le mois 1 et le mois 2, l'établissement a corrigé sa fiche Google et relancé sa collecte d'avis. Entre le mois 2 et le mois 3, le volume d'avis sincères a nourri une description plus riche, que les IA ont reprise.
+
 ## Que faire des résultats
 
 - **Vous n'êtes pas cité ?** Vérifiez d'abord votre fiche Google et relancez votre collecte d'avis. Ce sont les deux leviers les plus rapides.
