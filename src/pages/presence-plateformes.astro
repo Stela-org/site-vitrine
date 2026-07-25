@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 
 // Page PRÉPARÉE mais non indexée (noindex + hors sitemap). À publier (retirer le
 // noindex) quand la gestion de présence multi-plateformes sera disponible.
@@ -28,7 +28,7 @@ const platforms = [
         Vos informations à jour partout, au même endroit. Des annuaires locaux aux plateformes de votre secteur, et jusque dans les réponses des intelligences artificielles.
       </p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+        <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
       </div>
     </div>
   </section>
@@ -51,7 +51,7 @@ const platforms = [
   <section class="cta-final">
     <div class="container">
       <h2>Une présence maîtrisée, partout</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

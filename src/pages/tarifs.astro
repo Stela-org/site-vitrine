@@ -1,13 +1,15 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, PLANS } from "../config/site";
+import { SITE, PLANS, stripeLink } from "../config/site";
 import TripleZero from "../components/TripleZero.astro";
 
+const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
+
 const faq = [
-  { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous créez votre compte et testez Stela sans carte bancaire et sans engagement." },
-  { q: "Que veut dire deux mois offerts ?", a: "En choisissant la facturation annuelle, vous ne payez que dix mois : l'équivalent de deux mois est offert sur l'année." },
-  { q: "Puis-je changer d'offre ?", a: "Oui, vous passez d'Étoile à Constellation à tout moment depuis l'application." },
-  { q: "Où se fait le paiement ?", a: "Le paiement se fait en toute sécurité dans l'application, après la création de votre compte." },
+  { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous bénéficiez de 7 jours d'essai gratuit, sans engagement, annulable en un clic. La carte est demandée au paiement pour assurer la continuité du service à la fin de l'essai, et vous n'êtes débité qu'au 8e jour si vous continuez." },
+  { q: "Combien coûte l'abonnement annuel ?", a: "Étoile revient à 468 € par an (soit 39 € par mois) et Constellation à 948 € par an (soit 79 € par mois) : dans les deux cas, 120 € d'économie sur l'année par rapport au mensuel." },
+  { q: "Puis-je changer d'offre ?", a: "Oui, vous passez d'Étoile à Constellation à tout moment depuis votre espace client." },
+  { q: "Où se fait le paiement ?", a: "Directement ici, en toute sécurité via Stripe. Après le paiement, vous recevez votre email de première connexion pour brancher votre fiche Google." },
 ];
 const faqLd = {
   "@context": "https://schema.org", "@type": "FAQPage",
@@ -16,7 +18,7 @@ const faqLd = {
 ---
 <Base
   title="Tarifs transparents | Stela"
-  description="Deux offres claires : Étoile 49 €/mois, Constellation 89 €/mois. Essai gratuit, sans engagement, deux mois offerts en annuel. Prix affichés."
+  description="Deux offres claires : Étoile 49 €/mois, Constellation 89 €/mois (468 € et 948 € par an). Essai gratuit de 7 jours, sans engagement, annulable en un clic. Prix affichés."
   path="/tarifs"
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
@@ -26,13 +28,31 @@ const faqLd = {
       <p class="eyebrow">Tarifs transparents</p>
       <h1>Un prix affiché, un essai gratuit, sans engagement</h1>
       <p class="lead" style="max-width:52ch;margin-inline:auto;">Pas de démonstration obligatoire pour connaître nos prix. Vous les voyez, vous essayez, vous décidez.</p>
+    </div>
+  </section>
 
+  {/* Bloc PERTE (avant les prix) : ce que coûte une mauvaise réputation. */}
+  <section class="loss">
+    <div class="container">
+      <div class="loss-inner">
+        <p class="loss-num">-31 %</p>
+        <div>
+          <p class="loss-lead">C'est la baisse de fréquentation que subit un commerce mal noté face à un concurrent mieux noté.</p>
+          <p class="loss-src">Source : Harvard Business School, étude de Michael Luca sur l'impact des avis en ligne.</p>
+        </div>
+      </div>
+      <p class="loss-foot">Une bonne réputation n'est pas un coût, c'est une protection. Voici combien elle vaut :</p>
+    </div>
+  </section>
+
+  <section class="plans-sec">
+    <div class="container" style="text-align:center;">
       <div id="tarifs" class="billing-wrap">
         <div class="billing-toggle">
-          <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (2 mois offerts)" />
+          <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
           <label for="billing" class="billing-switch">
             <span class="opt opt-m">Mensuel</span>
-            <span class="opt opt-y">Annuel <span class="save">2 mois offerts</span></span>
+            <span class="opt opt-y">Annuel <span class="save">-120 € par an</span></span>
           </label>
         </div>
 
@@ -47,20 +67,33 @@ const faqLd = {
                 <span class="amount amount-y">{p.yearlyPerMonth} €</span>
                 <span class="per">/ mois</span>
               </p>
-              <p class="plan-note plan-note-y">Facturé annuellement, vous économisez {p.yearlySave} € par an.</p>
+              {p.highlight && <p class="plan-perday">soit moins de 3 € par jour ({perDay(p.monthly)} €)</p>}
+              <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
               {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
               <ul class="check-list">
                 {p.features.map((ft) => <li>{ft}</li>)}
               </ul>
-              <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} href={SITE.appUrl}>Essayer gratuitement</a>
+              <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
+                data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
+                data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
+                href={stripeLink(p.id, "monthly", "tarifs")}>Essayer gratuitement</a>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Garantie 30 jours (GO Nicolas) : sous les cartes. */}
+      <div class="guarantee card">
+        <span class="guarantee-badge">✓ Sans risque</span>
+        <p><strong>30 jours satisfait ou remboursé.</strong> Essayez Stela en conditions réelles. Si l'outil ne vous convient pas durant les 30 premiers jours, nous vous remboursons intégralement sur simple demande.</p>
+      </div>
+
+      <p class="compare-link"><a href="/stela-vs-dokaa">Comparez-nous aux autres solutions →</a></p>
       <div class="tarifs-tz"><TripleZero /></div>
-      <p class="tarifs-foot">Aucune carte requise pour essayer. Le paiement se fait dans l'application.</p>
+      <p class="tarifs-foot">Paiement sécurisé via Stripe. Essai gratuit de 7 jours, sans engagement, annulable en un clic.</p>
     </div>
   </section>
+
 
   <section class="faq">
     <div class="container">
@@ -75,7 +108,23 @@ const faqLd = {
 </Base>
 
 <style>
-  .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-bottom: 1rem; }
+  .loss { background: var(--cream); padding-block: 1rem 0; }
+  .loss-inner { display: flex; align-items: center; gap: 1.5rem; max-width: 760px; margin-inline: auto;
+    background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.5rem 1.75rem; }
+  .loss-num { font-size: clamp(2.6rem, 8vw, 3.6rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0; flex: none; }
+  .loss-lead { color: #fff; font-weight: 600; margin: 0 0 .35rem; }
+  .loss-src { color: #8ea0bd; font-size: .76rem; margin: 0; }
+  .loss-foot { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 1.25rem auto 0; max-width: 52ch; }
+  @media (max-width: 560px) { .loss-inner { flex-direction: column; text-align: center; gap: .75rem; } }
+  .plans-sec { background: var(--cream); }
+  .plan-perday { margin: -.1rem 0 .3rem; font-size: .82rem; font-weight: 700; color: var(--brass); }
+  .guarantee { max-width: 620px; margin: 1.75rem auto 0; display: flex; gap: 1rem; align-items: center; text-align: left; }
+  .guarantee-badge { flex: none; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; border-radius: 999px; padding: .3rem .7rem; }
+  .guarantee p { margin: 0; color: var(--text-secondary); font-size: .95rem; }
+  .guarantee strong { color: var(--ink); }
+  .compare-link { text-align: center; margin-top: 1.5rem; }
+  .compare-link a { font-weight: 700; color: var(--accentBlue, #2D6CDF); }
   .billing-toggle { display: flex; justify-content: center; margin: 2rem 0; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
   .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;

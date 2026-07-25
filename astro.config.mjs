@@ -19,7 +19,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Pages légales en noindex : hors sitemap.
-      filter: (page) => !/\/(mentions-legales|cgv|politique-confidentialite|presence-plateformes)\/?$/.test(page),
+      filter: (page) => !/\/(mentions-legales|cgv|politique-confidentialite|presence-plateformes|guide-google-commercant-local\/(merci|confirme))\/?$/.test(page),
       // Priorités par intention : home > tarifs > fonctionnalités > segments.
       serialize(item) {
         const u = item.url;

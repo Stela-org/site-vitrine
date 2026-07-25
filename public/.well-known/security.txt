@@ -1,0 +1,4 @@
+Contact: mailto:contact@mystela.fr
+Preferred-Languages: fr, en
+Canonical: https://www.mystela.fr/.well-known/security.txt
+Expires: 2027-12-31T23:59:59.000Z

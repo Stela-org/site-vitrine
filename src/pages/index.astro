@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, PLANS } from "../config/site";
+import { SITE, PLANS, stripeLink } from "../config/site";
 import { FEATURES } from "../content/features";
 import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
@@ -30,7 +30,7 @@ const faq = [
   },
   {
     q: "Combien coûte Stela ?",
-    a: "Deux offres transparentes : Étoile à 49 € par mois et Constellation à 89 € par mois. L'abonnement annuel revient à deux mois offerts. L'essai est gratuit et sans engagement.",
+    a: "Deux offres transparentes : Étoile à 49 € par mois et Constellation à 89 € par mois. En annuel, 468 € et 948 € par an, soit 120 € d'économie. Essai gratuit de 7 jours, sans engagement, annulable en un clic.",
   },
   {
     q: "Pour quels commerces ?",
@@ -38,7 +38,7 @@ const faq = [
   },
   {
     q: "Comment commencer ?",
-    a: "Vous créez votre compte sur l'application, vous connectez votre fiche Google et vous êtes prêt. Aucune démonstration obligatoire, aucune carte requise pour essayer.",
+    a: "Vous choisissez votre offre ici et vous réglez en ligne (essai gratuit de 7 jours, sans engagement, annulable en un clic). Vous recevez aussitôt votre email de première connexion pour brancher votre fiche Google. Aucune démonstration obligatoire.",
   },
 ];
 
@@ -80,7 +80,7 @@ const websiteLd = {
           Collectez plus d'avis, répondez automatiquement et faites revenir vos clients. Sans filtrer une seule note, parce que la conformité est notre force.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href="#tarifs">Essayer gratuitement</a>
           <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
         <div class="hero-trust"><TripleZero /></div>
@@ -194,7 +194,7 @@ const websiteLd = {
 
           <p class="results-cred">L'équipe Stela a équipé plus de 170 restaurants avec la génération précédente de l'outil.</p>
           <div class="results-cta">
-            <a class="btn btn-primary" href={SITE.appUrl}>Devenir l'un de nos premiers cas mesurés</a>
+            <a class="btn btn-primary" href="#tarifs">Devenir l'un de nos premiers cas mesurés</a>
           </div>
 
           <script>
@@ -227,10 +227,10 @@ const websiteLd = {
       <h2>Un prix affiché, un essai gratuit, sans engagement</h2>
 
       <div class="billing-toggle">
-        <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (2 mois offerts)" />
+        <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
         <label for="billing" class="billing-switch">
           <span class="opt opt-m">Mensuel</span>
-          <span class="opt opt-y">Annuel <span class="save">2 mois offerts</span></span>
+          <span class="opt opt-y">Annuel <span class="save">-120 € par an</span></span>
         </label>
       </div>
 
@@ -245,16 +245,19 @@ const websiteLd = {
               <span class="amount amount-y">{p.yearlyPerMonth} €</span>
               <span class="per">/ mois</span>
             </p>
-            <p class="plan-note plan-note-y">Facturé annuellement, vous économisez {p.yearlySave} € par an.</p>
+            <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
             {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
             <ul class="check-list">
               {p.features.map((f) => <li>{f}</li>)}
             </ul>
-            <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} href={SITE.appUrl}>Essayer gratuitement</a>
+            <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
+              data-href-monthly={stripeLink(p.id, "monthly", "home")}
+              data-href-yearly={stripeLink(p.id, "yearly", "home")}
+              href={stripeLink(p.id, "monthly", "home")}>Essayer gratuitement</a>
           </div>
         ))}
       </div>
-      <p class="tarifs-foot">Le paiement se fait en toute sécurité dans l'application, après la création de votre compte.</p>
+      <p class="tarifs-foot">Paiement sécurisé via Stripe. Essai gratuit de 7 jours, sans engagement, annulable en un clic.</p>
     </div>
   </section>
 
@@ -278,7 +281,8 @@ const websiteLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Prêt à faire grandir votre réputation, en toute conformité ?</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href="#tarifs">Essayer gratuitement</a>
+      <p class="cta-guarantee">✓ Essai gratuit de 7 jours, puis 30 jours satisfait ou remboursé.</p>
       <div class="cta-tz"><TripleZero variant="dark" /></div>
     </div>
   </section>
@@ -348,7 +352,7 @@ const websiteLd = {
   .billing-toggle { display: flex; justify-content: center; margin: 1.5rem 0 2rem; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
   /* Toggle sans knob glissant : l'option active reçoit un fond plein (aucun
-     chevauchement possible avec le badge « 2 mois offerts »). */
+     chevauchement possible avec le badge « -120 € par an »). */
   .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;
     background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 4px; cursor: pointer; user-select: none; }
   .billing-switch .opt { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 999px;
@@ -423,5 +427,6 @@ const websiteLd = {
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
-  .cta-tz { display: flex; justify-content: center; margin-top: 1.25rem; }
+  .cta-guarantee { color: #9fb0cc; font-size: .9rem; margin: 1rem 0 0; font-weight: 600; }
+  .cta-tz { display: flex; justify-content: center; margin-top: 1rem; }
 </style>

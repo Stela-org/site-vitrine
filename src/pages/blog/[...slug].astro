@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { SITE } from "../../config/site";
+import { SITE , TARIFS_URL } from "../../config/site";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -20,8 +20,14 @@ const articleLd = {
   inLanguage: "fr-FR",
   datePublished: d.pubDate.toISOString(),
   dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
-  author: { "@type": "Organization", name: SITE.brand },
-  publisher: { "@type": "Organization", name: SITE.brand },
+  author: {
+    "@type": "Person",
+    name: "Corentin Janin",
+    jobTitle: "Cofondateur de Stela",
+    url: new URL("/notre-histoire", SITE.url).href,
+    sameAs: SITE.sameAs,
+  },
+  publisher: { "@type": "Organization", name: SITE.brand, logo: { "@type": "ImageObject", url: new URL("/images/logo-stela.svg", SITE.url).href } },
   mainEntityOfPage: url,
 };
 const breadcrumbLd = {
@@ -48,15 +54,26 @@ const others = (await getCollection("blog")).filter((p) => p.id !== post.id).sli
       <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a> <span>/</span> <a href="/blog">Blog</a></nav>
       <p class="eyebrow">{d.keyword}</p>
       <h1>{d.title}</h1>
-      <p class="post-date">Mis à jour le {dateStr}</p>
+      <div class="post-meta">
+        <img class="post-author-img" src="/images/equipe-corentin.png" alt="" width="40" height="40" loading="lazy" decoding="async" />
+        <span>Par <a href="/notre-histoire">Corentin Janin</a>, cofondateur de Stela · Mis à jour le {dateStr}</span>
+      </div>
       <div class="post-body">
         <Content />
       </div>
 
+      <aside class="author-bio card">
+        <img src="/images/equipe-corentin.png" alt="Portrait de Corentin Janin" width="64" height="64" loading="lazy" decoding="async" />
+        <div>
+          <p class="author-name">Corentin Janin, cofondateur de Stela</p>
+          <p class="author-desc">Après avoir équipé plus de 170 restaurants avec la génération précédente de l'outil, Corentin défend une collecte d'avis 100 % conforme aux règles de Google. <a href="/notre-histoire">Notre histoire</a>.</p>
+        </div>
+      </aside>
+
       <div class="post-cta card">
         <h2>Collectez plus d'avis, en toute conformité</h2>
         <p>Stela aide les commerces locaux à collecter, répondre et fidéliser, sans jamais filtrer une note.</p>
-        <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+        <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
       </div>
 
       {others.length > 0 && (
@@ -74,6 +91,13 @@ const others = (await getCollection("blog")).filter((p) => p.id !== post.id).sli
   .crumbs { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
   .crumbs a { color: var(--text-muted); } .crumbs span { margin: 0 .35rem; }
   .post-date { color: var(--text-muted); font-size: .85rem; margin-top: -.3rem; }
+  .post-meta { display: flex; align-items: center; gap: .6rem; color: var(--text-muted); font-size: .85rem; margin-top: -.2rem; }
+  .post-meta a { font-weight: 600; }
+  .post-author-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
+  .author-bio { display: flex; gap: 1rem; align-items: center; margin: 2rem 0; }
+  .author-bio img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: none; }
+  .author-name { font-weight: 700; color: var(--ink); margin: 0 0 .25rem; }
+  .author-desc { color: var(--text-secondary); font-size: .9rem; margin: 0; }
   .post-body { margin-top: 1.5rem; }
   .post-body :global(h2) { font-size: 1.4rem; margin: 2rem 0 .6rem; }
   .post-body :global(h3) { font-size: 1.1rem; margin: 1.4rem 0 .4rem; }

@@ -1,0 +1,34 @@
+---
+import { TARIFS_URL } from "../config/site";
+// CTA sticky mobile (une seule instance, dans Base). Apparaît au scroll, JAMAIS
+// par-dessus la bannière de consentement (attend qu'un choix soit fait). Sans JS :
+// reste masqué (le CTA de la nav suffit). Desktop : jamais affiché.
+---
+<div id="sticky-cta" class="sticky-cta">
+  <span class="sticky-txt">Prêt à collecter plus d'avis ?</span>
+  <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
+</div>
+<script>
+  const KEY = "stela-consent";
+  const el = document.getElementById("sticky-cta");
+  if (el) {
+    const consentDone = () => { try { return !!localStorage.getItem(KEY); } catch { return true; } };
+    const update = () => { el.classList.toggle("is-visible", window.scrollY > 700 && consentDone()); };
+    window.addEventListener("scroll", update, { passive: true });
+    // Le choix de consentement se fait dans le même onglet : on re-vérifie après
+    // un clic (bouton Accepter/Refuser) pour ne jamais chevaucher la bannière.
+    document.addEventListener("click", () => setTimeout(update, 60));
+    update();
+  }
+</script>
+<style>
+  .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: none;
+    align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem 16px calc(.7rem + env(safe-area-inset-bottom));
+    background: rgba(247,244,239,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--border);
+    transform: translateY(110%); transition: transform .25s ease; box-shadow: 0 -6px 20px rgba(21,35,63,.08); }
+  .sticky-txt { font-weight: 700; font-size: .88rem; color: var(--ink); }
+  .sticky-cta .btn { padding: .6rem 1.1rem; font-size: .9rem; white-space: nowrap; }
+  @media (max-width: 820px) { .sticky-cta { display: flex; } }
+  .sticky-cta.is-visible { transform: none; }
+  @media (prefers-reduced-motion: reduce) { .sticky-cta { transition: none; } }
+</style>

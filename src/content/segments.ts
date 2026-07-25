@@ -20,7 +20,7 @@ export const SEGMENTS: Segment[] = [
     navLabel: "Indépendants",
     title: "Stela pour les commerces indépendants",
     metaDescription:
-      "La réputation Google clé-en-main pour un commerce indépendant : collecte conforme, réponses IA, prix transparent et essai gratuit.",
+      "La réputation Google clé-en-main pour un commerce indépendant : collecte conforme, réponses IA, prix transparent et essai gratuit de 7 jours.",
     h1: "Pour les indépendants qui n'ont pas de temps à perdre",
     lead:
       "Un seul établissement, tout géré depuis votre téléphone. Vous collectez des avis, vous répondez et vous fidélisez, sans y passer vos soirées.",

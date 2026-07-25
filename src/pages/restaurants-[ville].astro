@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 import { CITIES } from "../content/cities";
 
 export function getStaticPaths() {
@@ -52,7 +52,7 @@ const others = CITIES.filter((x) => x.slug !== c.slug);
         <h1>Plus d'avis Google pour votre restaurant {c.prep}</h1>
         <p class="lead">{c.intro}</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
           <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
@@ -110,7 +110,7 @@ const others = CITIES.filter((x) => x.slug !== c.slug);
   <section class="cta-final">
     <div class="container">
       <h2>Prêt à faire grandir votre réputation {c.prep} ?</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

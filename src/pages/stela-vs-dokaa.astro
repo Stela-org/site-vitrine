@@ -1,13 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 
 // Comparaison factuelle. Principe : n'affirmer que des faits vérifiables, sourcer
 // les règles de Google, ton professionnel, aucun dénigrement. Les points non
 // vérifiables publiquement sont formulés comme « à vérifier auprès de l'éditeur ».
 const rows = [
   { critere: "Prix affichés publiquement", stela: "Oui, 49 € et 89 € par mois", autre: "Non, démonstration requise pour connaître les prix" },
-  { critere: "Essai en autonomie (self-serve)", stela: "Oui, sans carte bancaire", autre: "Parcours via démonstration commerciale" },
+  { critere: "Essai en autonomie (self-serve)", stela: "Oui, essai gratuit de 7 jours sans engagement", autre: "Parcours via démonstration commerciale" },
   { critere: "Engagement", stela: "Sans engagement, résiliable à tout moment", autre: "À vérifier auprès de l'éditeur" },
   { critere: "Secteurs couverts", stela: "Tous les commerces locaux", autre: "Orientation restauration" },
   { critere: "Filtrage des avis selon la note", stela: "Jamais (interdit par Google)", autre: "À vérifier auprès de l'éditeur" },
@@ -103,7 +103,7 @@ const breadcrumbLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Essayez Stela, prix affichés et essai gratuit</h2>
-      <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>
