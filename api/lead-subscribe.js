@@ -75,23 +75,38 @@ export default async function handler(req, res) {
   if (!byEmail.ok || !byIp.ok) return redirect(`${PAGE}/merci`);
 
   const consentedAt = new Date().toISOString();
-  const unsubUrl = unsubUrlFor(email);
 
-  // Envoi du guide (immédiat) + relance planifiée J+3. L'envoi du guide prime :
-  // le CRM et la relance ne doivent jamais le bloquer.
+  // 1) Planifier la relance J+3 EN PREMIER, pour récupérer son id Resend et le
+  //    glisser (signé HMAC) dans le lien de désinscription du guide : une
+  //    désinscription pourra ainsi annuler la relance encore en attente.
+  //    Son propre lien de désinscription est email-seul (rien à annuler après
+  //    sa livraison). Best effort : ne bloque jamais le guide.
+  let scheduledId = null;
   try {
-    const g = guideEmail({ firstName, unsubUrl });
+    const c = closingEmail({ firstName, unsubUrl: unsubUrlFor(email) });
+    scheduledId = await sendEmail({
+      to: email,
+      subject: c.subject,
+      html: c.html,
+      scheduledAt: "in 3 days",
+    });
+  } catch {
+    /* planification indisponible : on continue sans relance */
+  }
+
+  // 2) Envoyer le guide (immédiat), lien de désinscription porteur de l'id
+  //    planifié. Le guide prime : son échec n'est pas divulgué.
+  try {
+    const g = guideEmail({ firstName, unsubUrl: unsubUrlFor(email, scheduledId) });
     await sendEmail({ to: email, subject: g.subject, html: g.html });
   } catch {
     /* échec d'envoi : on ne divulgue rien, on affiche merci */
   }
 
-  // Relance J+3 (planifiée côté Resend) + poussée CRM : best effort, non bloquant.
-  const c = closingEmail({ firstName, unsubUrl });
-  await Promise.allSettled([
-    sendEmail({ to: email, subject: c.subject, html: c.html, scheduledAt: "in 3 days" }),
-    pushLeadToCrm({ email, firstName, consentedAt }),
-  ]);
+  // 3) Pousser le lead au CRM (avec l'id planifié) : best effort, non bloquant.
+  await pushLeadToCrm({ email, firstName, consentedAt, scheduledEmailId: scheduledId }).catch(
+    () => {}
+  );
 
   return redirect(`${PAGE}/merci`);
 }

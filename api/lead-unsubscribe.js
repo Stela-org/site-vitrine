@@ -2,7 +2,12 @@
 // jeton HMAC (email signé, sans expiration), marque le lead désinscrit côté CRM
 // (POST app.mystela.fr/api/leads, marketing_consent:false), puis affiche une
 // page de confirmation. Aucun stockage local : la source de vérité est le CRM.
-import { SITE, verifyUnsub, markUnsubscribedInCrm } from "../lib/leads.js";
+import {
+  SITE,
+  verifyUnsub,
+  markUnsubscribedInCrm,
+  cancelScheduledEmail,
+} from "../lib/leads.js";
 
 const PAGE = "/guide-google-commercant-local";
 
@@ -14,11 +19,19 @@ export default async function handler(req, res) {
   };
 
   const token = new URL(req.url, SITE).searchParams.get("token");
-  const email = token ? verifyUnsub(token) : null;
-  if (!email) return redirect(`${PAGE}?erreur=lien`);
+  const parsed = token ? verifyUnsub(token) : null;
+  if (!parsed) return redirect(`${PAGE}?erreur=lien`);
+  const { email, scheduledId } = parsed;
 
-  // Best effort : même si le CRM est momentanément indisponible, on confirme la
-  // désinscription à l'utilisateur (le CRM déduplique/rejoue de son côté).
+  // 1) Annuler la relance J+3 encore en attente AVANT de marquer la
+  //    désinscription. Si elle est déjà partie, Resend renvoie une erreur : on
+  //    continue sans bruit (l'utilisateur ne doit jamais recevoir la relance
+  //    après s'être désinscrit).
+  if (scheduledId) await cancelScheduledEmail(scheduledId).catch(() => {});
+
+  // 2) Marquer le lead désinscrit côté CRM. Best effort : même si le CRM est
+  //    momentanément indisponible, on confirme à l'utilisateur (le CRM
+  //    déduplique/rejoue de son côté).
   await markUnsubscribedInCrm(email).catch(() => {});
 
   return redirect(`${PAGE}/desinscrit`);
