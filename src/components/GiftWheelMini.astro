@@ -1,0 +1,35 @@
+---
+// Mini roue cadeau (reprise du produit : roue publique /r/, 100 % conforme,
+// le lot est révélé APRÈS l'avis). SVG à 6 segments, tourne au scroll (sans JS,
+// animation-timeline). Décoratif : aria-hidden.
+---
+<div class="wheel" aria-hidden="true">
+  <span class="wheel-pointer"></span>
+  <div class="wheel-spin">
+    <svg viewBox="0 0 200 200" width="150" height="150">
+      <path d="M100,100 L100,4 A96,96 0 0 1 183.14,52 Z" fill="#B08A3E" stroke="#fff" stroke-width="1.5" />
+      <path d="M100,100 L183.14,52 A96,96 0 0 1 183.14,148 Z" fill="#15233F" stroke="#fff" stroke-width="1.5" />
+      <path d="M100,100 L183.14,148 A96,96 0 0 1 100,196 Z" fill="#C8992E" stroke="#fff" stroke-width="1.5" />
+      <path d="M100,100 L100,196 A96,96 0 0 1 16.86,148 Z" fill="#15233F" stroke="#fff" stroke-width="1.5" />
+      <path d="M100,100 L16.86,148 A96,96 0 0 1 16.86,52 Z" fill="#B08A3E" stroke="#fff" stroke-width="1.5" />
+      <path d="M100,100 L16.86,52 A96,96 0 0 1 100,4 Z" fill="#1D3158" stroke="#fff" stroke-width="1.5" />
+      <circle cx="100" cy="100" r="16" fill="#fff" stroke="#B08A3E" stroke-width="3" />
+    </svg>
+    <span class="wheel-gift">🎁</span>
+  </div>
+</div>
+<style>
+  .wheel { position: relative; width: 150px; height: 150px; }
+  .wheel-pointer { position: absolute; top: -4px; left: 50%; transform: translateX(-50%); z-index: 2;
+    width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent;
+    border-top: 14px solid #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+  .wheel-spin { position: relative; width: 150px; height: 150px; border-radius: 50%;
+    box-shadow: 0 8px 26px rgba(21,35,63,.28); }
+  .wheel-gift { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .wheel-spin { animation: wheel-turn linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+    }
+  }
+  @keyframes wheel-turn { from { transform: rotate(-25deg); } to { transform: rotate(120deg); } }
+</style>

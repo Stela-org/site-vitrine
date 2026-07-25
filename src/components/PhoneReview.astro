@@ -1,0 +1,63 @@
+---
+// Mockup téléphone reproduisant la VRAIE page d'avis /r/ de Stela (libellés
+// réels : « Merci pour votre dîner », « Comment s'est passé votre moment chez
+// nous ? », « Touchez une étoile », « Propulsé par Stela »). Reconstruit en
+// HTML/CSS, étoiles qui se remplissent en boucle (sans JS). Décoratif : le
+// contenu informatif du hero vit dans le texte à côté, pas ici.
+---
+<div class="phone" role="img" aria-label="Aperçu de la page d'avis Stela : cinq étoiles se remplissent après un dîner">
+  <div class="phone-notch" aria-hidden="true"></div>
+  <div class="phone-screen">
+    <div class="ps-photo">
+      <img src="/images/hero-bistro.webp" alt="" width="300" height="120" loading="eager" decoding="async" />
+      <span class="ps-place">Le Bistrot du Marais</span>
+    </div>
+    <div class="ps-body">
+      <p class="ps-greet">Merci pour votre dîner 🌙</p>
+      <span class="ps-teaser">🎁 Un cadeau à gagner après votre avis</span>
+      <p class="ps-q">Comment s'est passé votre moment chez nous ?</p>
+      <p class="ps-sub">30 secondes : votre avis nous aide vraiment.</p>
+      <div class="ps-stars" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => <span class="ps-star" style={`--i:${i}`}>★</span>)}
+      </div>
+      <p class="ps-hint">Touchez une étoile</p>
+      <div class="ps-foot"><span class="ps-glyph">✳</span> Propulsé par <strong>Stela</strong></div>
+    </div>
+  </div>
+</div>
+<style>
+  .phone { position: relative; width: 264px; margin-inline: auto; border-radius: 40px; padding: 12px;
+    background: #0e1830; box-shadow: 0 30px 60px rgba(14,24,48,.35), inset 0 0 0 2px rgba(255,255,255,.06); }
+  .phone-notch { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 96px; height: 20px;
+    background: #0e1830; border-radius: 0 0 14px 14px; z-index: 3; }
+  .phone-screen { background: var(--surface); border-radius: 30px; overflow: hidden; }
+  .ps-photo { position: relative; height: 120px; }
+  .ps-photo img { width: 100%; height: 120px; object-fit: cover; }
+  .ps-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(21,35,63,.05), rgba(21,35,63,.55)); }
+  .ps-place { position: absolute; left: 14px; bottom: 10px; z-index: 1; color: #fff; font-weight: 800; font-size: .95rem;
+    text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+  .ps-body { padding: 14px 16px 16px; text-align: center; }
+  .ps-greet { font-weight: 700; color: var(--ink); margin: 0 0 .5rem; font-size: .9rem; }
+  .ps-teaser { display: inline-block; font-size: .68rem; font-weight: 700; color: var(--brass);
+    background: rgba(176,138,62,.12); border-radius: 999px; padding: .2rem .6rem; margin-bottom: .7rem; }
+  .ps-q { font-weight: 800; color: var(--ink); font-size: 1rem; margin: 0 0 .25rem; line-height: 1.25; }
+  .ps-sub { color: var(--text-muted); font-size: .72rem; margin: 0 0 .6rem; }
+  .ps-stars { display: flex; justify-content: center; gap: 4px; font-size: 1.7rem; margin-bottom: .3rem; }
+  .ps-star { color: #d9d0c2; }
+  .ps-hint { color: var(--text-muted); font-size: .72rem; margin: 0 0 .8rem; }
+  .ps-foot { font-size: .68rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: .6rem; }
+  .ps-glyph { color: var(--brass); }
+  .ps-foot strong { color: var(--ink); }
+
+  /* Étoiles qui se remplissent en boucle (démonstration vivante), sans JS.
+     Sous prefers-reduced-motion : dorées, fixes. */
+  .ps-star { color: #E7B008; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ps-star { color: #d9d0c2; animation: ps-fill 6s infinite; animation-delay: calc(var(--i) * .28s); }
+  }
+  @keyframes ps-fill {
+    0%, 6% { color: #d9d0c2; transform: scale(.82); }
+    16%, 74% { color: #E7B008; transform: scale(1); }
+    86%, 100% { color: #d9d0c2; transform: scale(.82); }
+  }
+</style>
