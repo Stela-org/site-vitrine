@@ -3,7 +3,11 @@
 //  - « Avistars » / « avistars.fr » = ancienne marque à ne jamais réintroduire.
 //  - review gating (interception d'insatisfaits, filtrage des avis par la note).
 // Le legacy/ (ancien site) est exclu : purgé au VIT-4.
-import { readFileSync, globSync } from "node:fs";
+import { readFileSync, globSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+
+// Empreinte du favicon Avistars (legacy) : ne doit JAMAIS réapparaître.
+const LEGACY_FAVICON_SHA256 = "c5dad924b7f50fe73db77300f020cf62b92ec8c1e338ed6eee0c405956b5ee89";
 
 const PATTERNS = [
   "src/**/*.{astro,ts,tsx,js,mjs,md}",
@@ -33,9 +37,15 @@ for (const f of files) {
   });
 }
 
+// Empreinte : le favicon ne doit pas être celui d'Avistars.
+if (existsSync("public/favicon.ico")) {
+  const sha = createHash("sha256").update(readFileSync("public/favicon.ico")).digest("hex");
+  if (sha === LEGACY_FAVICON_SHA256) offenders.push("public/favicon.ico [favicon legacy Avistars] : empreinte identique à l'ancien favicon");
+}
+
 if (offenders.length) {
   console.error(`check:brand ECHEC : ${offenders.length} occurrence(s) interdite(s) :`);
   offenders.forEach((o) => console.error("  " + o));
   process.exit(1);
 }
-console.log(`check:brand OK : 0 occurrence interdite (${files.length} fichiers).`);
+console.log(`check:brand OK : 0 occurrence interdite (${files.length} fichiers + favicon).`);

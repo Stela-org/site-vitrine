@@ -66,6 +66,9 @@ const appLd = {
     <meta name="theme-color" content="#15233F" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/images/glyphe-laiton.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/glyphe-brass-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/glyphe-brass-16.png" />
+    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
     <script type="application/ld+json" set:html={JSON.stringify(orgLd)} />
@@ -79,5 +82,35 @@ const appLd = {
     </main>
     <Footer />
     {analyticsEnabled() && <CookieBanner />}
+
+    <script>
+      // Compteurs animés (progressive enhancement, bundlé = CSP 'self'). Le
+      // chiffre FINAL est toujours dans le DOM : sans JS ou sous reduced-motion,
+      // il s'affiche directement. Anime tout élément [data-count] à l'entrée.
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const nums = document.querySelectorAll<HTMLElement>("[data-count]");
+      if (nums.length && !reduce && "IntersectionObserver" in window) {
+        const io = new IntersectionObserver((entries, obs) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            obs.unobserve(e.target);
+            const el = e.target as HTMLElement;
+            const target = parseFloat(el.dataset.count || "0");
+            const suffix = el.dataset.suffix || "";
+            const sign = target < 0 ? "-" : "";
+            const abs = Math.abs(target);
+            const dur = 900; let start = 0;
+            const tick = (t: number) => {
+              if (!start) start = t;
+              const p = Math.min((t - start) / dur, 1);
+              el.textContent = sign + Math.round(abs * p) + suffix;
+              if (p < 1) requestAnimationFrame(tick); else el.textContent = sign + abs + suffix;
+            };
+            requestAnimationFrame(tick);
+          }
+        }, { threshold: 0.4 });
+        nums.forEach((n) => io.observe(n));
+      }
+    </script>
   </body>
 </html>

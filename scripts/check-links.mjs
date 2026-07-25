@@ -24,8 +24,18 @@ function isServable(pathname) {
 const errors = [];
 let checked = 0;
 
+// Maillage : pour chaque page, quels chemins internes elle pointe (pour détecter
+// les pages orphelines du sitemap). `fileToPath` normalise un fichier dist en
+// chemin servable (/tarifs, /, /restaurants-lyon).
+function fileToPath(file) {
+  let p = file.replace(new RegExp(`^${DIST}`), "").replace(/\.html$/, "").replace(/\/index$/, "");
+  return p === "" ? "/" : p;
+}
+const inbound = new Map(); // path -> Set of source paths (autres pages qui pointent vers lui)
+
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
+  const selfPath = fileToPath(file);
 
   // Canonicals : doivent être sans extension .html.
   const canon = html.match(/<link rel="canonical" href="([^"]+)"/);
@@ -44,6 +54,25 @@ for (const file of htmlFiles) {
     if (!isServable(pathname)) {
       errors.push(`${file}: lien interne non servable -> ${href}`);
     }
+    // Enregistre le lien entrant (depuis une AUTRE page).
+    const target = pathname.replace(/\/$/, "") || "/";
+    if (target !== selfPath) {
+      if (!inbound.has(target)) inbound.set(target, new Set());
+      inbound.get(target).add(selfPath);
+    }
+  }
+}
+
+// Orphelines : toute URL du sitemap doit avoir >= 1 lien entrant.
+if (existsSync(`${DIST}/sitemap-0.xml`)) {
+  const sm = readFileSync(`${DIST}/sitemap-0.xml`, "utf8");
+  const locs = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  for (const loc of locs) {
+    const path = loc.replace(/^https?:\/\/[^/]+/, "").replace(/\/$/, "") || "/";
+    const sources = inbound.get(path);
+    if (!sources || sources.size === 0) {
+      errors.push(`page orpheline (0 lien entrant) dans le sitemap : ${path}`);
+    }
   }
 }
 
@@ -52,4 +81,4 @@ if (errors.length) {
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:links OK : ${checked} liens internes servables, canonicals sans extension (${htmlFiles.length} pages).`);
+console.log(`check:links OK : ${checked} liens internes servables, 0 page orpheline, canonicals sans extension (${htmlFiles.length} pages).`);

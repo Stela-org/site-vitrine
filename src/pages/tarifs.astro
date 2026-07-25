@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import { SITE, PLANS } from "../config/site";
+import TripleZero from "../components/TripleZero.astro";
 
 const faq = [
   { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous créez votre compte et testez Stela sans carte bancaire et sans engagement." },
@@ -56,6 +57,7 @@ const faqLd = {
           ))}
         </div>
       </div>
+      <div class="tarifs-tz"><TripleZero /></div>
       <p class="tarifs-foot">Aucune carte requise pour essayer. Le paiement se fait dans l'application.</p>
     </div>
   </section>
@@ -112,7 +114,8 @@ const faqLd = {
   .check-list li { position: relative; padding-left: 1.6rem; margin-bottom: .5rem; color: var(--text-secondary); }
   .check-list li::before { content: "✓"; position: absolute; left: 0; color: var(--brass); font-weight: 800; }
   .plan-cta { margin-top: 1.25rem; justify-content: center; }
-  .tarifs-foot { text-align: center; color: var(--text-muted); font-size: .9rem; margin-top: 1.5rem; }
+  .tarifs-tz { display: flex; justify-content: center; margin-top: 1.75rem; }
+  .tarifs-foot { text-align: center; color: var(--text-muted); font-size: .9rem; margin-top: .75rem; }
   .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
   @media (max-width: 760px) { .faq-list { grid-template-columns: 1fr; } }
   .faq-item h3 { margin-bottom: .35rem; }

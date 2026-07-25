@@ -8,6 +8,8 @@ import ReviewCard from "../components/ReviewCard.astro";
 import GiftWheelMini from "../components/GiftWheelMini.astro";
 import MiniMockup from "../components/MiniMockup.astro";
 import ROICard from "../components/ROICard.astro";
+import StatBand from "../components/StatBand.astro";
+import TripleZero from "../components/TripleZero.astro";
 
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
@@ -81,7 +83,7 @@ const websiteLd = {
           <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
           <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
-        <p class="hero-trust">Prix transparents. Essai sans engagement. Aucune carte requise.</p>
+        <div class="hero-trust"><TripleZero /></div>
       </div>
       <div class="hero-visual">
         <PhoneReview />
@@ -91,12 +93,8 @@ const websiteLd = {
     </div>
   </section>
 
-  {/* PREUVE (bande neutre) */}
-  <section class="proof">
-    <div class="container">
-      <p class="proof-line">Pensé pour tous les commerces locaux : restaurants, coiffeurs, instituts, garages, hôtels, santé.</p>
-    </div>
-  </section>
+  {/* PUNCH : bande de chiffres factuels animés */}
+  <StatBand />
 
   {/* PREUVE SOCIALE VISIBLE : cartes d'avis illustratives, honnêtes */}
   <section class="reviews">
@@ -216,30 +214,6 @@ const websiteLd = {
               form.addEventListener("input", recompute);
               recompute();
             }
-            const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            const nums = document.querySelectorAll<HTMLElement>(".stat-num[data-count]");
-            if (nums.length && !reduce && "IntersectionObserver" in window) {
-              const io = new IntersectionObserver((entries, obs) => {
-                for (const e of entries) {
-                  if (!e.isIntersecting) continue;
-                  obs.unobserve(e.target);
-                  const el = e.target as HTMLElement;
-                  const target = parseFloat(el.dataset.count || "0");
-                  const suffix = el.dataset.suffix || "";
-                  const sign = target < 0 ? "-" : "";
-                  const abs = Math.abs(target);
-                  const dur = 900; let start = 0;
-                  const tick = (t: number) => {
-                    if (!start) start = t;
-                    const p = Math.min((t - start) / dur, 1);
-                    el.textContent = sign + Math.round(abs * p) + suffix;
-                    if (p < 1) requestAnimationFrame(tick); else el.textContent = sign + abs + suffix;
-                  };
-                  requestAnimationFrame(tick);
-                }
-              }, { threshold: 0.4 });
-              nums.forEach((n) => io.observe(n));
-            }
           </script>
         </div>
       )}
@@ -305,6 +279,7 @@ const websiteLd = {
     <div class="container">
       <h2>Prêt à faire grandir votre réputation, en toute conformité ?</h2>
       <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+      <div class="cta-tz"><TripleZero variant="dark" /></div>
     </div>
   </section>
 </Base>
@@ -448,4 +423,5 @@ const websiteLd = {
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
+  .cta-tz { display: flex; justify-content: center; margin-top: 1.25rem; }
 </style>

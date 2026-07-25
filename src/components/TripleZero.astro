@@ -1,0 +1,22 @@
+---
+// Signature « triple zéro » de Stela, motif récurrent (hero, tarifs, CTA final).
+interface Props { variant?: "light" | "dark"; }
+const { variant = "light" } = Astro.props;
+const items = ["engagement", "carte requise", "filtrage"];
+---
+<p class={`tz tz-${variant}`}>
+  {items.map((label, i) => (
+    <>
+      {i > 0 && <span class="tz-sep" aria-hidden="true">·</span>}
+      <span class="tz-item"><span class="tz-zero">0</span> {label}</span>
+    </>
+  ))}
+</p>
+<style>
+  .tz { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 0; font-weight: 700; font-size: .9rem; }
+  .tz-item { display: inline-flex; align-items: baseline; gap: .3rem; }
+  .tz-zero { font-size: 1.15em; font-weight: 800; color: var(--brass); }
+  .tz-sep { opacity: .5; }
+  .tz-light { color: var(--text-secondary); }
+  .tz-dark { color: #cdd5e4; }
+</style>

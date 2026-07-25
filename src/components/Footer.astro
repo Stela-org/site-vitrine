@@ -2,6 +2,7 @@
 import { SITE } from "../config/site";
 import { FEATURES } from "../content/features";
 import { SEGMENTS } from "../content/segments";
+import { CITIES } from "../content/cities";
 import Logo from "./Logo.astro";
 const year = new Date().getFullYear();
 ---
@@ -32,6 +33,12 @@ const year = new Date().getFullYear();
       <a href="/cgv">CGV</a>
     </nav>
   </div>
+  <div class="container footer-cities">
+    <h3>Nos villes</h3>
+    <nav aria-label="Restaurants par ville">
+      {CITIES.map((c) => <a href={`/restaurants-${c.slug}`}>Restaurants {c.prep}</a>)}
+    </nav>
+  </div>
   <div class="container footer-legal">
     <p>© {year} {SITE.brand}. Collecte d'avis 100 % conforme aux règles de Google.</p>
   </div>
@@ -45,6 +52,11 @@ const year = new Date().getFullYear();
   .footer-col h3 { color: #F7F4EF; font-size: .95rem; margin-bottom: .9rem; }
   .footer-col a { display: block; color: #cdd5e4; padding: .28rem 0; font-size: .95rem; }
   .footer-col a:hover { color: #fff; }
+  .footer-cities { border-top: 1px solid rgba(255,255,255,.12); padding-block: 1.5rem .5rem; }
+  .footer-cities h3 { color: #F7F4EF; font-size: .95rem; margin-bottom: .8rem; }
+  .footer-cities nav { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
+  .footer-cities a { color: #cdd5e4; font-size: .9rem; }
+  .footer-cities a:hover { color: #fff; }
   .footer-legal { border-top: 1px solid rgba(255,255,255,.12); padding-block: 1.25rem; }
   .footer-legal p { color: #8ea0bd; font-size: .85rem; margin: 0; }
   @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr; gap: 1.75rem; } }

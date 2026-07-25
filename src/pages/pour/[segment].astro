@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { SITE } from "../../config/site";
 import { SEGMENTS, profils, secteurs } from "../../content/segments";
+import { CITIES } from "../../content/cities";
 import ReviewCard from "../../components/ReviewCard.astro";
 
 export function getStaticPaths() {
@@ -68,6 +69,19 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       </div>
     </div>
   </section>
+
+  {s.slug === "restaurant" && (
+    <section class="others">
+      <div class="container">
+        <h2>Stela pour les restaurants, ville par ville</h2>
+        <div class="others-links">
+          {CITIES.map((c) => (
+            <a href={`/restaurants-${c.slug}`} class="others-link">Restaurants {c.prep}</a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="others">
     <div class="container">

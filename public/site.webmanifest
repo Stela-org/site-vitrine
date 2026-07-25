@@ -8,6 +8,7 @@
   "theme_color": "#15233F",
   "lang": "fr-FR",
   "icons": [
-    { "src": "/images/logo-monogramme-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/images/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/images/app-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
