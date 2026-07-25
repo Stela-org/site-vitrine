@@ -1,0 +1,73 @@
+---
+// Vidéo produit courte, muette, en boucle. Intégration exigeante :
+//  - Base TOUJOURS visible = un poster statique (<img>). Sans JS, sans vidéo,
+//    ou sous prefers-reduced-motion : on ne voit QUE cette image (fallback).
+//  - La vidéo (autoplay muted loop playsinline) n'est injectée par un script
+//    bundlé (CSP-safe, 'self') QUE si : mouvement autorisé + élément proche du
+//    viewport (IntersectionObserver = lazy loading hors viewport). Elle apparaît
+//    en fondu par-dessus le poster une fois chargée.
+//  - Vidéos auto-hébergées (public/video/*), donc couvertes par la CSP
+//    default-src 'self'. Prévoir WebM + MP4 compressés < 2 Mo par clip.
+interface Props {
+  poster: string; // image statique (fallback), ex. "/images/hero-bistro.webp"
+  alt: string;
+  webm?: string; // ex. "/video/vue-client.webm"
+  mp4?: string; // ex. "/video/vue-client.mp4"
+  width: number;
+  height: number;
+  eager?: boolean; // poster au-dessus de la ligne de flottaison
+  radius?: string;
+}
+const { poster, alt, webm, mp4, width, height, eager = false, radius = "20px" } = Astro.props;
+const hasVideo = Boolean(webm || mp4);
+---
+<div
+  class="product-video"
+  data-webm={webm}
+  data-mp4={mp4}
+  data-has-video={hasVideo ? "1" : undefined}
+  style={`--pv-radius:${radius}`}
+>
+  <img class="pv-poster" src={poster} alt={alt} width={width} height={height}
+    loading={eager ? "eager" : "lazy"} decoding="async" />
+</div>
+
+{hasVideo && (
+  <script>
+    // Bundlé par Astro (servi en 'self') : compatible CSP stricte.
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce && "IntersectionObserver" in window) {
+      const nodes = document.querySelectorAll<HTMLElement>('.product-video[data-has-video="1"]');
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const host = e.target as HTMLElement;
+          obs.unobserve(host);
+          if (host.querySelector("video")) continue;
+          const v = document.createElement("video");
+          v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.preload = "auto";
+          v.setAttribute("aria-hidden", "true"); v.tabIndex = -1;
+          const poster = host.querySelector<HTMLImageElement>(".pv-poster");
+          if (poster) v.poster = poster.getAttribute("src") || "";
+          const webm = host.dataset.webm, mp4 = host.dataset.mp4;
+          if (webm) { const s = document.createElement("source"); s.src = webm; s.type = "video/webm"; v.appendChild(s); }
+          if (mp4) { const s = document.createElement("source"); s.src = mp4; s.type = "video/mp4"; v.appendChild(s); }
+          v.className = "pv-video";
+          v.addEventListener("loadeddata", () => host.classList.add("pv-ready"));
+          host.appendChild(v);
+          v.play().catch(() => { /* échec autoplay : le poster reste, aucun impact */ });
+        }
+      }, { rootMargin: "250px" });
+      nodes.forEach((n) => io.observe(n));
+    }
+  </script>
+)}
+
+<style>
+  .product-video { position: relative; overflow: hidden; border-radius: var(--pv-radius);
+    box-shadow: var(--shadow); background: var(--cream); }
+  .pv-poster, .product-video :global(.pv-video) { display: block; width: 100%; height: auto; }
+  .product-video :global(.pv-video) { position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0; transition: opacity .5s ease; }
+  .product-video.pv-ready :global(.pv-video) { opacity: 1; }
+</style>
