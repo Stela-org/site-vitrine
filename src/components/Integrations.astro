@@ -1,0 +1,60 @@
+---
+import { CHANNELS } from "../config/site";
+// Section « Intégrations » : les plateformes de visibilité et d'avis couvertes.
+// Source = CHANNELS (config), filtrées sur les plateformes. Livré vs bientôt
+// clairement séparés. Pas de logo tiers (marques déposées + CSP sans hôte
+// externe) : cartes sobres et honnêtes, chacune avec son statut.
+const plateformes = CHANNELS.filter((c) => c.kind === "plateforme");
+const livre = plateformes.filter((c) => c.status === "live");
+const bientot = plateformes.filter((c) => c.status === "soon");
+---
+<section class="integrations">
+  <div class="container">
+    <p class="eyebrow">Intégrations</p>
+    <h2>Une présence, partout où vos clients regardent</h2>
+    <p class="int-lead">Stela travaille votre visibilité sur Google (fiche, Maps, recherche) et sur Bing, qui alimente aussi ChatGPT et Copilot. Vos avis d'autres plateformes se centralisent au même endroit.</p>
+
+    <p class="int-group-title">Disponible aujourd'hui</p>
+    <ul class="int-grid">
+      {livre.map((c) => (
+        <li class="int-card">
+          <span class="int-name">{c.name}</span>
+          <span class="int-status int-live">Disponible</span>
+        </li>
+      ))}
+    </ul>
+
+    {bientot.length > 0 && (
+      <>
+        <p class="int-group-title">Bientôt</p>
+        <ul class="int-grid">
+          {bientot.map((c) => (
+            <li class="int-card int-card-soon">
+              <span class="int-name">{c.name}</span>
+              <span class="int-status int-soon">Bientôt</span>
+            </li>
+          ))}
+          <li class="int-card int-card-soon">
+            <span class="int-name">Caisses et logiciels de réservation</span>
+            <span class="int-status int-soon">À venir</span>
+          </li>
+        </ul>
+      </>
+    )}
+  </div>
+</section>
+<style>
+  .integrations { padding-block: 3rem; }
+  .int-lead { color: var(--text-secondary); max-width: 62ch; }
+  .int-group-title { text-transform: uppercase; letter-spacing: .1em; font-size: .74rem; font-weight: 800; color: var(--text-muted); margin: 1.75rem 0 .75rem; }
+  .int-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+  @media (max-width: 860px) { .int-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .int-grid { grid-template-columns: 1fr; } }
+  .int-card { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .75rem .9rem; }
+  .int-card-soon { background: var(--cream); }
+  .int-name { font-weight: 700; color: var(--ink); font-size: .9rem; }
+  .int-status { font-size: .68rem; font-weight: 800; border-radius: 999px; padding: .2rem .5rem; white-space: nowrap; }
+  .int-live { background: rgba(176,138,62,.14); color: var(--brass); }
+  .int-soon { background: #ece4d4; color: var(--muted, #6C6558); }
+</style>

@@ -8,6 +8,7 @@ const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
 const faq = [
   { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous bénéficiez de 7 jours d'essai gratuit, sans engagement, annulable en un clic. La carte est demandée au paiement pour assurer la continuité du service à la fin de l'essai, et vous n'êtes débité qu'au 8e jour si vous continuez." },
   { q: "Combien coûte l'abonnement annuel ?", a: "Étoile revient à 468 € par an (soit 39 € par mois) et Constellation à 948 € par an (soit 79 € par mois) : dans les deux cas, 120 € d'économie sur l'année par rapport au mensuel." },
+  { q: "Et si je ne suis pas satisfait ?", a: "Vous êtes couvert deux fois : 7 jours d'essai gratuit pour tester sans payer, puis 30 jours satisfait ou remboursé une fois abonné. Remboursement intégral sur simple demande." },
   { q: "Puis-je changer d'offre ?", a: "Oui, vous passez d'Étoile à Constellation à tout moment depuis votre espace client." },
   { q: "Où se fait le paiement ?", a: "Directement ici, en toute sécurité via Stripe. Après le paiement, vous recevez votre email de première connexion pour brancher votre fiche Google." },
 ];
@@ -28,6 +29,10 @@ const faqLd = {
       <p class="eyebrow">Tarifs transparents</p>
       <h1>Un prix affiché, un essai gratuit, sans engagement</h1>
       <p class="lead" style="max-width:52ch;margin-inline:auto;">Pas de démonstration obligatoire pour connaître nos prix. Vous les voyez, vous essayez, vous décidez.</p>
+      <p class="tarifs-badges">
+        <span class="tb-pill">Essai gratuit 7 jours</span>
+        <span class="tb-pill">30 jours satisfait ou remboursé</span>
+      </p>
     </div>
   </section>
 
@@ -76,7 +81,7 @@ const faqLd = {
               <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
                 data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
                 data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
-                href={stripeLink(p.id, "monthly", "tarifs")}>Essayer gratuitement</a>
+                href={stripeLink(p.id, "monthly", "tarifs")}>Essai gratuit 7 jours</a>
             </div>
           ))}
         </div>
@@ -109,6 +114,10 @@ const faqLd = {
 
 <style>
   .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-bottom: 1rem; }
+  .tarifs-badges { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin-top: 1.1rem; }
+  .tb-pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: .4rem .9rem;
+    font-size: .82rem; font-weight: 700; color: var(--ink); }
+  .tb-pill::before { content: "✓ "; color: var(--brass); }
   .loss { background: var(--cream); padding-block: 1rem 0; }
   .loss-inner { display: flex; align-items: center; gap: 1.5rem; max-width: 760px; margin-inline: auto;
     background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.5rem 1.75rem; }

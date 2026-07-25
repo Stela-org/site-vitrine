@@ -39,7 +39,20 @@ async function scenario(label, buttonId) {
   // Tap réel (touch) sur le bouton.
   await page.locator(`#${buttonId}`).tap();
   if (await bannerVisible()) errors.push(`${label} : la bannière est encore visible après le tap.`);
-  // Rechargement : le choix doit persister, la bannière ne doit pas revenir.
+  // Rechargement : le choix persiste ET aucun flash. On coupe le JS pour capturer
+  // l'état INITIAL du markup : la bannière doit être cachée dès le HTML (hidden),
+  // donc invisible même avant que le script ne s'exécute.
+  await ctx.route("**/*.js", (r) => r.abort());
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const flash = await page.evaluate(() => {
+    const b = document.getElementById("cookie-banner");
+    return { hasHidden: b?.hasAttribute("hidden"), display: b ? getComputedStyle(b).display : "none" };
+  });
+  if (!flash.hasHidden || flash.display !== "none") {
+    errors.push(`${label} : FLASH possible, la bannière n'est pas cachée dans le markup au reload (hidden=${flash.hasHidden}, display=${flash.display}).`);
+  }
+  await ctx.unroute("**/*.js");
+  // Rechargement normal : le choix persiste, la bannière ne revient pas.
   await page.reload({ waitUntil: "networkidle" });
   if (await bannerVisible()) errors.push(`${label} : la bannière revient après rechargement (choix non persisté).`);
   await ctx.close();

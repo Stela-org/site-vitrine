@@ -91,10 +91,14 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
 </script>
 
 <style>
+  /* Cachée par défaut (attribut hidden dans le markup). On NE met PAS display sur
+     le sélecteur nu, sinon il l'emporterait sur [hidden] et créerait un flash au
+     chargement. Le script retire hidden UNIQUEMENT si aucun choix n'est stocké. */
+  .cookie-banner:not([hidden]) { display: flex; gap: 1rem; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; }
   .cookie-banner { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 80; margin-inline: auto;
     max-width: 720px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    box-shadow: var(--shadow); padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: center;
-    justify-content: space-between; flex-wrap: wrap; }
+    box-shadow: var(--shadow); padding: 1rem 1.25rem; }
   .cookie-banner p { margin: 0; font-size: .9rem; color: var(--text-secondary); flex: 1 1 320px; }
   .cookie-actions { display: flex; gap: .6rem; }
   .cookie-actions .btn { padding: .6rem 1.1rem; font-size: .92rem; }

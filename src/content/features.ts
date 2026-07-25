@@ -63,18 +63,18 @@ export const FEATURES: Feature[] = [
     title: "Réponse automatique aux avis Google | Stela",
     metaDescription:
       "Répondez à tous vos avis Google automatiquement, avec des réponses rédigées par l'IA à votre ton et validées en un clic.",
-    h1: "Répondez à tous vos avis, automatiquement",
+    h1: "Nova répond à vos avis, vous validez",
     lead:
-      "L'IA rédige une réponse adaptée à chaque avis, dans votre ton. Vous validez en un clic, ou laissez Stela répondre pour vous.",
+      "Nova, votre assistante, écrit la réponse en 10 secondes, dans votre ton. Vous relisez, vous envoyez. Ou vous laissez Nova publier pour vous.",
     benefits: [
-      { t: "Des réponses à votre ton", d: "L'IA s'appuie sur votre établissement pour des réponses justes et personnelles." },
+      { t: "Nova, votre assistante", d: "Elle s'appuie sur votre établissement pour des réponses justes et personnelles, en 10 secondes." },
       { t: "Validées en un clic", d: "Depuis « Avis publics », relisez et publiez, ou activez la réponse automatique." },
       { t: "Rien n'est oublié", d: "Chaque avis reçoit une réponse, y compris les avis positifs." },
     ],
     steps: [
       { t: "Un nouvel avis arrive", d: "Il s'affiche dans « Avis publics »." },
-      { t: "L'IA propose une réponse", d: "Adaptée au contenu et à la note de l'avis." },
-      { t: "Vous validez ou automatisez", d: "En un clic, ou en laissant Stela publier seul." },
+      { t: "Nova propose une réponse", d: "Adaptée au contenu et à la note de l'avis, en 10 secondes." },
+      { t: "Vous validez ou automatisez", d: "En un clic, ou en laissant Nova publier seule." },
     ],
     faq: [
       { q: "Puis-je relire avant publication ?", a: "Oui. Vous pouvez valider chaque réponse manuellement, ou activer la publication automatique quand vous êtes en confiance." },

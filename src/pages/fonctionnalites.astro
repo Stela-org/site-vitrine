@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
+import Integrations from "../components/Integrations.astro";
 import { CHANNELS_COUNT } from "../config/site";
 import { FEATURES } from "../content/features";
 import { SEGMENTS } from "../content/segments";
@@ -45,6 +46,8 @@ const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
       </div>
     </div>
   </section>
+
+  <Integrations />
 
   <section class="hub-segments">
     <div class="container">
