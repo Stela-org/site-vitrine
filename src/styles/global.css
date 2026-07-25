@@ -30,11 +30,12 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
 
-/* Motion design (VIT-5) : révélations au scroll 100 % CSS, via les animations
-   pilotées par le scroll (animation-timeline: view()). Aucun JavaScript, donc
-   le contenu reste visible par défaut (opacity 1) : un navigateur qui ne
-   supporte pas ces animations, ou JS désactivé, n'y voit que du contenu normal
-   (contre-exemple Dokaa évité). Désactivé sous prefers-reduced-motion. */
+/* Motion design : révélations au scroll 100 % CSS (animation-timeline: view()).
+   RÈGLE STRICTE (VIT-6) : le contenu n'est JAMAIS masqué par l'animation. Ces
+   reveals ne touchent QUE le `transform` (léger translate), jamais l'opacité :
+   même si l'animation échoue (bug de scroll, saut), le contenu reste peint, au
+   pire décalé de quelques pixels. Aucun reveal d'opacité sur des blocs de
+   contenu (défaut Dokaa interdit). Désactivé sous prefers-reduced-motion. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .reveal {
@@ -50,8 +51,8 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   }
 }
 @keyframes reveal-in {
-  from { opacity: 0; transform: translateY(22px); }
-  to { opacity: 1; transform: none; }
+  from { transform: translateY(16px); }
+  to { transform: none; }
 }
 
 body {

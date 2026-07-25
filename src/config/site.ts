@@ -29,8 +29,8 @@ export const SITE = {
 // les propriétés seront créées : tant qu'ils sont vides, aucun script de mesure
 // n'est chargé (aucun tracker mort, aucune bannière inutile).
 export const ANALYTICS = {
-  ga4Id: "", // ex. "G-XXXXXXXXXX" (propriété www.mystela.fr), à renseigner
-  posthogKey: "", // ex. "phc_...", à renseigner
+  ga4Id: "G-V320LSDY9Q", // flux « Vitrine Stela », www.mystela.fr
+  posthogKey: "", // pas de clé au lancement (GA4 seul)
   posthogHost: "https://eu.i.posthog.com",
 } as const;
 

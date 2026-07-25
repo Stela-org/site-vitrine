@@ -18,6 +18,9 @@ npm run check      # GATE : lint:copy + check:brand + build
 - Contrôle manuel : aucun discours de review gating (filtrage des avis par la
   note, interception d'insatisfaits). La conformité Google est le positionnement.
 - Contenu vérifié lisible sans JavaScript ; Lighthouse >= 95.
+- `npm run check:overflow` : garde-fou anti-scroll horizontal (Playwright, 7 pages
+  x 4 largeurs 320/375/768/1280, `scrollWidth <= innerWidth`). À lancer avant merge.
+  Nécessite le navigateur : `npx playwright install chromium` (une fois).
 
 ## Architecture
 - `src/config/site.ts` : source unique (marque, couleurs, URLs, prix, analytics).

@@ -32,7 +32,6 @@ const faqLd = {
           <label for="billing" class="billing-switch">
             <span class="opt opt-m">Mensuel</span>
             <span class="opt opt-y">Annuel <span class="save">2 mois offerts</span></span>
-            <span class="knob" aria-hidden="true"></span>
           </label>
         </div>
 
@@ -77,16 +76,15 @@ const faqLd = {
   .tarifs-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
   .billing-toggle { display: flex; justify-content: center; margin: 2rem 0; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
-  .billing-switch { position: relative; display: inline-flex; align-items: center; gap: .25rem;
+  .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;
     background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 4px; cursor: pointer; user-select: none; }
-  .billing-switch .opt { position: relative; z-index: 1; padding: .5rem 1rem; border-radius: 999px; font-weight: 700; font-size: .92rem; color: var(--text-secondary); }
-  .billing-switch .knob { position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
-    background: var(--ink); border-radius: 999px; transition: transform .2s ease; }
-  .billing-input:checked + .billing-switch .knob { transform: translateX(100%); }
-  .billing-switch .opt-m { color: #fff; }
-  .billing-input:checked + .billing-switch .opt-m { color: var(--text-secondary); }
-  .billing-input:checked + .billing-switch .opt-y { color: #fff; }
-  .save { font-size: .72rem; background: var(--brass); color: #fff; padding: .1rem .45rem; border-radius: 999px; margin-left: .3rem; }
+  .billing-switch .opt { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 999px;
+    font-weight: 700; font-size: .92rem; color: var(--text-secondary); white-space: nowrap; transition: background .2s ease, color .2s ease; }
+  .billing-switch .opt-m { background: var(--ink); color: #fff; }
+  .billing-switch .opt-y { background: transparent; }
+  .billing-input:checked + .billing-switch .opt-m { background: transparent; color: var(--text-secondary); }
+  .billing-input:checked + .billing-switch .opt-y { background: var(--ink); color: #fff; }
+  .save { font-size: .7rem; background: var(--brass); color: #fff; padding: .12rem .5rem; border-radius: 999px; flex: none; }
 
   .amount-y, .plan-note-y { display: none; }
   #tarifs:has(.billing-input:checked) .amount-m { display: none; }

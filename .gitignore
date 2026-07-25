@@ -12,3 +12,7 @@ node_modules/
 
 # os
 .DS_Store
+
+# artefacts de diagnostic (Playwright)
+.shots/
+.overflow/

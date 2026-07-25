@@ -163,12 +163,84 @@ const websiteLd = {
           ))}
         </div>
       ) : (
-        <div class="story-empty">
-          <div class="story-soon">
-            <p>Nos premiers résultats clients instrumentés seront publiés ici, avec des chiffres réels et vérifiables. En attendant, voici la carte que vous suivrez dans votre tableau de bord.</p>
-            <a class="btn btn-ghost" href={SITE.appUrl}>Devenir l'un de nos premiers cas</a>
+        <div class="results">
+          <div class="results-stats reveal-stagger">
+            <div class="stat">
+              <p class="stat-num" data-count="94" data-suffix=" %">94 %</p>
+              <p class="stat-label">des consommateurs lisent les avis en ligne avant de choisir un commerce local.</p>
+              <p class="stat-src">Source : BrightLocal, Local Consumer Review Survey.</p>
+            </div>
+            <div class="stat">
+              <p class="stat-num" data-count="-31" data-suffix=" %">-31 %</p>
+              <p class="stat-label">de dépenses vers un commerce sous 4★ face à un concurrent à 4,5★.</p>
+              <p class="stat-src">Source : Harvard Business School, étude M. Luca.</p>
+            </div>
           </div>
-          <div class="story-mock reveal"><ROICard /></div>
+
+          <div class="results-grid">
+            <div class="card calc">
+              <h3>Faites le calcul pour votre établissement</h3>
+              <form class="calc-form" id="review-calc">
+                <label class="calc-field">Clients par jour
+                  <input type="number" name="clients" min="0" max="9999" value="40" inputmode="numeric" />
+                </label>
+                <label class="calc-field">Taux de participation
+                  <span class="calc-range"><input type="range" name="rate" min="1" max="50" value="15" /><output>15 %</output></span>
+                </label>
+              </form>
+              <p class="calc-result">≈ <strong data-calc-out>180</strong> avis par mois <span class="calc-tag">projection</span></p>
+              <p class="calc-note">Estimation indicative : clients par jour × 30 × taux de participation. Non contractuelle.</p>
+            </div>
+            <div class="story-mock reveal"><ROICard /></div>
+          </div>
+
+          <p class="results-cred">L'équipe Stela a équipé plus de 170 restaurants avec la génération précédente de l'outil.</p>
+          <div class="results-cta">
+            <a class="btn btn-primary" href={SITE.appUrl}>Devenir l'un de nos premiers cas mesurés</a>
+          </div>
+
+          <script>
+            // Progressive enhancement (bundlé, CSP 'self'). Sans JS : l'exemple
+            // pré-rempli (40 clients, 15 %, ≈180) et les chiffres finaux restent
+            // affichés. Le contenu n'est jamais masqué.
+            const form = document.getElementById("review-calc") as HTMLFormElement | null;
+            if (form) {
+              const out = document.querySelector("[data-calc-out]");
+              const rangeOut = form.querySelector("output");
+              const recompute = () => {
+                const c = Number((form.elements.namedItem("clients") as HTMLInputElement).value) || 0;
+                const r = Number((form.elements.namedItem("rate") as HTMLInputElement).value) || 0;
+                if (rangeOut) rangeOut.textContent = r + " %";
+                if (out) out.textContent = Math.round(c * 30 * (r / 100)).toLocaleString("fr-FR");
+              };
+              form.addEventListener("input", recompute);
+              recompute();
+            }
+            const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            const nums = document.querySelectorAll<HTMLElement>(".stat-num[data-count]");
+            if (nums.length && !reduce && "IntersectionObserver" in window) {
+              const io = new IntersectionObserver((entries, obs) => {
+                for (const e of entries) {
+                  if (!e.isIntersecting) continue;
+                  obs.unobserve(e.target);
+                  const el = e.target as HTMLElement;
+                  const target = parseFloat(el.dataset.count || "0");
+                  const suffix = el.dataset.suffix || "";
+                  const sign = target < 0 ? "-" : "";
+                  const abs = Math.abs(target);
+                  const dur = 900; let start = 0;
+                  const tick = (t: number) => {
+                    if (!start) start = t;
+                    const p = Math.min((t - start) / dur, 1);
+                    el.textContent = sign + Math.round(abs * p) + suffix;
+                    if (p < 1) requestAnimationFrame(tick); else el.textContent = sign + abs + suffix;
+                  };
+                  requestAnimationFrame(tick);
+                }
+              }, { threshold: 0.4 });
+              nums.forEach((n) => io.observe(n));
+            }
+          </script>
         </div>
       )}
     </div>
@@ -185,7 +257,6 @@ const websiteLd = {
         <label for="billing" class="billing-switch">
           <span class="opt opt-m">Mensuel</span>
           <span class="opt opt-y">Annuel <span class="save">2 mois offerts</span></span>
-          <span class="knob" aria-hidden="true"></span>
         </label>
       </div>
 
@@ -244,20 +315,22 @@ const websiteLd = {
   .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.75rem 0 1rem; }
   .hero-trust { font-size: .9rem; color: var(--text-muted); margin: 0; }
   /* Cluster visuel du hero : téléphone + carte d'avis flottante + roue mini. */
-  .hero-visual { position: relative; min-height: 500px; display: flex; align-items: center; justify-content: center; }
-  .hero-review { position: absolute; right: -8px; bottom: 6px; width: 270px; transform: rotate(3deg); z-index: 4; }
-  .hero-wheel { position: absolute; left: -6px; top: 24px; z-index: 3; }
+  .hero-visual { position: relative; min-height: 520px; display: flex; align-items: center; justify-content: center; }
+  .hero-review { position: absolute; right: -12px; bottom: -18px; width: 244px; transform: rotate(3deg); z-index: 4; }
+  .hero-wheel { position: absolute; left: -6px; top: 16px; z-index: 3; }
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
+      /* transform seul : la carte n'est jamais masquée si l'animation échoue. */
       .hero-review { animation: float-up linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
     }
   }
-  @keyframes float-up { from { opacity: 0; transform: translateY(30px) rotate(3deg); } to { opacity: 1; transform: rotate(3deg); } }
-  @media (max-width: 980px) { .hero-review { width: 230px; right: -4px; } .hero-wheel { display: none; } }
+  @keyframes float-up { from { transform: translateY(22px) rotate(3deg); } to { transform: rotate(3deg); } }
+  @media (max-width: 980px) { .hero-review { width: 214px; right: -6px; } .hero-wheel { display: none; } }
   @media (max-width: 820px) {
     .hero-grid { grid-template-columns: 1fr; }
-    .hero-visual { min-height: 0; margin-top: 1.5rem; }
-    .hero-review { position: static; width: 100%; transform: none; margin-top: 1.25rem; }
+    /* Empile téléphone puis carte (sinon flex-row = débordement horizontal). */
+    .hero-visual { min-height: 0; margin-top: 1.5rem; flex-direction: column; }
+    .hero-review { position: static; width: 100%; max-width: 320px; transform: none; margin: 1.25rem auto 0; }
   }
 
   .proof { background: var(--ink); padding-block: 1.25rem; }
@@ -299,16 +372,17 @@ const websiteLd = {
   .tarifs { background: var(--cream); }
   .billing-toggle { display: flex; justify-content: center; margin: 1.5rem 0 2rem; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
-  .billing-switch { position: relative; display: inline-flex; align-items: center; gap: .25rem;
+  /* Toggle sans knob glissant : l'option active reçoit un fond plein (aucun
+     chevauchement possible avec le badge « 2 mois offerts »). */
+  .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;
     background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 4px; cursor: pointer; user-select: none; }
-  .billing-switch .opt { position: relative; z-index: 1; padding: .5rem 1rem; border-radius: 999px; font-weight: 700; font-size: .92rem; color: var(--text-secondary); }
-  .billing-switch .knob { position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
-    background: var(--ink); border-radius: 999px; transition: transform .2s ease; }
-  .billing-input:checked + .billing-switch .knob { transform: translateX(100%); }
-  .billing-switch .opt-m { color: #fff; }
-  .billing-input:checked + .billing-switch .opt-m { color: var(--text-secondary); }
-  .billing-input:checked + .billing-switch .opt-y { color: #fff; }
-  .save { font-size: .72rem; background: var(--brass); color: #fff; padding: .1rem .45rem; border-radius: 999px; margin-left: .3rem; }
+  .billing-switch .opt { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 999px;
+    font-weight: 700; font-size: .92rem; color: var(--text-secondary); white-space: nowrap; transition: background .2s ease, color .2s ease; }
+  .billing-switch .opt-m { background: var(--ink); color: #fff; }
+  .billing-switch .opt-y { background: transparent; }
+  .billing-input:checked + .billing-switch .opt-m { background: transparent; color: var(--text-secondary); }
+  .billing-input:checked + .billing-switch .opt-y { background: var(--ink); color: #fff; }
+  .save { font-size: .7rem; background: var(--brass); color: #fff; padding: .12rem .5rem; border-radius: 999px; flex: none; }
 
   /* Par défaut (mensuel) : on masque l'annuel. Coché : inverse (CSS :has(),
      zéro JS). Sans JS ni :has(), le défaut mensuel s'affiche correctement. */
@@ -347,10 +421,30 @@ const websiteLd = {
   .story-metric { font-size: 2rem; font-weight: 800; color: var(--brass); margin-bottom: .25rem; }
   .story-quote { color: var(--text-secondary); font-style: italic; }
   .story-author { color: var(--text-muted); font-size: .85rem; font-weight: 600; margin: 0; }
-  .story-empty { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2rem; align-items: center; margin-top: 1.5rem; }
-  @media (max-width: 820px) { .story-empty { grid-template-columns: 1fr; } }
-  .story-soon p { margin-bottom: 1rem; font-size: 1.05rem; color: var(--text-secondary); }
-  .story-mock { max-width: 380px; }
+  .results { margin-top: 1.5rem; }
+  .results-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 720px) { .results-stats { grid-template-columns: 1fr; } }
+  .stat { background: var(--ink); color: #cdd5e4; border-radius: 16px; padding: 1.5rem 1.6rem; }
+  .stat-num { font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0 0 .5rem; letter-spacing: -.02em; }
+  .stat-label { color: #e6ebf4; margin: 0 0 .6rem; font-weight: 600; }
+  .stat-src { color: #8ea0bd; font-size: .74rem; margin: 0; }
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: center; margin-top: 1.5rem; }
+  @media (max-width: 820px) { .results-grid { grid-template-columns: 1fr; } }
+  .calc h3 { font-size: 1.15rem; margin-bottom: 1rem; }
+  .calc-form { display: grid; gap: 1rem; }
+  .calc-field { display: flex; flex-direction: column; gap: .35rem; font-weight: 700; font-size: .9rem; color: var(--ink); }
+  .calc-field input[type="number"] { padding: .6rem .7rem; border: 1px solid var(--border); border-radius: 10px; font: inherit; font-weight: 600; max-width: 140px; }
+  .calc-range { display: flex; align-items: center; gap: .8rem; }
+  .calc-range input[type="range"] { flex: 1; accent-color: var(--brass); }
+  .calc-range output { font-weight: 800; color: var(--brass); min-width: 3ch; }
+  .calc-result { font-size: 1.3rem; font-weight: 700; color: var(--ink); margin: 1.1rem 0 .3rem; }
+  .calc-result strong { color: var(--brass); font-size: 1.6rem; }
+  .calc-tag { font-size: .68rem; font-weight: 700; color: var(--text-muted); background: var(--cream);
+    border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem; vertical-align: middle; }
+  .calc-note { font-size: .78rem; color: var(--text-muted); margin: 0; }
+  .story-mock { max-width: 400px; margin-inline: auto; }
+  .results-cred { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 2rem auto 0; max-width: 60ch; }
+  .results-cta { text-align: center; margin-top: 1.25rem; }
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }

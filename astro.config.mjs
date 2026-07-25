@@ -8,7 +8,14 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   site: "https://www.mystela.fr",
   trailingSlash: "never",
-  build: { format: "file" },
+  build: {
+    format: "file",
+    // Ne JAMAIS inliner les scripts : la CSP est stricte (script-src 'self' sans
+    // 'unsafe-inline'). Un <script> inline serait bloqué en prod. On force donc
+    // des fichiers externes servis en 'self'.
+    inlineStylesheets: "auto",
+  },
+  vite: { build: { assetsInlineLimit: 0 } },
   integrations: [
     sitemap({
       // Pages légales en noindex : hors sitemap.
