@@ -2,6 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "buildCommand": "astro build && (node scripts/indexnow-ping.mjs || true)",
   "redirects": [
     { "source": "/blog/e-reputation-restaurant-guide-complet.html", "destination": "https://www.mystela.fr/blog/e-reputation-commerce-local-guide", "permanent": true },
     { "source": "/blog/qr-code-avis-google-restaurant.html", "destination": "https://www.mystela.fr/blog/qr-code-avis-google", "permanent": true },

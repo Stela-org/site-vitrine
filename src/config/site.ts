@@ -18,10 +18,11 @@ export const SITE = {
 
   email: "contact@mystela.fr",
 
-  // Profils officiels (schema.org sameAs). À CONFIRMER par Nicolas (URLs exactes).
+  // Profils officiels (schema.org sameAs), confirmés par Nicolas (SIREN 921060737).
+  // Pas de page LinkedIn entreprise pour l'instant : à ajouter ici le jour venu.
   sameAs: [
-    "https://www.linkedin.com/company/stela-avis",
-    "https://www.societe.com/societe/vgn-company-921060737.html",
+    "https://annuaire-entreprises.data.gouv.fr/entreprise/921060737",
+    "https://www.pappers.fr/entreprise/921060737",
   ],
 
   // Vérifications Google Search Console : le FICHIER (public/google...html) ET

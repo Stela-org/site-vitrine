@@ -8,12 +8,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe",
+    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt",
     "lint:copy": "node scripts/check-copy.mjs",
     "check:brand": "node scripts/check-brand.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:schema": "node scripts/check-schema.mjs",
     "check:stripe": "node scripts/check-stripe.mjs",
+    "check:alt": "node scripts/check-alt.mjs",
+    "indexnow": "node scripts/indexnow-ping.mjs",
     "check:overflow": "node scripts/check-overflow.mjs"
   },
   "dependencies": {
