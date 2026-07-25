@@ -1,0 +1,44 @@
+---
+import { SITE } from "../config/site";
+// Fil d'Ariane visible + schema BreadcrumbList. `items` = du plus général au plus
+// précis ; le dernier est la page courante (sans lien). Un « retour » explicite
+// pointe vers le parent (avant-dernier), pour un chemin de sortie évident.
+interface Crumb { label: string; href?: string; }
+interface Props { items: Crumb[]; }
+const { items } = Astro.props;
+const trail = [{ label: "Accueil", href: "/" }, ...items];
+const parent = trail.length >= 2 ? trail[trail.length - 2] : trail[0];
+
+const ld = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: trail.map((c, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: c.label,
+    ...(c.href ? { item: new URL(c.href, SITE.url).href } : {}),
+  })),
+};
+---
+<nav class="crumbs" aria-label="Fil d'Ariane">
+  <ol>
+    {trail.map((c, i) => (
+      <li>
+        {c.href && i < trail.length - 1 ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+        {i < trail.length - 1 && <span class="sep" aria-hidden="true">/</span>}
+      </li>
+    ))}
+  </ol>
+  {parent?.href && <a class="crumbs-back" href={parent.href}>&larr; Retour</a>}
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} is:inline />
+<style>
+  .crumbs { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-block: .9rem; font-size: .85rem; }
+  .crumbs ol { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: 0; padding: 0; }
+  .crumbs li { display: inline-flex; align-items: center; gap: .35rem; }
+  .crumbs a { color: var(--text-secondary); font-weight: 600; }
+  .crumbs a:hover { color: var(--ink); }
+  .crumbs [aria-current="page"] { color: var(--text-muted); }
+  .crumbs .sep { color: var(--border); }
+  .crumbs-back { color: var(--brass) !important; font-weight: 700; white-space: nowrap; }
+</style>

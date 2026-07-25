@@ -5,6 +5,7 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import CookieBanner from "../components/CookieBanner.astro";
 import StickyCta from "../components/StickyCta.astro";
+import ClosingBlock from "../components/ClosingBlock.astro";
 
 interface Props {
   title: string;
@@ -14,9 +15,12 @@ interface Props {
   ogImage?: string;
   /** Pages légales : exclues de l'indexation. */
   noindex?: boolean;
+  /** Bloc de closing commun en bas de page (essai 7 j + garantie + rendez-vous).
+   *  Actif par défaut ; désactivé sur les pages légales / de service. */
+  closing?: boolean;
 }
 
-const { title, description, path = "/", ogImage = "/images/og-default.png", noindex = false } = Astro.props;
+const { title, description, path = "/", ogImage = "/images/og-default.png", noindex = false, closing = true } = Astro.props;
 const canonical = new URL(path, SITE.url).href;
 const ogImageAbs = new URL(ogImage, SITE.url).href;
 
@@ -84,6 +88,7 @@ const appLd = {
     <Nav />
     <main id="main">
       <slot />
+      {closing && <ClosingBlock />}
     </main>
     <Footer />
     {analyticsEnabled() && <CookieBanner />}

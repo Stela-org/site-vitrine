@@ -11,7 +11,7 @@ const isFile = (p) => existsSync(p) && statSync(p).isFile();
 
 const DIST = "dist";
 const WIDTHS = [320, 375, 768, 1280];
-const PAGES = ["/", "/tarifs", "/collecte-avis-google", "/pour/coiffeur", "/restaurants-lyon", "/stela-vs-dokaa", "/blog/repondre-avis-negatif-google-restaurant", "/notre-histoire", "/statistiques-avis-google-france", "/guide-google-commercant-local"];
+const PAGES = ["/", "/tarifs", "/fonctionnalites", "/collecte-avis-google", "/pour/coiffeur", "/restaurants-lyon", "/comparatif", "/blog/repondre-avis-negatif-google-restaurant", "/notre-histoire", "/statistiques-avis-google-france", "/guide-google-commercant-local"];
 const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".webp": "image/webp", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".xml": "application/xml", ".txt": "text/plain", ".webmanifest": "application/json", ".json": "application/json", ".woff": "font/woff", ".woff2": "font/woff2" };
 
 function resolve(p) {

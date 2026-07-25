@@ -18,6 +18,9 @@ export const SITE = {
 
   email: "contact@mystela.fr",
 
+  // Prise de rendez-vous (CTA secondaire des blocs de closing). rel="noopener".
+  calendarUrl: "https://calendar.app.google/hchodXwU2y3PhpeW8",
+
   // Profils officiels (schema.org sameAs), confirmés par Nicolas (SIREN 921060737).
   // Pas de page LinkedIn entreprise pour l'instant : à ajouter ici le jour venu.
   sameAs: [
@@ -136,8 +139,54 @@ export const PLANS = [
   },
 ] as const;
 
+// Nova : l'assistante IA de Stela (rédige les réponses aux avis dans le produit).
+// Nommée et vendue sur la vitrine (champ lexical stellaire sobre).
+export const NOVA = {
+  name: "Nova",
+  pitch: "Nova, votre assistante, écrit la réponse en 10 secondes. Vous relisez, vous envoyez.",
+} as const;
+
+// Écosystème couvert par Stela : liste RÉELLE (source de vérité du claim
+// « XX canaux et plateformes »). Le chiffre affiché DOIT égaler CHANNELS.length
+// (garde-fou check:channels). Compté honnêtement ; `status` sépare livré / bientôt.
+// kind : "plateforme" (visibilité/avis), "canal" (collecte/relation), "capacite".
+export const CHANNELS = [
+  // Plateformes de visibilité et d'avis
+  { name: "Google Recherche", kind: "plateforme", status: "live" },
+  { name: "Google Maps", kind: "plateforme", status: "live" },
+  { name: "Fiche Google Business Profile", kind: "plateforme", status: "live" },
+  { name: "Bing", kind: "plateforme", status: "live" },
+  { name: "ChatGPT", kind: "plateforme", status: "live" },
+  { name: "Microsoft Copilot", kind: "plateforme", status: "live" },
+  { name: "Google Gemini", kind: "plateforme", status: "live" },
+  { name: "Perplexity", kind: "plateforme", status: "live" },
+  { name: "TripAdvisor", kind: "plateforme", status: "live" },
+  { name: "TheFork", kind: "plateforme", status: "soon" },
+  // Canaux de collecte et de relation client
+  { name: "Page d'avis Stela", kind: "canal", status: "live" },
+  { name: "QR codes", kind: "canal", status: "live" },
+  { name: "SMS", kind: "canal", status: "live" },
+  { name: "Email", kind: "canal", status: "live" },
+  { name: "WhatsApp", kind: "canal", status: "live" },
+  { name: "Roue cadeau conforme", kind: "canal", status: "live" },
+  { name: "Réservations centralisées", kind: "canal", status: "live" },
+  { name: "Messages après visite", kind: "canal", status: "live" },
+  { name: "Campagnes marketing", kind: "canal", status: "live" },
+  { name: "Récapitulatifs par email", kind: "canal", status: "live" },
+  // Capacités produit
+  { name: "Réponses IA Nova", kind: "capacite", status: "live" },
+  { name: "Analyse des avis par IA", kind: "capacite", status: "live" },
+  { name: "Application mobile (PWA)", kind: "capacite", status: "live" },
+  { name: "SEO local", kind: "capacite", status: "live" },
+  { name: "GEO (visibilité dans les IA)", kind: "capacite", status: "live" },
+] as const;
+
+export const CHANNELS_COUNT = CHANNELS.length;
+
+// Liens de navigation principaux (navbar). Parcours court et évident.
 export const NAV_LINKS = [
-  { href: "/#fonctionnalites", label: "Fonctionnalités" },
+  { href: "/fonctionnalites", label: "Fonctionnalités" },
   { href: "/tarifs", label: "Tarifs" },
-  { href: "/#conformite", label: "Conformité" },
+  { href: "/blog", label: "Blog" },
+  { href: "/notre-histoire", label: "Notre histoire" },
 ] as const;

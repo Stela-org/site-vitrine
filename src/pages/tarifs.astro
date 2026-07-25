@@ -88,7 +88,7 @@ const faqLd = {
         <p><strong>30 jours satisfait ou remboursé.</strong> Essayez Stela en conditions réelles. Si l'outil ne vous convient pas durant les 30 premiers jours, nous vous remboursons intégralement sur simple demande.</p>
       </div>
 
-      <p class="compare-link"><a href="/stela-vs-dokaa">Comparez-nous aux autres solutions →</a></p>
+      <p class="compare-link"><a href="/comparatif">Comparez-nous aux autres solutions &rarr;</a></p>
       <div class="tarifs-tz"><TripleZero /></div>
       <p class="tarifs-foot">Paiement sécurisé via Stripe. Essai gratuit de 7 jours, sans engagement, annulable en un clic.</p>
     </div>
@@ -145,11 +145,10 @@ const faqLd = {
   .grid-plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 780px; margin-inline: auto; text-align: left; }
   @media (max-width: 720px) { .grid-plans { grid-template-columns: 1fr; } }
   .plan { display: flex; flex-direction: column; }
-  .plan-hl { border-color: var(--brass); border-width: 2px; position: relative;
+  /* Un seul trait laiton, propre à toutes les tailles (fini le double bord :
+     l'ancien ::before masqué doublait la bordure de la carte). */
+  .plan-hl { border: 2px solid var(--brass); position: relative;
     background: linear-gradient(180deg, #fffdf8, #fff); box-shadow: 0 20px 50px rgba(176,138,62,.18); }
-  .plan-hl::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px;
-    background: linear-gradient(135deg, var(--brass), var(--gold)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
   @media (min-width: 721px) { .plan-hl { transform: scale(1.04); } }
   .plan-wheel { margin: .6rem 0 0; font-size: .82rem; color: var(--brass); font-weight: 600; }
   .plan-badge { align-self: flex-start; background: var(--brass); color: #fff; font-size: .74rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; margin-bottom: .5rem; }

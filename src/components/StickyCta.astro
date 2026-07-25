@@ -6,13 +6,18 @@ import { TARIFS_URL } from "../config/site";
 ---
 <div id="sticky-cta" class="sticky-cta">
   <span class="sticky-txt">Prêt à collecter plus d'avis ?</span>
-  <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
+  <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
 </div>
 <script>
   const KEY = "stela-consent";
   const el = document.getElementById("sticky-cta");
   if (el) {
-    const consentDone = () => { try { return !!localStorage.getItem(KEY); } catch { return true; } };
+    // localStorage puis cookie (Safari privé) : on ne s'affiche pas tant qu'aucun
+    // choix de consentement n'est fait, pour ne jamais chevaucher la bannière.
+    const consentDone = () => {
+      try { if (localStorage.getItem(KEY)) return true; } catch { /* Safari privé */ }
+      return /(?:^|;\s*)stela_consent=/.test(document.cookie);
+    };
     const update = () => { el.classList.toggle("is-visible", window.scrollY > 700 && consentDone()); };
     window.addEventListener("scroll", update, { passive: true });
     // Le choix de consentement se fait dans le même onglet : on re-vérifie après

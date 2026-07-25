@@ -11,10 +11,10 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     site fonctionne sans JavaScript ; la mesure d'audience (GA4 + PostHog) ne se
     charge QU'APRÈS acceptation explicite (Google Consent Mode v2). */}
 <div id="cookie-banner" class="cookie-banner" hidden>
-  <p>Nous utilisons des mesures d'audience pour améliorer le site. Vous pouvez les accepter ou les refuser.</p>
+  <p>Ce site utilise des cookies de mesure d'audience. Vous pouvez les accepter ou les refuser.</p>
   <div class="cookie-actions">
-    <button type="button" data-consent="denied" class="btn btn-ghost">Refuser</button>
-    <button type="button" data-consent="granted" class="btn btn-primary">Accepter</button>
+    <button type="button" id="cookie-deny" class="btn btn-ghost">Refuser</button>
+    <button type="button" id="cookie-accept" class="btn btn-primary">Accepter</button>
   </div>
 </div>
 
@@ -56,21 +56,36 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     }
   }
 
+  // Persistance robuste : localStorage d'abord, repli sur un cookie first-party
+  // si indisponible (Safari en navigation privée bloque localStorage). Le choix
+  // est lu et écrit par ces deux voies, pour ne jamais réafficher après un choix.
+  function readChoice(): string | null {
+    try { const v = localStorage.getItem(KEY); if (v) return v; } catch { /* Safari privé */ }
+    const m = document.cookie.match(/(?:^|;\s*)stela_consent=([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function writeChoice(val: string) {
+    try { localStorage.setItem(KEY, val); } catch { /* Safari privé */ }
+    document.cookie = `stela_consent=${encodeURIComponent(val)}; Path=/; Max-Age=15552000; SameSite=Lax`;
+  }
+
   if (banner) {
-    let choice: string | null = null;
-    try { choice = localStorage.getItem(KEY); } catch {}
+    const choice = readChoice();
     if (choice === "granted") {
       loadTrackers();
     } else if (choice !== "denied") {
       banner.hidden = false;
-      banner.addEventListener("click", (ev) => {
-        const t = ev.target as HTMLElement;
-        const val = t?.dataset?.consent;
-        if (!val) return;
-        try { localStorage.setItem(KEY, val); } catch {}
+      // Listeners attachés DIRECTEMENT sur chaque bouton (pas de délégation) :
+      // fiable sur iOS Safari. Le choix est pris au premier tap.
+      const decide = (val: string) => {
+        writeChoice(val);
         banner.hidden = true;
         if (val === "granted") loadTrackers();
-      });
+      };
+      const accept = document.getElementById("cookie-accept");
+      const deny = document.getElementById("cookie-deny");
+      accept?.addEventListener("click", () => decide("granted"));
+      deny?.addEventListener("click", () => decide("denied"));
     }
   }
 </script>

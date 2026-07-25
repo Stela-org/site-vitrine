@@ -1,9 +1,9 @@
 ---
 import Base from "./Base.astro";
-interface Props { title: string; description: string; path: string; heading: string; updated: string; }
-const { title, description, path, heading, updated } = Astro.props;
+interface Props { title: string; description: string; path: string; heading: string; updated: string; closing?: boolean; }
+const { title, description, path, heading, updated, closing = false } = Astro.props;
 ---
-<Base title={title} description={description} path={path} noindex={true}>
+<Base title={title} description={description} path={path} noindex={true} closing={closing}>
   <section class="legal">
     <div class="container">
       <header class="legal-head">
