@@ -1,83 +1,53 @@
 ---
-import { SITE , TARIFS_URL } from "../config/site";
-import { FEATURES } from "../content/features";
-import { profils, secteurs } from "../content/segments";
+import { SITE, NAV_LINKS, TARIFS_URL } from "../config/site";
 import Logo from "./Logo.astro";
+// Navbar sticky sur toutes les pages (via Base). Parcours court et évident
+// (Nielsen/Norman) : 4 liens + 1 CTA laiton. Menu mobile 100 % CSS via une case
+// à cocher masquée (accessible et fonctionnel SANS JavaScript, compatible CSP).
+// NB : on n'utilise PAS <details> ici (les Chromium récents n'en peignent plus le
+// contenu fermé, ce qui rendait les liens desktop invisibles).
 ---
 <header class="nav">
   <div class="container nav-inner">
     <a href="/" class="nav-logo" aria-label={`${SITE.brand}, accueil`}><Logo /></a>
-
-    {/* Menu en <details> imbriqués : navigation complète sans JavaScript. */}
-    <details class="nav-disclosure">
-      <summary class="nav-burger" aria-label="Ouvrir le menu"><span></span></summary>
-      <nav class="nav-links" aria-label="Navigation principale">
-        <details class="nav-dd">
-          <summary>Fonctionnalités</summary>
-          <div class="nav-dd-panel">
-            {FEATURES.map((f) => <a href={`/${f.slug}`}>{f.navLabel}</a>)}
-          </div>
-        </details>
-        <a href="/tarifs">Tarifs</a>
-        <details class="nav-dd">
-          <summary>Pour qui</summary>
-          <div class="nav-dd-panel">
-            <p class="nav-dd-group">Par profil</p>
-            {profils().map((s) => <a href={`/pour/${s.slug}`}>{s.navLabel}</a>)}
-            <p class="nav-dd-group">Par secteur</p>
-            {secteurs().map((s) => <a href={`/pour/${s.slug}`}>{s.navLabel}</a>)}
-          </div>
-        </details>
-        <details class="nav-dd">
-          <summary>Ressources</summary>
-          <div class="nav-dd-panel">
-            <a href="/blog">Blog</a>
-            <a href="/notre-histoire">Notre histoire</a>
-            <a href="/stela-vs-dokaa">Stela vs Dokaa</a>
-            <a href="/statistiques-avis-google-france">Statistiques des avis en France</a>
-          </div>
-        </details>
-        <a class="btn btn-primary nav-cta" href={TARIFS_URL}>Essayer gratuitement</a>
-      </nav>
-    </details>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Ouvrir ou fermer le menu" />
+    <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
+    <nav class="nav-links" aria-label="Navigation principale">
+      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      <a class="btn btn-primary nav-cta" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+    </nav>
   </div>
 </header>
 <style>
   .nav { position: sticky; top: 0; z-index: 50; background: rgba(247, 244, 239, .9);
     backdrop-filter: saturate(150%) blur(8px); border-bottom: 1px solid var(--border); }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; min-height: 68px; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; min-height: 68px; position: relative; }
   .nav-logo:hover { text-decoration: none; }
-  .nav-links { display: flex; align-items: center; gap: 1.4rem; }
-  .nav-links > a { font-weight: 600; color: var(--text-secondary); }
+  .nav-links { display: flex; align-items: center; gap: 1.6rem; }
+  .nav-links > a { font-weight: 600; color: var(--text-secondary); transition: color .15s ease; }
   .nav-links > a:hover { color: var(--ink); text-decoration: none; }
   .nav-links .nav-cta { color: #fff; }
+  .nav-links .nav-cta:hover { color: #fff; }
 
-  /* Dropdown <details> (desktop : panneau flottant ; sans JS). */
-  .nav-dd { position: relative; }
-  .nav-dd > summary { list-style: none; cursor: pointer; font-weight: 600; color: var(--text-secondary); display: inline-flex; align-items: center; gap: .3rem; }
-  .nav-dd > summary::-webkit-details-marker { display: none; }
-  .nav-dd > summary::after { content: "▾"; font-size: .8em; color: var(--text-muted); }
-  .nav-dd[open] > summary { color: var(--ink); }
-  .nav-dd-panel { position: absolute; top: calc(100% + 10px); left: 0; min-width: 240px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: .5rem; display: flex; flex-direction: column; }
-  .nav-dd-panel a { padding: .5rem .6rem; border-radius: 8px; font-weight: 600; color: var(--text-secondary); font-size: .92rem; }
-  .nav-dd-panel a:hover { background: var(--cream); color: var(--ink); text-decoration: none; }
-  .nav-dd-group { text-transform: uppercase; letter-spacing: .08em; font-size: .66rem; color: var(--text-muted); margin: .5rem .6rem .2rem; }
-
+  /* La case à cocher est masquée visuellement mais reste focusable au clavier. */
+  .nav-toggle { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); }
   .nav-burger { display: none; }
 
   @media (max-width: 860px) {
-    .nav-burger { list-style: none; cursor: pointer; display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center;
-      border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-    .nav-burger::-webkit-details-marker { display: none; }
-    .nav-burger span, .nav-burger span::before, .nav-burger span::after { display: block; width: 18px; height: 2px; background: var(--ink); position: relative; }
+    .nav-burger { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
+    .nav-burger span, .nav-burger span::before, .nav-burger span::after { display: block; width: 18px; height: 2px; background: var(--ink); position: relative; border-radius: 2px; }
     .nav-burger span::before { content: ""; position: absolute; top: -6px; }
     .nav-burger span::after { content: ""; position: absolute; top: 6px; }
-    .nav-links { position: absolute; right: 20px; left: 20px; top: 64px; flex-direction: column; align-items: stretch;
-      gap: .35rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; box-shadow: var(--shadow); }
-    .nav-links > a { padding: .5rem; }
-    /* Mobile : le panneau se déplie dans le flux (pas de flottant). */
-    .nav-dd-panel { position: static; border: none; box-shadow: none; padding: 0 0 .3rem .6rem; min-width: 0; }
+    .nav-toggle:checked ~ .nav-burger { background: var(--ink); border-color: var(--ink); }
+    .nav-toggle:checked ~ .nav-burger span, .nav-toggle:checked ~ .nav-burger span::before, .nav-toggle:checked ~ .nav-burger span::after { background: #fff; }
+    .nav-toggle:focus-visible ~ .nav-burger { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+    .nav-links { display: none; position: absolute; right: 0; left: 0; top: 66px; flex-direction: column; align-items: stretch;
+      gap: .2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: .75rem; box-shadow: var(--shadow); }
+    .nav-toggle:checked ~ .nav-links { display: flex; }
+    .nav-links > a { padding: .7rem .6rem; border-radius: 8px; }
+    .nav-links > a:hover { background: var(--cream); }
     .nav-cta { text-align: center; margin-top: .4rem; }
   }
 </style>

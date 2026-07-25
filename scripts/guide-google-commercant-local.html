@@ -41,8 +41,12 @@
   .cover-author strong{ color:var(--ink); }
   .cover-foot{ margin-top:1.4rem; font-size:9.5pt; color:var(--muted); }
 
-  /* Sections */
-  .chapter{ page-break-before:always; }
+  /* Sections : les chapitres s'enchaînent (guide resserré), sans saut de page
+     forcé sauf le premier. On évite juste de couper un titre de sa suite. */
+  .chapter{ margin-top:1.5rem; }
+  .chapter-first{ page-break-before:always; margin-top:0; }
+  .chapter h2, .chapter h3{ break-after:avoid; }
+  .card, .callout, .conform, .close{ break-inside:avoid; }
   .eyebrow{ text-transform:uppercase; letter-spacing:.14em; font-size:8.2pt; font-weight:800; color:var(--brass); margin:0 0 .15rem; }
   .lede{ font-size:11.4pt; color:var(--sec); }
 
@@ -70,6 +74,18 @@
   .toc .num{ display:inline-block; width:1.4rem; color:var(--brass); font-weight:800; }
 
   h2 .kicker{ display:block; font-size:8.2pt; letter-spacing:.14em; text-transform:uppercase; color:var(--brass); font-weight:800; margin-bottom:.15rem; }
+
+  /* Closing renforcé (dernière page) */
+  .close{ background:linear-gradient(180deg,var(--ink) 0%, var(--inkDeep) 100%); color:#eaf0fb; border-radius:16px; padding:1.3rem 1.4rem; margin:1rem 0 0; }
+  .close-eyebrow{ text-transform:uppercase; letter-spacing:.14em; font-size:8pt; font-weight:800; color:var(--gold); margin:0 0 .2rem; }
+  .close-title{ color:#fff; font-size:16pt; margin:0 0 .35rem; }
+  .close-lede{ color:#cdd6e6; font-size:10.6pt; margin:0 0 .6rem; }
+  .close-list{ list-style:none; padding:0; margin:.4rem 0 .7rem; }
+  .close-list li{ position:relative; padding-left:1.4rem; margin:.32rem 0; color:#eaf0fb; }
+  .close-list li::before{ content:"✓"; position:absolute; left:0; color:var(--gold); font-weight:800; }
+  .close-list strong{ color:#fff; }
+  .close-cta{ margin:.5rem 0 0; padding-top:.7rem; border-top:1px solid rgba(255,255,255,.16); font-size:10.6pt; color:#fff; }
+  .close-cta strong{ color:var(--gold); }
 </style>
 </head>
 <body>
@@ -114,7 +130,7 @@
 </section>
 
 <!-- CH.1 -->
-<section class="chapter">
+<section class="chapter chapter-first">
   <h2><span class="kicker">Chapitre 1</span>Créer et optimiser sa fiche Google Business Profile</h2>
   <p>Votre fiche Google Business Profile est votre vitrine la plus consultée. Une fiche complète et à jour rassure, apparaît plus souvent dans les recherches locales et sur Maps, et donne envie de venir.</p>
 
@@ -254,13 +270,20 @@
     </ul>
   </div>
 
-  <div class="callout">
-    <strong>Envie d'automatiser tout cela, en restant 100 % conforme ?</strong>
-    Stela collecte vos avis sans jamais les filtrer, vous propose des réponses prêtes à envoyer, relance vos clients et suit votre visibilité, y compris dans les IA. Prix affichés, essai gratuit de 7 jours, sans engagement.
-    <br /><br />Découvrez tout sur <strong>www.mystela.fr</strong>
+  <div class="close">
+    <p class="close-eyebrow">Pour aller plus loin</p>
+    <h3 class="close-title">Et si tout cela se faisait tout seul ?</h3>
+    <p class="close-lede">Vous savez maintenant quoi faire. Reste le plus dur : le faire chaque semaine, sans y penser. C'est exactement le rôle de Stela.</p>
+    <ul class="close-list">
+      <li><strong>Collecte conforme</strong> : on invite tous vos clients, jamais un tri sur la note.</li>
+      <li><strong>Réponses prêtes</strong> : Nova rédige, vous relisez et publiez en un clic.</li>
+      <li><strong>Relances clients</strong> par SMS, email et WhatsApp, au bon moment.</li>
+      <li><strong>Visibilité suivie</strong>, sur Google comme dans les réponses des IA.</li>
+    </ul>
+    <p class="close-cta">Essai gratuit de 7 jours, sans engagement, prix affichés &rarr; <strong>www.mystela.fr</strong></p>
   </div>
 
-  <p class="cover-foot" style="margin-top:1.6rem;">© 2026 Stela · Ce guide est offert à titre informatif. Les règles de Google évoluent : en cas de doute, référez-vous aux consignes officielles de Google Business Profile. Par Corentin Janin, cofondateur de Stela.</p>
+  <p class="cover-foot" style="margin-top:1.2rem;">© 2026 Stela · Guide offert à titre informatif. Les règles de Google évoluent : en cas de doute, référez-vous aux consignes officielles de Google Business Profile. Par Corentin Janin, cofondateur de Stela.</p>
 </section>
 
 </body>

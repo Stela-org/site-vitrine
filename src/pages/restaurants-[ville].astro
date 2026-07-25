@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE , TARIFS_URL } from "../config/site";
 import { CITIES } from "../content/cities";
 
@@ -27,13 +28,6 @@ const faqLd = {
   "@context": "https://schema.org", "@type": "FAQPage",
   mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 };
-const breadcrumbLd = {
-  "@context": "https://schema.org", "@type": "BreadcrumbList",
-  itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Accueil", item: SITE.url },
-    { "@type": "ListItem", position: 2, name: `Restaurants ${c.prep}`, item: url },
-  ],
-};
 const others = CITIES.filter((x) => x.slug !== c.slug);
 ---
 <Base
@@ -42,17 +36,16 @@ const others = CITIES.filter((x) => x.slug !== c.slug);
   path={`/restaurants-${c.slug}`}
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
-  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
 
+  <div class="container"><Breadcrumb items={[{ label: `Restaurants ${c.prep}` }]} /></div>
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a></nav>
         <p class="eyebrow">Restaurants {c.prep} · {c.region}</p>
         <h1>Plus d'avis Google pour votre restaurant {c.prep}</h1>
         <p class="lead">{c.intro}</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
           <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
@@ -104,13 +97,6 @@ const others = CITIES.filter((x) => x.slug !== c.slug);
       <div class="others-links">
         {others.map((o) => <a href={`/restaurants-${o.slug}`} class="others-link">{o.name}</a>)}
       </div>
-    </div>
-  </section>
-
-  <section class="cta-final">
-    <div class="container">
-      <h2>Prêt à faire grandir votre réputation {c.prep} ?</h2>
-      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

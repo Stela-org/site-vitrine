@@ -1,0 +1,36 @@
+---
+import { SITE, TARIFS_URL } from "../config/site";
+// Bloc de closing identique en bas de CHAQUE page (Belfort : un closing partout).
+// CTA primaire = essai 7 jours ; rappel garantie 30 jours ; secondaire = prise de
+// rendez-vous (nouvel onglet, rel noopener). variant "dark" = section encre.
+interface Props { variant?: "light" | "dark"; heading?: string; }
+const { variant = "dark", heading = "Prêt à faire grandir votre réputation, en toute conformité ?" } = Astro.props;
+---
+<section class={`closing closing-${variant}`}>
+  <div class="container">
+    <h2>{heading}</h2>
+    <div class="closing-cta">
+      <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+      <a class="btn btn-secondary" href={SITE.calendarUrl} target="_blank" rel="noopener">Réserver un rendez-vous</a>
+    </div>
+    <p class="closing-guarantee">✓ Essai gratuit de 7 jours, puis 30 jours satisfait ou remboursé.</p>
+  </div>
+</section>
+<style>
+  .closing { padding-block: 3.25rem; text-align: center; }
+  .closing h2 { max-width: 24ch; margin-inline: auto; }
+  .closing-cta { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0 .9rem; }
+  .closing-guarantee { font-weight: 600; margin: 0; }
+
+  .closing-dark { background: var(--ink); }
+  .closing-dark h2 { color: #fff; }
+  .closing-dark .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); }
+  .closing-dark .btn-secondary:hover { background: rgba(255,255,255,.08); }
+  .closing-dark .closing-guarantee { color: #cdd5e4; }
+
+  .closing-light { background: var(--cream); }
+  .closing-light h2 { color: var(--ink); }
+  .closing-light .btn-secondary { background: #fff; color: var(--ink); border: 1px solid var(--border); }
+  .closing-light .btn-secondary:hover { background: var(--cream); }
+  .closing-light .closing-guarantee { color: var(--text-secondary); }
+</style>

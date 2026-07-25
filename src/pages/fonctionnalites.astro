@@ -1,0 +1,104 @@
+---
+import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Integrations from "../components/Integrations.astro";
+import ProductVideo from "../components/ProductVideo.astro";
+import { CHANNELS_COUNT, PRODUCT_VIDEOS } from "../config/site";
+import { FEATURES } from "../content/features";
+import { SEGMENTS } from "../content/segments";
+
+const profils = SEGMENTS.filter((s) => s.kind === "profil");
+const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
+---
+<Base
+  title="Fonctionnalités : tout ce que fait Stela | Stela"
+  description="La vue d'ensemble de Stela : collecte d'avis conforme, réponses IA Nova, multi-plateformes, réservations, SMS et fidélisation, analyse. Un seul outil pour être choisi sur Google et cité par les IA."
+  path="/fonctionnalites"
+>
+  <div class="container"><Breadcrumb items={[{ label: "Fonctionnalités" }]} /></div>
+
+  <section class="hub-hero">
+    <div class="container" style="text-align:center;">
+      <p class="eyebrow">Fonctionnalités</p>
+      <h1>Tout ce que fait Stela, au même endroit</h1>
+      <p class="lead" style="max-width:56ch;margin-inline:auto;">Un seul outil pour être choisi sur Google et cité par les intelligences artificielles. Collecte, réponses, fidélisation et mesure, en toute conformité.</p>
+    </div>
+  </section>
+
+  {/* Von Restorff : une bande encre avec le chiffre d'écosystème. */}
+  <section class="hub-band">
+    <div class="container">
+      <p class="hub-band-num"><span data-count={CHANNELS_COUNT}>{CHANNELS_COUNT}</span></p>
+      <p class="hub-band-label">canaux et plateformes couverts par Stela, de Google Maps à ChatGPT.</p>
+    </div>
+  </section>
+
+  <section class="hub-features">
+    <div class="container">
+      <h2>Les fonctionnalités</h2>
+      <div class="hub-grid">
+        {FEATURES.map((f) => (
+          <a class="hub-card card" href={`/${f.slug}`}>
+            <h3>{f.navLabel}</h3>
+            <p>{f.lead}</p>
+            <span class="hub-card-go">Découvrir &rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {PRODUCT_VIDEOS.fonctionnalites && (
+    <section class="hub-video">
+      <div class="container" style="text-align:center;">
+        <h2>Stela en action</h2>
+        <div style="max-width:820px;margin:1.25rem auto 0;">
+          <ProductVideo {...PRODUCT_VIDEOS.fonctionnalites} radius="18px" />
+        </div>
+      </div>
+    </section>
+  )}
+
+  <Integrations />
+
+  <section class="hub-segments">
+    <div class="container">
+      <h2>Pensé pour votre métier</h2>
+      <div class="hub-seg-cols">
+        <div>
+          <p class="hub-seg-title">Par profil</p>
+          <ul>{profils.map((s) => <li><a href={`/pour/${s.slug}`}>{s.navLabel}</a></li>)}</ul>
+        </div>
+        <div>
+          <p class="hub-seg-title">Par secteur</p>
+          <ul>{secteurs.map((s) => <li><a href={`/pour/${s.slug}`}>{s.navLabel}</a></li>)}</ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hub-hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-block: 1rem 2.5rem; }
+  .hub-band { background: var(--ink); color: #fff; text-align: center; padding-block: 2.5rem; }
+  .hub-band-num { font-size: clamp(3rem, 10vw, 5rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0; }
+  .hub-band-label { color: #cdd5e4; max-width: 44ch; margin: .6rem auto 0; font-weight: 600; }
+  .hub-features { padding-block: 3rem; }
+  .hub-features h2, .hub-segments h2 { text-align: center; margin-bottom: 1.75rem; }
+  .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 860px) { .hub-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .hub-grid { grid-template-columns: 1fr; } }
+  .hub-card { display: flex; flex-direction: column; gap: .4rem; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .hub-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--brass); text-decoration: none; }
+  .hub-card h3 { margin: 0; color: var(--ink); }
+  .hub-card p { color: var(--text-secondary); font-size: .92rem; margin: 0; flex: 1; }
+  .hub-card-go { color: var(--brass); font-weight: 700; font-size: .9rem; margin-top: .4rem; }
+  .hub-segments { padding-block: 1rem 3.5rem; background: var(--cream); }
+  .hub-seg-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 640px; margin-inline: auto; }
+  @media (max-width: 560px) { .hub-seg-cols { grid-template-columns: 1fr; } }
+  .hub-seg-title { text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; color: var(--text-muted); font-weight: 800; margin-bottom: .5rem; }
+  .hub-seg-cols ul { list-style: none; padding: 0; margin: 0; }
+  .hub-seg-cols li { margin: .3rem 0; }
+  .hub-seg-cols a { font-weight: 600; color: var(--ink); }
+  .hub-seg-cols a:hover { color: var(--brass); }
+</style>

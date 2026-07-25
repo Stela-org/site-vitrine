@@ -5,8 +5,13 @@
 // HTML/CSS, étoiles qui se remplissent en boucle (sans JS). Décoratif : le
 // contenu informatif du hero vit dans le texte à côté, pas ici.
 ---
+<div class="phone-tilt">
 <div class="phone" role="img" aria-label="Aperçu de la page d'avis Stela : cinq étoiles se remplissent après un dîner">
   <div class="phone-notch" aria-hidden="true"></div>
+  <div class="ps-toast" aria-hidden="true">
+    <span class="ps-toast-stars">★★★★★</span>
+    <span class="ps-toast-txt">Nouvel avis reçu</span>
+  </div>
   <div class="phone-screen">
     <div class="ps-photo">
       <img src="/images/hero-bistro.webp" alt="Devanture d'un bistrot accueillant" width="300" height="120" loading="eager" decoding="async" />
@@ -25,9 +30,33 @@
     </div>
   </div>
 </div>
+</div>
 <style>
+  /* Léger tilt 3D au survol (desktop, pointeur fin). Transform-only. */
+  .phone-tilt { perspective: 1100px; }
   .phone { position: relative; width: 264px; max-width: 100%; margin-inline: auto; border-radius: 40px; padding: 12px;
-    background: #0e1830; box-shadow: 0 30px 60px rgba(14,24,48,.35), inset 0 0 0 2px rgba(255,255,255,.06); }
+    background: #0e1830; box-shadow: 0 30px 60px rgba(14,24,48,.35), inset 0 0 0 2px rgba(255,255,255,.06);
+    transition: transform .45s cubic-bezier(.2,.7,.2,1); will-change: transform; }
+  @media (hover: hover) and (pointer: fine) {
+    .phone-tilt:hover .phone { transform: rotateY(-8deg) rotateX(5deg) translateY(-4px); }
+  }
+
+  /* Toast « nouvel avis reçu » qui descend puis remonte, en boucle (transform
+     uniquement, jamais d'opacité). Décoratif (aria-hidden) : masqué hors écran
+     sous prefers-reduced-motion. */
+  .ps-toast { position: absolute; top: 16px; left: 14px; right: 14px; z-index: 4; display: flex; align-items: center; gap: .45rem;
+    background: #fff; border-radius: 12px; padding: .45rem .65rem; box-shadow: 0 10px 24px rgba(14,24,48,.28);
+    transform: translateY(-180%); }
+  .ps-toast-stars { color: #E7B008; font-size: .8rem; letter-spacing: 1px; }
+  .ps-toast-txt { font-size: .74rem; font-weight: 700; color: var(--ink); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ps-toast { animation: ps-toast 6s infinite; }
+  }
+  @keyframes ps-toast {
+    0%, 5% { transform: translateY(-180%); }
+    13%, 42% { transform: translateY(0); }
+    50%, 100% { transform: translateY(-180%); }
+  }
   .phone-notch { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 96px; height: 20px;
     background: #0e1830; border-radius: 0 0 14px 14px; z-index: 3; }
   .phone-screen { background: var(--surface); border-radius: 30px; overflow: hidden; }

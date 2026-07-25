@@ -6,6 +6,7 @@ import { SITE } from "../config/site";
   title="Politique de confidentialité | Stela"
   description="Comment Stela collecte, utilise et protège vos données, y compris les données issues de l'API Google Business Profile."
   path="/politique-confidentialite"
+  closing={false}
   heading="Politique de confidentialité"
   updated="juillet 2026"
 >
@@ -21,10 +22,25 @@ import { SITE } from "../config/site";
     <li>Données de compte : nom, adresse électronique, établissement, identifiants de connexion.</li>
     <li>Données d'établissement : informations de la fiche, avis reçus, statistiques de visibilité.</li>
     <li>Données clients de l'établissement : coordonnées fournies par le professionnel pour la collecte d'avis et la fidélisation, dans le respect du consentement des personnes concernées.</li>
-    <li>Données techniques : mesures d'audience, uniquement après votre consentement (voir section 6).</li>
+    <li>Données du guide gratuit : prénom et adresse électronique, transmis volontairement via le formulaire du guide, avec votre consentement explicite (voir section 2).</li>
+    <li>Données techniques : mesures d'audience, uniquement après votre consentement (voir section 7).</li>
   </ul>
 
-  <h2>2. Données issues de l'API Google Business Profile</h2>
+  <h2>2. Guide gratuit et emails de conseils</h2>
+  <p>
+    Lorsque vous demandez notre guide, nous recueillons votre prénom et votre email, et uniquement
+    si vous cochez la case de consentement dédiée (non pré-cochée). Sans cette case, aucun envoi et
+    aucun enregistrement.
+  </p>
+  <ul>
+    <li><strong>Finalité</strong> : vous envoyer le guide par email, puis quelques conseils sur la réputation locale et nos offres.</li>
+    <li><strong>Base légale</strong> : votre consentement, que vous pouvez retirer à tout moment.</li>
+    <li><strong>Destinataires</strong> : l'envoi des emails est assuré par <strong>Resend</strong> (prestataire d'emailing). Votre contact est enregistré dans <strong>notre outil interne (Stela)</strong> pour la gestion de la relation, jamais revendu ni cédé à un tiers publicitaire.</li>
+    <li><strong>Désinscription</strong> : chaque email contient un lien de désinscription en un clic. Vous pouvez aussi nous écrire. La désinscription est immédiate.</li>
+    <li><strong>Conservation</strong> : jusqu'à votre désinscription, puis suppression ou anonymisation dans un délai raisonnable.</li>
+  </ul>
+
+  <h2>3. Données issues de l'API Google Business Profile</h2>
   <p>
     Lorsque vous connectez votre fiche Google, Stela accède à certaines données via l'API Google
     Business Profile, avec votre autorisation explicite (OAuth). Précisément :
@@ -42,34 +58,41 @@ import { SITE } from "../config/site";
     moment depuis votre compte Google ou en nous contactant.
   </p>
 
-  <h2>3. Base légale et finalités</h2>
+  <h2>4. Base légale et finalités</h2>
   <p>
     Nous traitons vos données pour exécuter le contrat (fourniture du service), respecter nos
     obligations légales, et sur la base de votre consentement pour la mesure d'audience. Nous ne
     poursuivons aucune finalité incompatible avec celles annoncées ici.
   </p>
 
-  <h2>4. Durée de conservation</h2>
+  <h2>5. Durée de conservation</h2>
   <p>
     Vos données sont conservées le temps de la relation contractuelle, puis pendant les durées
     légales applicables. Au-delà, elles sont supprimées ou anonymisées.
   </p>
 
-  <h2>5. Sous-traitants</h2>
+  <h2>6. Sous-traitants et prestataires</h2>
   <p>
-    Nous faisons appel à des prestataires strictement nécessaires au service (hébergement,
-    paiement, envoi de messages, mesure d'audience). Chacun agit selon nos instructions et dans
-    le respect du RGPD.
+    Nous faisons appel à des prestataires strictement nécessaires au service, chacun agissant
+    selon nos instructions et dans le respect du RGPD :
   </p>
+  <ul>
+    <li><strong>Vercel</strong> : hébergement du site et des fonctions.</li>
+    <li><strong>Stripe</strong> : paiement et abonnements (les données de carte sont traitées par Stripe, jamais stockées par nous).</li>
+    <li><strong>Resend</strong> : envoi des emails (guide, conseils, notifications).</li>
+    <li><strong>Twilio</strong> : envoi des SMS et messages WhatsApp de collecte d'avis.</li>
+    <li><strong>Google</strong> : API Google Business Profile (voir section 3).</li>
+    <li><strong>Google Analytics 4</strong> et, le cas échéant, <strong>PostHog</strong> : mesure d'audience, uniquement après votre consentement (voir section 7).</li>
+  </ul>
 
-  <h2>6. Mesure d'audience et cookies</h2>
+  <h2>7. Mesure d'audience et cookies</h2>
   <p>
     La mesure d'audience n'est activée qu'après votre consentement, via une bannière dédiée. En
     l'absence de consentement, aucun traceur de mesure n'est chargé. Vous pouvez modifier votre
     choix à tout moment.
   </p>
 
-  <h2>7. Vos droits</h2>
+  <h2>8. Vos droits</h2>
   <p>
     Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition
     et de portabilité. Pour les exercer, écrivez à <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.

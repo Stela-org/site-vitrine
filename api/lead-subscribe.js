@@ -1,59 +1,97 @@
 // Vercel Serverless Function (Node). Point de collecte UNIQUE du site : demande
-// du lead magnet « Le guide Google du commerçant local ». Double opt-in RGPD.
-// Sans stockage : un jeton HMAC signé encode l'email + l'horodatage ; il est
-// confirmé par /api/lead-confirm. Défenses anti-bot : honeypot + consentement +
-// validation serveur. (Rate limit fort = à brancher sur Vercel KV / Upstash en
-// production ; voir docs/LEAD-MAGNET.md.)
-import crypto from "node:crypto";
+// du lead magnet « Le guide Google du commerçant local ». SIMPLE OPT-IN :
+// une seule case de consentement obligatoire (non pré-cochée) → on envoie le
+// guide immédiatement + une relance J+3 planifiée, et on pousse le lead au CRM.
+// Défenses : honeypot + validation serveur + consentement + rate limit.
+import {
+  SITE,
+  EMAIL_RE,
+  isConfigured,
+  unsubUrlFor,
+  guideEmail,
+  closingEmail,
+  sendEmail,
+  pushLeadToCrm,
+  rateLimit,
+  clientIp,
+} from "../lib/leads.js";
 
-const SITE = "https://www.mystela.fr";
-const SECRET = process.env.LEAD_HMAC_SECRET;
-const RESEND_KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.LEAD_FROM || "Stela <contact@mystela.fr>";
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
-const sign = (email, ts) => crypto.createHmac("sha256", SECRET).update(`${email}|${ts}`).digest("hex");
+const PAGE = "/guide-google-commercant-local";
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
-  const raw = await new Promise((resolve) => { let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => resolve(d)); });
-  const out = {};
+  const raw = await new Promise((resolve) => {
+    let d = "";
+    req.on("data", (c) => (d += c));
+    req.on("end", () => resolve(d));
+  });
   if (raw.trim().startsWith("{")) return JSON.parse(raw);
-  for (const pair of raw.split("&")) { const [k, v] = pair.split("="); out[decodeURIComponent(k || "")] = decodeURIComponent((v || "").replace(/\+/g, " ")); }
+  const out = {};
+  for (const pair of raw.split("&")) {
+    const [k, v] = pair.split("=");
+    out[decodeURIComponent(k || "")] = decodeURIComponent((v || "").replace(/\+/g, " "));
+  }
   return out;
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") { res.statusCode = 405; return res.end("Method Not Allowed"); }
-  const redirect = (path) => { res.statusCode = 303; res.setHeader("Location", SITE + path); res.end(); };
+  if (req.method !== "POST") {
+    res.statusCode = 405;
+    return res.end("Method Not Allowed");
+  }
+  const redirect = (path) => {
+    res.statusCode = 303;
+    res.setHeader("Location", SITE + path);
+    res.end();
+  };
 
   let body = {};
-  try { body = await readBody(req); } catch { return redirect("/guide-google-commercant-local?erreur=1"); }
+  try {
+    body = await readBody(req);
+  } catch {
+    return redirect(`${PAGE}?erreur=1`);
+  }
 
   const email = String(body.email || "").trim().toLowerCase();
+  const firstName = String(body.first_name || "").trim().slice(0, 40);
   const honeypot = String(body.website || "").trim();
   const consent = body.consent;
 
-  // Bot détecté : on ne fait rien mais on affiche la même page (pas d'indice).
-  if (honeypot) return redirect("/guide-google-commercant-local/merci");
-  if (!EMAIL_RE.test(email) || !consent) return redirect("/guide-google-commercant-local?erreur=1");
-  if (!SECRET || !RESEND_KEY) { res.statusCode = 500; return res.end("Service non configuré (env manquants)."); }
+  // Bot (honeypot rempli) : on affiche la page de succès sans rien faire.
+  if (honeypot) return redirect(`${PAGE}/merci`);
+  // Sans consentement explicite : ni envoi, ni lead (règle du lot).
+  if (!EMAIL_RE.test(email) || !consent) return redirect(`${PAGE}?erreur=1`);
+  if (!isConfigured()) {
+    res.statusCode = 500;
+    return res.end("Service non configuré (env manquants).");
+  }
 
-  const ts = Date.now();
-  const token = Buffer.from(JSON.stringify({ e: email, t: ts, s: sign(email, ts) })).toString("base64url");
-  const confirmUrl = `${SITE}/api/lead-confirm?token=${token}`;
+  // Rate limit : par email et par IP. En cas de dépassement, on affiche la page
+  // de succès (pas d'indice pour un attaquant) sans envoyer ni re-pousser.
+  const [byEmail, byIp] = await Promise.all([
+    rateLimit(`e:${email}`, { max: 3, windowSec: 3600 }),
+    rateLimit(`i:${clientIp(req)}`, { max: 10, windowSec: 3600 }),
+  ]);
+  if (!byEmail.ok || !byIp.ok) return redirect(`${PAGE}/merci`);
 
+  const consentedAt = new Date().toISOString();
+  const unsubUrl = unsubUrlFor(email);
+
+  // Envoi du guide (immédiat) + relance planifiée J+3. L'envoi du guide prime :
+  // le CRM et la relance ne doivent jamais le bloquer.
   try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM, to: email,
-        subject: "Confirmez pour recevoir votre guide Stela",
-        html: `<p>Merci pour votre intérêt !</p><p>Cliquez pour confirmer et recevoir <strong>Le guide Google du commerçant local</strong> :</p><p><a href="${confirmUrl}">Confirmer et recevoir le guide</a></p><p style="color:#6c6558;font-size:13px">Si vous n'êtes pas à l'origine de cette demande, ignorez cet email. Aucune donnée ne sera conservée.</p>`,
-      }),
-    });
-  } catch { /* échec envoi : on ne divulgue rien, on affiche merci */ }
+    const g = guideEmail({ firstName, unsubUrl });
+    await sendEmail({ to: email, subject: g.subject, html: g.html });
+  } catch {
+    /* échec d'envoi : on ne divulgue rien, on affiche merci */
+  }
 
-  return redirect("/guide-google-commercant-local/merci");
+  // Relance J+3 (planifiée côté Resend) + poussée CRM : best effort, non bloquant.
+  const c = closingEmail({ firstName, unsubUrl });
+  await Promise.allSettled([
+    sendEmail({ to: email, subject: c.subject, html: c.html, scheduledAt: "in 3 days" }),
+    pushLeadToCrm({ email, firstName, consentedAt }),
+  ]);
+
+  return redirect(`${PAGE}/merci`);
 }

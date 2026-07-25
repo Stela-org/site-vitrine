@@ -4,6 +4,7 @@
   "trailingSlash": false,
   "buildCommand": "astro build && (node scripts/indexnow-ping.mjs || true)",
   "redirects": [
+    { "source": "/stela-vs-dokaa", "destination": "https://www.mystela.fr/comparatif", "permanent": true },
     { "source": "/blog/e-reputation-restaurant-guide-complet.html", "destination": "https://www.mystela.fr/blog/e-reputation-commerce-local-guide", "permanent": true },
     { "source": "/blog/qr-code-avis-google-restaurant.html", "destination": "https://www.mystela.fr/blog/qr-code-avis-google", "permanent": true },
     { "source": "/blog/avis-google-restaurant-:ville.html", "destination": "https://www.mystela.fr/restaurants-:ville", "permanent": true },

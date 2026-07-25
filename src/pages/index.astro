@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, PLANS, stripeLink } from "../config/site";
+import { SITE, PLANS, stripeLink, PRODUCT_VIDEOS } from "../config/site";
+import ProductVideo from "../components/ProductVideo.astro";
 import { FEATURES } from "../content/features";
 import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
@@ -10,6 +11,7 @@ import MiniMockup from "../components/MiniMockup.astro";
 import ROICard from "../components/ROICard.astro";
 import StatBand from "../components/StatBand.astro";
 import TripleZero from "../components/TripleZero.astro";
+import Integrations from "../components/Integrations.astro";
 
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
@@ -74,13 +76,13 @@ const websiteLd = {
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <p class="eyebrow">100 % conforme aux règles de Google</p>
-        <h1>{SITE.positioning}</h1>
+        <p class="eyebrow">Votre réputation locale, en pilote automatique</p>
+        <h1>Plus d'avis Google, des réponses toutes prêtes, des clients qui reviennent.</h1>
         <p class="lead">
-          Collectez plus d'avis, répondez automatiquement et faites revenir vos clients. Sans filtrer une seule note, parce que la conformité est notre force.
+          Stela collecte vos avis, y répond avec Nova en 10 secondes et fait revenir vos clients. Vous gardez la main, et vous êtes prêt en 10 minutes.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="#tarifs">Essayer gratuitement</a>
+          <a class="btn btn-primary" href="#tarifs">Essai gratuit 7 jours</a>
           <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
         <div class="hero-trust"><TripleZero /></div>
@@ -101,12 +103,25 @@ const websiteLd = {
     <div class="container">
       <p class="eyebrow">Voici ce que ça donne</p>
       <h2>Des avis qui arrivent, des réponses déjà prêtes</h2>
-      <p class="reviews-note">Exemples illustrant le fonctionnement de Stela. Avis anonymisés, réponses générées automatiquement.</p>
+      <p class="reviews-note">Nova, votre assistante, écrit la réponse en 10 secondes. Vous relisez, vous envoyez. Exemples illustratifs, avis anonymisés.</p>
       <div class="reviews-band reveal-stagger">
         {demoReviews.map((r) => <ReviewCard {...r} />)}
       </div>
     </div>
   </section>
+
+  {/* EMPLACEMENT VIDÉO (rendu uniquement si un clip est configuré) */}
+  {PRODUCT_VIDEOS.home && (
+    <section class="demo-video">
+      <div class="container" style="text-align:center;">
+        <p class="eyebrow">Stela en action</p>
+        <h2>Voyez comme c'est simple</h2>
+        <div class="demo-video-frame">
+          <ProductVideo {...PRODUCT_VIDEOS.home} eager={false} radius="18px" />
+        </div>
+      </div>
+    </section>
+  )}
 
   {/* FONCTIONNALITÉS */}
   <section id="fonctionnalites">
@@ -126,18 +141,26 @@ const websiteLd = {
     </div>
   </section>
 
-  {/* CONFORMITÉ : rupture totale de style (fond encre plein, chiffre laiton géant) */}
+  {/* INTÉGRATIONS : où Stela vous rend visible (livré vs bientôt) */}
+  <Integrations />
+
+  {/* PILIER PRIVÉ D'ABORD : rupture de style (fond encre, mot laiton géant).
+      Von Restorff de la home. On dose « zéro filtrage » (devenu une preuve parmi
+      d'autres) et on met en avant le vrai réflexe conforme : le canal privé. */}
   <section id="conformite" class="conformite">
     <div class="container conf-inner">
-      <p class="conf-eyebrow">Notre différence</p>
-      <p class="conf-giant"><span>Zéro</span> filtrage.</p>
-      <h2 class="conf-title">Tous les avis sont les bienvenus.</h2>
+      <p class="conf-eyebrow">Le bon réflexe</p>
+      <p class="conf-giant">En <span>privé</span>, d'abord.</p>
+      <h2 class="conf-title">Un client déçu ? Il vous le dit en privé d'abord. Vous le rattrapez avant que ça devienne public.</h2>
       <p class="conf-lead">
-        Certains outils trient les clients et détournent les avis négatifs. C'est interdit par Google et met votre fiche en danger. Stela fait l'inverse : chaque client est invité à s'exprimer publiquement, et la récupération se fait en plus, jamais à la place.
+        Avec Stela, un client mécontent peut vous écrire en privé. Vous corrigez, souvent il revient. Ses avis publics, eux, restent toujours libres et non filtrés : la règle de Google est aussi la nôtre.
+      </p>
+      <p class="conf-risk">
+        Acheter des avis ou trier ses clients, Google l'interdit : votre fiche peut disparaître de la carte, et vous reculez dans Google comme dans les réponses des IA (ChatGPT, Gemini).
       </p>
       <ul class="conf-list">
-        <li>Aucun filtrage des avis selon la note.</li>
-        <li>Aucune interception des clients insatisfaits.</li>
+        <li>Un canal privé pour rattraper un client déçu, en plus de l'avis public.</li>
+        <li>Tous les avis publics restent libres, jamais filtrés selon la note.</li>
         <li>Conforme aux règles de Google et au RGPD.</li>
       </ul>
     </div>
@@ -182,19 +205,19 @@ const websiteLd = {
                 <label class="calc-field">Clients par jour
                   <input type="number" name="clients" min="0" max="9999" value="40" inputmode="numeric" />
                 </label>
-                <label class="calc-field">Taux de participation
-                  <span class="calc-range"><input type="range" name="rate" min="1" max="50" value="15" /><output>15 %</output></span>
+                <label class="calc-field">Taux de participation estimé
+                  <span class="calc-range"><input type="range" name="rate" min="1" max="30" value="8" /><output>8 %</output></span>
                 </label>
               </form>
-              <p class="calc-result">≈ <strong data-calc-out>180</strong> avis par mois <span class="calc-tag">projection</span></p>
-              <p class="calc-note">Estimation indicative : clients par jour × 30 × taux de participation. Non contractuelle.</p>
+              <p class="calc-result">Entre <strong data-calc-low>48</strong> et <strong data-calc-high>86</strong> nouveaux avis par mois <span class="calc-tag">fourchette prudente</span></p>
+              <p class="calc-note">Hypothèse volontairement prudente : clients par jour × 30 × taux de participation, avec une marge basse et haute. Indicatif, non contractuel.</p>
             </div>
             <div class="story-mock reveal"><ROICard /></div>
           </div>
 
           <p class="results-cred">L'équipe Stela a équipé plus de 170 restaurants avec la génération précédente de l'outil.</p>
           <div class="results-cta">
-            <a class="btn btn-primary" href="#tarifs">Devenir l'un de nos premiers cas mesurés</a>
+            <a class="btn btn-primary" href="#tarifs">Devenez l'une de nos étoiles montantes</a>
           </div>
 
           <script>
@@ -203,13 +226,19 @@ const websiteLd = {
             // affichés. Le contenu n'est jamais masqué.
             const form = document.getElementById("review-calc") as HTMLFormElement | null;
             if (form) {
-              const out = document.querySelector("[data-calc-out]");
+              const low = document.querySelector("[data-calc-low]");
+              const high = document.querySelector("[data-calc-high]");
               const rangeOut = form.querySelector("output");
+              const fr = (n: number) => Math.round(n).toLocaleString("fr-FR");
               const recompute = () => {
                 const c = Number((form.elements.namedItem("clients") as HTMLInputElement).value) || 0;
                 const r = Number((form.elements.namedItem("rate") as HTMLInputElement).value) || 0;
                 if (rangeOut) rangeOut.textContent = r + " %";
-                if (out) out.textContent = Math.round(c * 30 * (r / 100)).toLocaleString("fr-FR");
+                const base = c * 30 * (r / 100);
+                // Fourchette prudente : borne basse à 50 %, borne haute à 90 % de
+                // l'estimation théorique (on n'annonce jamais le maximum optimiste).
+                if (low) low.textContent = fr(base * 0.5);
+                if (high) high.textContent = fr(base * 0.9);
               };
               form.addEventListener("input", recompute);
               recompute();
@@ -253,7 +282,7 @@ const websiteLd = {
             <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
               data-href-monthly={stripeLink(p.id, "monthly", "home")}
               data-href-yearly={stripeLink(p.id, "yearly", "home")}
-              href={stripeLink(p.id, "monthly", "home")}>Essayer gratuitement</a>
+              href={stripeLink(p.id, "monthly", "home")}>Essai gratuit 7 jours</a>
           </div>
         ))}
       </div>
@@ -274,16 +303,6 @@ const websiteLd = {
           </div>
         ))}
       </div>
-    </div>
-  </section>
-
-  {/* CTA final */}
-  <section class="cta-final">
-    <div class="container">
-      <h2>Prêt à faire grandir votre réputation, en toute conformité ?</h2>
-      <a class="btn btn-primary" href="#tarifs">Essayer gratuitement</a>
-      <p class="cta-guarantee">✓ Essai gratuit de 7 jours, puis 30 jours satisfait ou remboursé.</p>
-      <div class="cta-tz"><TripleZero variant="dark" /></div>
     </div>
   </section>
 </Base>
@@ -339,6 +358,8 @@ const websiteLd = {
   .conf-giant span { color: var(--brass); }
   .conf-title { color: #fff; font-size: clamp(1.5rem, 3.5vw, 2.25rem); margin: 0 0 1rem; }
   .conf-lead { color: #b9c4d8; font-size: 1.05rem; max-width: 58ch; }
+  .conf-risk { color: #e6ebf4; font-size: .98rem; max-width: 58ch; margin-top: 1rem; padding: .85rem 1.1rem;
+    border-left: 4px solid var(--brass); background: rgba(176,138,62,.12); border-radius: 8px; }
   .conf-list { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: .6rem; }
   .conf-list li { position: relative; padding-left: 1.7rem; color: #e6ebf4; }
   .conf-list li::before { content: "✓"; position: absolute; left: 0; color: var(--brass); font-weight: 800; }
@@ -346,6 +367,9 @@ const websiteLd = {
   .check-list { list-style: none; padding: 0; margin: 1rem 0 0; }
   .check-list li { position: relative; padding-left: 1.6rem; margin-bottom: .5rem; color: var(--text-secondary); }
   .check-list li::before { content: "✓"; position: absolute; left: 0; color: var(--brass); font-weight: 800; }
+
+  .demo-video { padding-block: 1rem 2.5rem; }
+  .demo-video-frame { max-width: 820px; margin: 1.5rem auto 0; }
 
   /* Tarifs */
   .tarifs { background: var(--cream); }
@@ -373,11 +397,10 @@ const websiteLd = {
   .grid-plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 780px; margin-inline: auto; }
   @media (max-width: 720px) { .grid-plans { grid-template-columns: 1fr; } }
   .plan { display: flex; flex-direction: column; }
-  .plan-hl { border-color: var(--brass); border-width: 2px; position: relative;
+  /* Un seul trait laiton, propre à toutes les tailles (fini le double bord :
+     l'ancien ::before masqué doublait la bordure de la carte). */
+  .plan-hl { border: 2px solid var(--brass); position: relative;
     background: linear-gradient(180deg, #fffdf8, #fff); box-shadow: 0 20px 50px rgba(176,138,62,.18); }
-  .plan-hl::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px;
-    background: linear-gradient(135deg, var(--brass), var(--gold)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
   @media (min-width: 721px) { .plan-hl { transform: scale(1.04); } }
   .plan-wheel { margin: .6rem 0 0; font-size: .82rem; color: var(--brass); font-weight: 600; }
   .plan-badge { align-self: flex-start; background: var(--brass); color: #fff; font-size: .74rem; font-weight: 700;

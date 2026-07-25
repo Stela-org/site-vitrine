@@ -5,6 +5,12 @@
 @import "@fontsource/plus-jakarta-sans/700.css";
 @import "@fontsource/plus-jakarta-sans/800.css";
 
+/* Transitions de page natives (cross-document MPA), 100 % CSS : aucun JavaScript,
+   compatible CSP stricte. Progressive enhancement : les navigateurs non
+   compatibles naviguent normalement. Coupées sous prefers-reduced-motion. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
 :root {
   --ink: #15233F;
   --ink-deep: #1D3158;

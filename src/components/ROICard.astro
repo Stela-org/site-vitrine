@@ -1,51 +1,79 @@
 ---
-// Maquette de la carte « Retombées (CA · ROI) » du vrai produit (module
-// Campagnes). Données d'EXEMPLE clairement signalées (aucun chiffre réel).
-interface Props { ca?: string; roi?: string; period?: string; }
-const { ca = "1 240 €", roi = "6,2×", period = "30 derniers jours" } = Astro.props;
+// Carte « Reporting » reprenant le visuel du tableau de bord CRM Stela.
+// Chiffres d'un ÉTABLISSEMENT DE DÉMONSTRATION, jamais présentés comme des
+// données client réelles (mention explicite + aria-label).
+interface Props {
+  place?: string; period?: string;
+  avis?: string; note?: string; ca?: string; roi?: string;
+}
+const {
+  place = "Le Bistrot du Marais",
+  period = "30 derniers jours",
+  avis = "+38", note = "4,7", ca = "1 240 €", roi = "6,2×",
+} = Astro.props;
 ---
-<div class="roi" role="img" aria-label="Maquette de la carte Retombées avec des données d'exemple">
-  <div class="roi-head">
-    <span class="roi-title">Retombées (CA · ROI)</span>
-    <span class="roi-tag">données d'exemple</span>
-  </div>
-  <div class="roi-period">{period}</div>
-  <div class="roi-metrics">
-    <div class="roi-m">
-      <span class="roi-k">CA généré</span>
-      <span class="roi-v">{ca}</span>
+<div class="rep" role="img" aria-label={`Reporting Stela d'un établissement de démonstration : ${avis} avis, note ${note}, chiffres illustratifs`}>
+  <div class="rep-head">
+    <span class="rep-dot" aria-hidden="true"></span>
+    <div>
+      <p class="rep-title">Reporting</p>
+      <p class="rep-place">{place}</p>
     </div>
-    <div class="roi-m roi-m-hl">
-      <span class="roi-k">ROI</span>
-      <span class="roi-v">{roi}</span>
+    <span class="rep-tag">Établissement de démonstration</span>
+  </div>
+  <p class="rep-period">{period}</p>
+
+  <div class="rep-grid">
+    <div class="rep-m">
+      <span class="rep-k">Nouveaux avis</span>
+      <span class="rep-v rep-up">{avis}</span>
+    </div>
+    <div class="rep-m">
+      <span class="rep-k">Note moyenne</span>
+      <span class="rep-v">{note} <span class="rep-star" aria-hidden="true">★</span></span>
+    </div>
+    <div class="rep-m">
+      <span class="rep-k">CA estimé</span>
+      <span class="rep-v">{ca}</span>
+    </div>
+    <div class="rep-m rep-m-hl">
+      <span class="rep-k">Retour sur investissement</span>
+      <span class="rep-v">{roi}</span>
     </div>
   </div>
-  <div class="roi-bar" aria-hidden="true"><span></span></div>
-  <p class="roi-foot">Campagne SMS · clients absents relancés</p>
+
+  <div class="rep-spark" aria-hidden="true">
+    {[34, 41, 38, 52, 47, 63, 71].map((h) => <span style={`--h:${h}%`}></span>)}
+  </div>
+  <p class="rep-foot">Reporting Stela &middot; chiffres illustratifs d'un établissement de démonstration, non contractuels.</p>
 </div>
 <style>
-  .roi { background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-    padding: 1.25rem; box-shadow: var(--shadow); }
-  .roi-head { display: flex; align-items: center; gap: .5rem; }
-  .roi-title { font-weight: 800; color: var(--ink); font-size: 1rem; }
-  .roi-tag { margin-left: auto; font-size: .66rem; font-weight: 700; color: var(--text-muted);
-    background: var(--cream); border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem; }
-  .roi-period { color: var(--text-muted); font-size: .78rem; margin: .2rem 0 .9rem; }
-  .roi-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-  .roi-m { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: .7rem .8rem; }
-  .roi-m-hl { background: var(--ink); border-color: var(--ink); }
-  .roi-k { display: block; font-size: .72rem; font-weight: 600; color: var(--text-muted); }
-  .roi-m-hl .roi-k { color: #9fb0cc; }
-  .roi-v { font-size: 1.6rem; font-weight: 800; color: var(--ink); }
-  .roi-m-hl .roi-v { color: var(--brass); }
-  .roi-bar { height: 8px; border-radius: 999px; background: var(--border); margin: 1rem 0 .6rem; overflow: hidden; }
-  .roi-bar span { display: block; height: 100%; width: 78%; border-radius: 999px;
-    background: linear-gradient(90deg, var(--brass), var(--gold)); }
+  .rep { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); }
+  .rep-head { display: flex; align-items: center; gap: .6rem; }
+  .rep-dot { width: 34px; height: 34px; border-radius: 10px; flex: none;
+    background: linear-gradient(135deg, var(--brass), var(--gold)); }
+  .rep-title { font-weight: 800; color: var(--ink); font-size: 1rem; margin: 0; line-height: 1.1; }
+  .rep-place { color: var(--text-muted); font-size: .78rem; margin: 0; }
+  .rep-tag { margin-left: auto; font-size: .62rem; font-weight: 800; color: var(--muted, #6C6558);
+    background: var(--cream); border: 1px solid var(--border); border-radius: 999px; padding: .2rem .5rem; text-align: right; }
+  .rep-period { color: var(--text-muted); font-size: .76rem; margin: .55rem 0 .9rem; }
+  .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .rep-m { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: .6rem .75rem; }
+  .rep-m-hl { background: var(--ink); border-color: var(--ink); }
+  .rep-k { display: block; font-size: .68rem; font-weight: 600; color: var(--text-muted); }
+  .rep-m-hl .rep-k { color: #9fb0cc; }
+  .rep-v { font-size: 1.35rem; font-weight: 800; color: var(--ink); }
+  .rep-m-hl .rep-v { color: var(--brass); }
+  .rep-up { color: #1c7c54; }
+  .rep-star { color: var(--brass); font-size: .9em; }
+  .rep-spark { display: flex; align-items: flex-end; gap: 5px; height: 42px; margin: 1rem 0 .6rem; }
+  .rep-spark span { flex: 1; height: var(--h); border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, var(--brass), var(--gold)); }
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      .roi-bar span { width: 0; animation: roi-grow 1s ease forwards; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+      .rep-spark span { transform: scaleY(0); transform-origin: bottom; animation: rep-rise .7s ease forwards; animation-timeline: view(); animation-range: entry 0% cover 25%; }
     }
   }
-  @keyframes roi-grow { to { width: 78%; } }
-  .roi-foot { margin: 0; font-size: .78rem; color: var(--text-muted); }
+  @keyframes rep-rise { to { transform: scaleY(1); } }
+  .rep-foot { margin: 0; font-size: .74rem; color: var(--text-muted); }
 </style>

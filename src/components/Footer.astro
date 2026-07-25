@@ -1,10 +1,11 @@
 ---
-import { SITE , TARIFS_URL } from "../config/site";
-import { FEATURES } from "../content/features";
-import { SEGMENTS } from "../content/segments";
+import { SITE, TARIFS_URL } from "../config/site";
 import { CITIES } from "../content/cities";
 import Logo from "./Logo.astro";
 const year = new Date().getFullYear();
+// Footer en 4 colonnes claires (Produit, Ressources, Villes, Légal). Les pages
+// « Pour qui » et les fonctionnalités détaillées sont listées sur le hub
+// /fonctionnalites (évite un footer labyrinthique tout en gardant le maillage).
 ---
 <footer class="footer">
   <div class="container footer-inner">
@@ -13,54 +14,53 @@ const year = new Date().getFullYear();
       <p class="footer-tagline">{SITE.tagline}</p>
       <p class="footer-pos">{SITE.positioning}</p>
     </div>
-    <nav class="footer-col" aria-label="Fonctionnalités">
-      <h3>Fonctionnalités</h3>
-      {FEATURES.map((f) => <a href={`/${f.slug}`}>{f.navLabel}</a>)}
-    </nav>
-    <nav class="footer-col" aria-label="Secteurs et profils">
-      <h3>Pour qui</h3>
-      {SEGMENTS.map((s) => <a href={`/pour/${s.slug}`}>{s.navLabel}</a>)}
-    </nav>
-    <nav class="footer-col" aria-label="Produit et contact">
-      <h3>Stela</h3>
+
+    <nav class="footer-col" aria-label="Produit">
+      <h3>Produit</h3>
+      <a href="/fonctionnalites">Fonctionnalités</a>
       <a href="/tarifs">Tarifs</a>
-      <a href="/notre-histoire">Notre histoire</a>
+      <a href="/comparatif">Comparatif</a>
+      <a href={TARIFS_URL}>Essai gratuit 7 jours</a>
+    </nav>
+
+    <nav class="footer-col" aria-label="Ressources">
+      <h3>Ressources</h3>
       <a href="/blog">Blog</a>
+      <a href="/notre-histoire">Notre histoire</a>
       <a href="/statistiques-avis-google-france">Statistiques des avis</a>
       <a href="/guide-google-commercant-local">Guide gratuit</a>
-      <a href="/stela-vs-dokaa">Stela vs Dokaa</a>
-      <a href={TARIFS_URL}>Essayer gratuitement</a>
+    </nav>
+
+    <nav class="footer-col" aria-label="Nos villes">
+      <h3>Villes</h3>
+      {CITIES.map((c) => <a href={`/restaurants-${c.slug}`}>Restaurants {c.prep}</a>)}
+    </nav>
+
+    <nav class="footer-col" aria-label="Légal et contact">
+      <h3>Légal</h3>
       <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/politique-confidentialite">Confidentialité</a>
       <a href="/cgv">CGV</a>
     </nav>
   </div>
-  <div class="container footer-cities">
-    <h3>Nos villes</h3>
-    <nav aria-label="Restaurants par ville">
-      {CITIES.map((c) => <a href={`/restaurants-${c.slug}`}>Restaurants {c.prep}</a>)}
-    </nav>
-  </div>
+
   <div class="container footer-legal">
     <p>© {year} {SITE.brand}. Collecte d'avis 100 % conforme aux règles de Google.</p>
   </div>
 </footer>
 <style>
-  .footer { background: var(--ink); color: #cdd5e4; margin-top: 2rem; }
-  .footer-inner { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 2rem; padding-block: 3.5rem 2rem; }
+  .footer { background: var(--ink); color: #cdd5e4; margin-top: 0; }
+  .footer-inner { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.1fr 1fr; gap: 2rem; padding-block: 3.5rem 2rem; }
   @media (max-width: 960px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .footer-inner { grid-template-columns: 1fr; gap: 1.75rem; } }
+  .footer-brand { grid-column: 1 / -1; max-width: 34ch; }
+  @media (min-width: 961px) { .footer-brand { grid-column: auto; } }
   .footer-tagline { color: #F7F4EF; font-weight: 600; margin: .9rem 0 .4rem; }
-  .footer-pos { color: #9fb0cc; font-size: .95rem; max-width: 34ch; }
+  .footer-pos { color: #9fb0cc; font-size: .95rem; }
   .footer-col h3 { color: #F7F4EF; font-size: .95rem; margin-bottom: .9rem; }
   .footer-col a { display: block; color: #cdd5e4; padding: .28rem 0; font-size: .95rem; }
   .footer-col a:hover { color: #fff; }
-  .footer-cities { border-top: 1px solid rgba(255,255,255,.12); padding-block: 1.5rem .5rem; }
-  .footer-cities h3 { color: #F7F4EF; font-size: .95rem; margin-bottom: .8rem; }
-  .footer-cities nav { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
-  .footer-cities a { color: #cdd5e4; font-size: .9rem; }
-  .footer-cities a:hover { color: #fff; }
   .footer-legal { border-top: 1px solid rgba(255,255,255,.12); padding-block: 1.25rem; }
   .footer-legal p { color: #8ea0bd; font-size: .85rem; margin: 0; }
-  @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr; gap: 1.75rem; } }
 </style>

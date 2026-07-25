@@ -46,3 +46,13 @@ Comportement garanti par le composant :
   2-3 points), poids surveillé (`< 2 Mo`/clip), aucun clip au-dessus de la ligne
   de flottaison en `preload` agressif.
 - Vérifier le rendu `prefers-reduced-motion` (poster seul) et JS coupé (poster seul).
+
+## Activation des emplacements vidéo (VIT-9)
+Les emplacements sont PRÊTS mais ne s'affichent que si un clip est configuré
+(pas de placeholder disgracieux tant qu'aucune vidéo n'existe).
+1. Déposer `webm` + `mp4` (< 2 Mo) dans `public/video/` et un poster réel dans `public/images/`.
+2. Renseigner l'entrée dans `PRODUCT_VIDEOS` de `src/config/site.ts` :
+   `home` (section « Stela en action » sur l'accueil) et/ou `fonctionnalites`
+   (section sur le hub). Chaque entrée : `{ poster, alt, webm, mp4, width, height }`.
+3. La section apparaît automatiquement. Lecture : autoplay muted loop playsinline,
+   lazy (IntersectionObserver), poster fallback si `prefers-reduced-motion` ou sans JS.
