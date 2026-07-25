@@ -18,7 +18,12 @@ export const SITE = {
 
   email: "contact@mystela.fr",
 
-  // Profils officiels (schema.org sameAs). À CONFIRMER par Nicolas (URLs exactes).
+  // Profils officiels (schema.org sameAs).
+  // TODO(sameAs, Nicolas) : remplacer par les URL EXACTES fournies par Nicolas
+  // (page LinkedIn de l'entreprise + fiche societe.com). Les valeurs ci-dessous
+  // sont provisoires : la fiche societe.com porte le bon SIREN (VGN Company
+  // 921060737) mais reste à confirmer, et l'URL LinkedIn est une hypothèse.
+  // Non bloquant (le schema reste valide), mais à corriger avant campagne.
   sameAs: [
     "https://www.linkedin.com/company/stela-avis",
     "https://www.societe.com/societe/vgn-company-921060737.html",
