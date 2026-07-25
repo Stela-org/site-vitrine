@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { SITE } from "../../config/site";
 import { SEGMENTS, profils, secteurs } from "../../content/segments";
+import ReviewCard from "../../components/ReviewCard.astro";
 
 export function getStaticPaths() {
   return SEGMENTS.map((s) => ({ params: { segment: s.slug }, props: { s } }));
@@ -28,14 +29,21 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} is:inline />
 
   <section class="hero">
-    <div class="container" style="max-width:760px;">
-      <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a></nav>
-      <p class="eyebrow">{s.kind === "secteur" ? "Par secteur" : "Par profil"}</p>
-      <h1>{s.h1}</h1>
-      <p class="lead">{s.lead}</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
-        <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
+    <div class="container hero-grid">
+      <div>
+        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a></nav>
+        <p class="eyebrow">{s.kind === "secteur" ? "Par secteur" : "Par profil"}</p>
+        <h1>{s.h1}</h1>
+        <p class="lead">{s.lead}</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href={SITE.appUrl}>Essayer gratuitement</a>
+          <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
+        </div>
+      </div>
+      <div class="hero-review">
+        <ReviewCard initial="C." name="Client vérifié" meta="Avis Google · exemple"
+          text="Service au top et vraiment à l'écoute, je recommande sans hésiter."
+          reply="Merci beaucoup pour votre confiance, au plaisir de vous revoir très vite !" featured />
       </div>
     </div>
   </section>
@@ -82,6 +90,9 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
 
 <style>
   .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; }
+  .hero-review { max-width: 380px; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } .hero-review { max-width: 100%; } }
   .crumbs { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
   .crumbs a { color: var(--text-muted); }
   .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }

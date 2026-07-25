@@ -58,6 +58,7 @@ export const PLANS = [
     name: "Étoile",
     monthly: 49,
     yearlyPerMonth: 41, // 490 €/an ≈ 2 mois offerts
+    yearlySave: 98, // 12 x 49 - 490
     tagline: "L'essentiel pour collecter et répondre, en toute conformité.",
     features: [
       "Collecte d'avis Google conforme (aucun filtre sur la note)",
@@ -71,12 +72,14 @@ export const PLANS = [
     name: "Constellation",
     monthly: 89,
     yearlyPerMonth: 74, // 890 €/an ≈ 2 mois offerts
+    yearlySave: 178, // 12 x 89 - 890
     tagline: "Toute la croissance locale, multi-plateformes et multi-canal.",
     features: [
       "Tout Étoile, plus :",
       "Avis multi-plateformes",
       "Visibilité IA (GEO) et réservation",
       "SMS et WhatsApp, analyse des retours, insights",
+      "Roue cadeau 100 % conforme (le lot après l'avis)",
     ],
     highlight: true,
   },

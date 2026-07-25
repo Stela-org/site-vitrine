@@ -6,6 +6,8 @@ import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
 import ReviewCard from "../components/ReviewCard.astro";
 import GiftWheelMini from "../components/GiftWheelMini.astro";
+import MiniMockup from "../components/MiniMockup.astro";
+import ROICard from "../components/ROICard.astro";
 
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
@@ -17,7 +19,7 @@ const demoReviews = [
 
 // Maillage : les cartes de la home pointent vers les pages fonctionnalités
 // dédiées (source unique content/features.ts).
-const features = FEATURES.map((f) => ({ slug: f.slug, t: f.navLabel, d: f.benefits[0].d }));
+const features = FEATURES.map((f) => ({ slug: f.slug, t: f.navLabel, d: f.benefits[0].d, mockup: f.mockup }));
 
 const faq = [
   {
@@ -116,6 +118,7 @@ const websiteLd = {
       <div class="grid-3 reveal-stagger">
         {features.map((f) => (
           <a class="card feature-card" href={`/${f.slug}`}>
+            <MiniMockup module={f.mockup.module} rows={f.mockup.rows} />
             <h3>{f.t}</h3>
             <p>{f.d}</p>
             <span class="feature-more">Découvrir</span>
@@ -160,9 +163,12 @@ const websiteLd = {
           ))}
         </div>
       ) : (
-        <div class="card story-soon">
-          <p>Nos premiers résultats clients instrumentés seront publiés ici, avec des chiffres réels et vérifiables. Nous préférons attendre de vraies mesures plutôt que d'afficher des promesses.</p>
-          <a class="btn btn-ghost" href={SITE.appUrl}>Devenir l'un de nos premiers cas</a>
+        <div class="story-empty">
+          <div class="story-soon">
+            <p>Nos premiers résultats clients instrumentés seront publiés ici, avec des chiffres réels et vérifiables. En attendant, voici la carte que vous suivrez dans votre tableau de bord.</p>
+            <a class="btn btn-ghost" href={SITE.appUrl}>Devenir l'un de nos premiers cas</a>
+          </div>
+          <div class="story-mock reveal"><ROICard /></div>
         </div>
       )}
     </div>
@@ -194,7 +200,8 @@ const websiteLd = {
               <span class="amount amount-y">{p.yearlyPerMonth} €</span>
               <span class="per">/ mois</span>
             </p>
-            <p class="plan-note plan-note-y">Facturé annuellement, soit deux mois offerts.</p>
+            <p class="plan-note plan-note-y">Facturé annuellement, vous économisez {p.yearlySave} € par an.</p>
+            {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
             <ul class="check-list">
               {p.features.map((f) => <li>{f}</li>)}
             </ul>
@@ -313,7 +320,13 @@ const websiteLd = {
   .grid-plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 780px; margin-inline: auto; }
   @media (max-width: 720px) { .grid-plans { grid-template-columns: 1fr; } }
   .plan { display: flex; flex-direction: column; }
-  .plan-hl { border-color: var(--brass); border-width: 2px; }
+  .plan-hl { border-color: var(--brass); border-width: 2px; position: relative;
+    background: linear-gradient(180deg, #fffdf8, #fff); box-shadow: 0 20px 50px rgba(176,138,62,.18); }
+  .plan-hl::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px;
+    background: linear-gradient(135deg, var(--brass), var(--gold)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  @media (min-width: 721px) { .plan-hl { transform: scale(1.04); } }
+  .plan-wheel { margin: .6rem 0 0; font-size: .82rem; color: var(--brass); font-weight: 600; }
   .plan-badge { align-self: flex-start; background: var(--brass); color: #fff; font-size: .74rem; font-weight: 700;
     padding: .2rem .6rem; border-radius: 999px; margin-bottom: .5rem; }
   .plan-name { font-size: 1.4rem; }
@@ -334,8 +347,10 @@ const websiteLd = {
   .story-metric { font-size: 2rem; font-weight: 800; color: var(--brass); margin-bottom: .25rem; }
   .story-quote { color: var(--text-secondary); font-style: italic; }
   .story-author { color: var(--text-muted); font-size: .85rem; font-weight: 600; margin: 0; }
-  .story-soon { max-width: 680px; }
-  .story-soon p { margin-bottom: 1rem; }
+  .story-empty { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2rem; align-items: center; margin-top: 1.5rem; }
+  @media (max-width: 820px) { .story-empty { grid-template-columns: 1fr; } }
+  .story-soon p { margin-bottom: 1rem; font-size: 1.05rem; color: var(--text-secondary); }
+  .story-mock { max-width: 380px; }
 
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }

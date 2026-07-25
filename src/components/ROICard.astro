@@ -1,0 +1,51 @@
+---
+// Maquette de la carte « Retombées (CA · ROI) » du vrai produit (module
+// Campagnes). Données d'EXEMPLE clairement signalées (aucun chiffre réel).
+interface Props { ca?: string; roi?: string; period?: string; }
+const { ca = "1 240 €", roi = "6,2×", period = "30 derniers jours" } = Astro.props;
+---
+<div class="roi" role="img" aria-label="Maquette de la carte Retombées avec des données d'exemple">
+  <div class="roi-head">
+    <span class="roi-title">Retombées (CA · ROI)</span>
+    <span class="roi-tag">données d'exemple</span>
+  </div>
+  <div class="roi-period">{period}</div>
+  <div class="roi-metrics">
+    <div class="roi-m">
+      <span class="roi-k">CA généré</span>
+      <span class="roi-v">{ca}</span>
+    </div>
+    <div class="roi-m roi-m-hl">
+      <span class="roi-k">ROI</span>
+      <span class="roi-v">{roi}</span>
+    </div>
+  </div>
+  <div class="roi-bar" aria-hidden="true"><span></span></div>
+  <p class="roi-foot">Campagne SMS · clients absents relancés</p>
+</div>
+<style>
+  .roi { background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.25rem; box-shadow: var(--shadow); }
+  .roi-head { display: flex; align-items: center; gap: .5rem; }
+  .roi-title { font-weight: 800; color: var(--ink); font-size: 1rem; }
+  .roi-tag { margin-left: auto; font-size: .66rem; font-weight: 700; color: var(--text-muted);
+    background: var(--cream); border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem; }
+  .roi-period { color: var(--text-muted); font-size: .78rem; margin: .2rem 0 .9rem; }
+  .roi-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+  .roi-m { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: .7rem .8rem; }
+  .roi-m-hl { background: var(--ink); border-color: var(--ink); }
+  .roi-k { display: block; font-size: .72rem; font-weight: 600; color: var(--text-muted); }
+  .roi-m-hl .roi-k { color: #9fb0cc; }
+  .roi-v { font-size: 1.6rem; font-weight: 800; color: var(--ink); }
+  .roi-m-hl .roi-v { color: var(--brass); }
+  .roi-bar { height: 8px; border-radius: 999px; background: var(--border); margin: 1rem 0 .6rem; overflow: hidden; }
+  .roi-bar span { display: block; height: 100%; width: 78%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--brass), var(--gold)); }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .roi-bar span { width: 0; animation: roi-grow 1s ease forwards; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+    }
+  }
+  @keyframes roi-grow { to { width: 78%; } }
+  .roi-foot { margin: 0; font-size: .78rem; color: var(--text-muted); }
+</style>
