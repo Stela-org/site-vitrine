@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Le Guide Google du commerçant local</title>
+<style>
+  :root{
+    --ink:#15233F; --inkDeep:#1D3158; --brass:#B08A3E; --gold:#C8992E;
+    --cream:#F7F4EF; --border:#ECE6DC; --sec:#4A5568; --muted:#6C6558;
+  }
+  *{ box-sizing:border-box; }
+  @page{ size:A4; margin:18mm 16mm 20mm; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    color:var(--ink); font-size:10.6pt; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  h1,h2,h3{ line-height:1.2; color:var(--ink); }
+  h2{ font-size:17pt; margin:0 0 .5rem; }
+  h3{ font-size:12pt; margin:1.1rem 0 .35rem; color:var(--inkDeep); }
+  p{ margin:.45rem 0; color:#222b3d; }
+  strong{ color:var(--ink); }
+  a{ color:var(--brass); text-decoration:none; }
+  .muted{ color:var(--muted); }
+  .sec{ color:var(--sec); }
+
+  /* Marque */
+  .wordmark{ font-weight:800; letter-spacing:-.01em; color:var(--ink); }
+  .wordmark .star{ color:var(--brass); }
+
+  /* Couverture */
+  .cover{ page-break-after:always; height:245mm; display:flex; flex-direction:column;
+    background:linear-gradient(180deg,#fff 0%, var(--cream) 100%); border-radius:0; }
+  .cover-top{ display:flex; align-items:center; gap:.5rem; font-size:15pt; }
+  .cover-badge{ margin-top:auto; display:inline-block; align-self:flex-start; background:var(--ink); color:#fff;
+    font-size:9pt; font-weight:700; padding:.35rem .8rem; border-radius:999px; letter-spacing:.02em; }
+  .cover h1{ font-size:33pt; margin:.6rem 0 .4rem; letter-spacing:-.02em; }
+  .cover .sub{ font-size:13pt; color:var(--sec); max-width:150mm; }
+  .cover-rule{ height:4px; width:70mm; background:linear-gradient(90deg,var(--brass),var(--gold)); border-radius:4px; margin:1.2rem 0; }
+  .cover-author{ font-size:11pt; }
+  .cover-author strong{ color:var(--ink); }
+  .cover-foot{ margin-top:1.4rem; font-size:9.5pt; color:var(--muted); }
+
+  /* Sections */
+  .chapter{ page-break-before:always; }
+  .eyebrow{ text-transform:uppercase; letter-spacing:.14em; font-size:8.2pt; font-weight:800; color:var(--brass); margin:0 0 .15rem; }
+  .lede{ font-size:11.4pt; color:var(--sec); }
+
+  ul,ol{ margin:.5rem 0 .5rem 0; padding-left:1.1rem; }
+  li{ margin:.28rem 0; color:#222b3d; }
+  ul.check{ list-style:none; padding-left:0; }
+  ul.check li{ position:relative; padding-left:1.4rem; }
+  ul.check li::before{ content:"✓"; position:absolute; left:0; color:var(--brass); font-weight:800; }
+
+  .card{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:.85rem 1rem; margin:.7rem 0; }
+  .callout{ background:var(--ink); color:#eaf0fb; border-radius:12px; padding:.9rem 1.1rem; margin:.9rem 0; }
+  .callout strong{ color:#fff; }
+  .conform{ border-left:4px solid var(--brass); background:#fbf7ef; border-radius:8px; padding:.7rem .9rem; margin:.8rem 0; }
+  .model{ background:var(--cream); border-radius:10px; padding:.65rem .85rem; margin:.5rem 0; font-style:italic; color:#2a3348; }
+  .model .who{ display:block; font-style:normal; font-weight:700; font-size:8.6pt; color:var(--brass); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem; }
+
+  .stat-row{ display:flex; gap:.8rem; margin:.8rem 0; }
+  .stat{ flex:1; background:#fff; border:1px solid var(--border); border-radius:12px; padding:.7rem .8rem; }
+  .stat .n{ font-size:20pt; font-weight:800; color:var(--brass); line-height:1; }
+  .stat .l{ font-size:8.6pt; color:var(--sec); margin-top:.25rem; }
+  .src{ font-size:8pt; color:var(--muted); margin-top:.15rem; }
+
+  .toc li{ margin:.4rem 0; }
+  .toc .num{ display:inline-block; width:1.4rem; color:var(--brass); font-weight:800; }
+
+  h2 .kicker{ display:block; font-size:8.2pt; letter-spacing:.14em; text-transform:uppercase; color:var(--brass); font-weight:800; margin-bottom:.15rem; }
+</style>
+</head>
+<body>
+
+<!-- COUVERTURE -->
+<section class="cover">
+  <div class="cover-top wordmark">✦ Stela</div>
+  <span class="cover-badge">Guide gratuit · Édition 2026</span>
+  <h1>Le Guide Google du commerçant local</h1>
+  <p class="sub">Maîtriser sa fiche, collecter des avis en toute conformité et rester visible, y compris dans les réponses des intelligences artificielles.</p>
+  <div class="cover-rule"></div>
+  <p class="cover-author">Par <strong>Corentin Janin</strong>, cofondateur de Stela</p>
+  <p class="cover-foot">Stela · Le moteur de croissance Google conforme des commerces locaux · www.mystela.fr</p>
+</section>
+
+<!-- INTRO -->
+<section>
+  <p class="eyebrow">Introduction</p>
+  <h2>Pourquoi ce guide</h2>
+  <p class="lede">Aujourd'hui, un client décide souvent s'il pousse votre porte avant même de l'avoir vue : il regarde votre fiche Google, votre note et vos avis. Ce guide rassemble, sans jargon, ce qu'un commerce local doit savoir pour tirer le meilleur de Google, honnêtement et durablement.</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">94 %</div><div class="l">des consommateurs ont déjà renoncé à un commerce à cause d'un avis négatif.</div></div>
+    <div class="stat"><div class="n">81 %</div><div class="l">consultent Google avant de choisir un commerce de proximité.</div></div>
+    <div class="stat"><div class="n">-31 %</div><div class="l">de fréquentation possible pour un commerce mal noté face à un concurrent mieux noté.</div></div>
+  </div>
+  <p class="src">Sources : BrightLocal, Local Consumer Review Survey · Harvard Business School, travaux de Michael Luca.</p>
+
+  <div class="conform">
+    <strong>Un principe, tout au long de ce guide : jamais de filtrage.</strong> Sélectionner les clients satisfaits pour ne diriger qu'eux vers Google, ou intercepter les mécontents en privé, est contraire aux règles de Google et vous expose à une sanction. Tout ce qui suit fonctionne <em>avec</em> les règles, jamais contre elles.
+  </div>
+
+  <p class="eyebrow" style="margin-top:1.2rem;">Sommaire</p>
+  <ol class="toc">
+    <li><span class="num">1.</span> Créer et optimiser sa fiche Google Business Profile</li>
+    <li><span class="num">2.</span> Collecter des avis en continu, sans enfreindre les règles</li>
+    <li><span class="num">3.</span> Répondre aux avis, positifs comme négatifs (avec modèles)</li>
+    <li><span class="num">4.</span> Être visible dans ChatGPT, Gemini et Perplexity (GEO)</li>
+    <li><span class="num">5.</span> Les erreurs qui font suspendre une fiche</li>
+    <li><span class="num">6.</span> Mesurer, et une checklist pour passer à l'action</li>
+  </ol>
+</section>
+
+<!-- CH.1 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 1</span>Créer et optimiser sa fiche Google Business Profile</h2>
+  <p>Votre fiche Google Business Profile est votre vitrine la plus consultée. Une fiche complète et à jour rassure, apparaît plus souvent dans les recherches locales et sur Maps, et donne envie de venir.</p>
+
+  <h3>Les fondations à ne pas négliger</h3>
+  <ul class="check">
+    <li><strong>Nom exact</strong> de l'établissement, tel qu'il est sur votre devanture. N'ajoutez pas de mots-clés artificiels : c'est un motif de sanction.</li>
+    <li><strong>Catégorie principale</strong> précise, plus les catégories secondaires pertinentes.</li>
+    <li><strong>Adresse et zone desservie</strong> cohérentes, <strong>horaires</strong> tenus à jour (y compris jours fériés).</li>
+    <li><strong>Téléphone</strong>, <strong>site web</strong> et <strong>lien de réservation</strong> quand ils existent.</li>
+    <li><strong>Photos récentes</strong> et vraies : façade, intérieur, produits, équipe. Renouvelez-les régulièrement.</li>
+    <li><strong>Description</strong> claire de ce que vous proposez et de ce qui vous distingue.</li>
+  </ul>
+
+  <div class="callout"><strong>Le détail qui change tout :</strong> une fiche vivante bat une fiche parfaite mais figée. Des horaires justes, des photos récentes et des avis auxquels vous répondez envoient à Google le signal d'un commerce actif.</div>
+
+  <h3>Les attributs et sections souvent oubliés</h3>
+  <p>Renseignez les attributs (accessibilité, terrasse, paiement, service à emporter...), les produits ou services phares, et publiez de temps en temps un <em>Post Google</em> (nouveauté, événement, offre saisonnière). Ces éléments enrichissent votre présence et occupent le terrain face aux concurrents.</p>
+</section>
+
+<!-- CH.2 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 2</span>Collecter des avis en continu, sans enfreindre les règles</h2>
+  <p>Les avis récents pèsent lourd : leur nombre, leur fraîcheur et votre note comptent autant que le contenu. L'objectif n'est pas un pic ponctuel, mais un flux régulier et naturel.</p>
+
+  <h3>La règle d'or : inviter tout le monde</h3>
+  <div class="conform"><strong>On invite tous les clients, sans trier selon la note anticipée.</strong> Filtrer pour ne solliciter que les clients contents est interdit par Google. Une invitation ouverte, adressée à chacun, est à la fois conforme et plus crédible sur la durée.</div>
+
+  <h3>Le bon moment, le bon canal</h3>
+  <ul>
+    <li><strong>Juste après l'expérience</strong>, quand le souvenir est vif : en fin de repas, à l'encaissement, après la prestation.</li>
+    <li><strong>Un QR code</strong> sur la table, le comptoir ou le ticket, qui mène directement à la page d'avis. Simple, sans friction, il doit rester une invitation ouverte à tous, jamais un moyen de sélectionner les avis.</li>
+    <li><strong>Un SMS ou un email</strong> de rappel, court et poli, quand vous avez le contact du client.</li>
+  </ul>
+
+  <h3>Ce qu'il ne faut jamais faire</h3>
+  <ul>
+    <li><strong>Acheter des avis</strong> ou en publier de faux : détectable, sanctionnable, et destructeur pour la confiance.</li>
+    <li><strong>Offrir une récompense contre un avis</strong> (remise, cadeau, tirage au sort) : interdit par Google. L'invitation doit rester gratuite et sans contrepartie.</li>
+    <li><strong>Décourager les avis négatifs</strong> ou n'inviter que les clients satisfaits.</li>
+  </ul>
+
+  <div class="callout"><strong>Un cadeau, c'est possible, mais après et pour tous :</strong> remercier chaque client d'un petit geste après sa visite, indépendamment du fait qu'il laisse un avis ou de la note donnée, reste conforme. Ce qui est interdit, c'est de conditionner le geste à l'avis.</div>
+</section>
+
+<!-- CH.3 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 3</span>Répondre aux avis, positifs comme négatifs</h2>
+  <p>La plupart des clients lisent vos réponses avant de choisir. Une réponse calme et utile à un avis négatif rassure souvent davantage qu'une série de cinq étoiles. Répondre montre que vous êtes présent et que chaque retour est pris au sérieux. Répondre n'a rien à voir avec cacher ou filtrer : sur Google, tout est public, et c'est une force.</p>
+
+  <h3>Cinq règles pour une bonne réponse</h3>
+  <ol>
+    <li>Répondez vite, idéalement sous 48 heures.</li>
+    <li>Restez courtois, même quand l'avis vous semble injuste.</li>
+    <li>Remerciez pour le retour avant toute chose.</li>
+    <li>Reconnaissez le point soulevé sans vous justifier longuement.</li>
+    <li>Proposez une suite concrète, en privé si nécessaire.</li>
+  </ol>
+
+  <h3>Modèles pour un avis négatif</h3>
+  <div class="model"><span class="who">Temps d'attente</span>« Merci pour votre retour. Vous avez raison, l'attente a été trop longue ce soir-là et nous en sommes désolés. Nous avons renforcé l'équipe sur ce service. Au plaisir de vous accueillir dans de meilleures conditions. »</div>
+  <div class="model"><span class="who">Qualité d'un produit</span>« Merci d'avoir pris le temps de nous écrire. Nous sommes navrés que cela ne vous ait pas convaincu. Votre remarque a été transmise à l'équipe. N'hésitez pas à nous contacter pour que nous nous rattrapions. »</div>
+  <div class="model"><span class="who">Accueil</span>« Bonjour, merci pour ce retour. Un accueil à la hauteur est une priorité, et nous regrettons de ne pas y être parvenus ce jour-là. Nous en parlons avec l'équipe pour progresser. »</div>
+
+  <h3>Modèles pour un avis positif</h3>
+  <div class="model"><span class="who">Merci personnalisé</span>« Un grand merci pour ces mots, ils font chaud au cœur à toute l'équipe. Ravis que votre moment chez nous vous ait plu, et à très bientôt. »</div>
+  <p class="sec">Personnalisez toujours : citez un détail de la visite quand c'est possible. Une réponse générique se voit, une réponse sincère se ressent.</p>
+</section>
+
+<!-- CH.4 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 4</span>Être visible dans ChatGPT, Gemini et Perplexity</h2>
+  <p>De plus en plus de clients ne « cherchent » plus, ils demandent : « un bon restaurant italien près de la gare », « un coiffeur ouvert le lundi ». Les assistants IA répondent en citant quelques établissements. Être cité devient un nouvel enjeu de visibilité, que l'on appelle le GEO (Generative Engine Optimization).</p>
+
+  <h3>Ce que les IA regardent</h3>
+  <ul class="check">
+    <li>Une <strong>présence cohérente</strong> partout : mêmes nom, adresse et téléphone sur Google, votre site et les annuaires.</li>
+    <li>Des <strong>avis nombreux, récents et variés</strong>, avec vos réponses : c'est un signal fort de fiabilité.</li>
+    <li>Un <strong>contenu clair</strong> sur votre site, qui répond aux vraies questions (horaires, spécialités, quartier, services).</li>
+    <li>Des <strong>informations à jour</strong> : une donnée contradictoire vous écarte des réponses.</li>
+  </ul>
+
+  <div class="callout"><strong>La bonne nouvelle :</strong> il n'y a pas deux chantiers séparés. Une fiche soignée, des avis conformes et un site lisible vous rendent visibles à la fois dans la recherche Google classique <em>et</em> dans les réponses des IA. Le travail de fond sert les deux.</div>
+
+  <h3>Trois gestes concrets ce mois-ci</h3>
+  <ol>
+    <li>Vérifiez que vos coordonnées sont <strong>identiques</strong> partout où votre commerce apparaît.</li>
+    <li>Ajoutez à votre site une courte page <strong>questions-réponses</strong> sur votre activité.</li>
+    <li>Continuez à collecter et à répondre aux avis : la fraîcheur compte autant pour Google que pour les IA.</li>
+  </ol>
+</section>
+
+<!-- CH.5 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 5</span>Les erreurs qui font suspendre une fiche</h2>
+  <p>Une suspension de fiche peut couper votre visibilité du jour au lendemain, et la récupération prend du temps. La plupart des suspensions viennent d'erreurs évitables.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0;">À éviter absolument</h3>
+    <ul>
+      <li><strong>Bourrer le nom de mots-clés</strong> (« Coiffeur Paris pas cher coloration ») au lieu du nom réel.</li>
+      <li><strong>Adresse fictive</strong> ou boîte postale pour une activité sans local recevant du public.</li>
+      <li><strong>Faux avis</strong>, avis achetés, ou avis rédigés par l'équipe.</li>
+      <li><strong>Récompense contre avis</strong>, ou sélection des clients selon la note anticipée.</li>
+      <li><strong>Catégorie trompeuse</strong> ou informations incohérentes entre vos supports.</li>
+      <li><strong>Contenu interdit</strong> dans les photos ou la description.</li>
+    </ul>
+  </div>
+
+  <div class="conform"><strong>La règle simple :</strong> tout ce qui vise à tromper Google ou le client finit par se retourner contre vous. La conformité n'est pas une contrainte, c'est votre meilleure assurance de durer.</div>
+
+  <h3>En cas de suspension</h3>
+  <p>Corrigez d'abord ce qui a pu la déclencher (nom, adresse, catégorie, contenus), puis demandez le rétablissement via le formulaire de Google en expliquant calmement votre situation. Gardez des preuves de votre existence réelle (photos du local, justificatifs).</p>
+</section>
+
+<!-- CH.6 -->
+<section class="chapter">
+  <h2><span class="kicker">Chapitre 6</span>Mesurer, et passer à l'action</h2>
+  <p>Ce qui se mesure s'améliore. Quelques indicateurs simples suffisent à savoir si vous progressez.</p>
+
+  <h3>Les indicateurs à suivre chaque mois</h3>
+  <ul class="check">
+    <li><strong>Nombre de nouveaux avis</strong> et leur régularité.</li>
+    <li><strong>Note moyenne</strong>, et sa tendance dans le temps.</li>
+    <li><strong>Délai de réponse</strong> moyen aux avis.</li>
+    <li><strong>Vues et actions</strong> sur la fiche (appels, itinéraires, clics site) via les statistiques Google.</li>
+    <li><strong>Citations dans les IA</strong> : testez « meilleur [votre métier] à [votre ville] » dans ChatGPT, Gemini, Perplexity et notez si vous apparaissez.</li>
+  </ul>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Votre checklist de démarrage</h3>
+    <ul class="check">
+      <li>Fiche complète : nom réel, catégorie, horaires, photos récentes.</li>
+      <li>Un canal de collecte en place (QR code et/ou SMS), ouvert à tous.</li>
+      <li>Une routine de réponse aux avis sous 48 heures.</li>
+      <li>Coordonnées identiques sur Google, le site et les annuaires.</li>
+      <li>Un point de mesure mensuel, cinq minutes, avec les indicateurs ci-dessus.</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <strong>Envie d'automatiser tout cela, en restant 100 % conforme ?</strong>
+    Stela collecte vos avis sans jamais les filtrer, vous propose des réponses prêtes à envoyer, relance vos clients et suit votre visibilité, y compris dans les IA. Prix affichés, essai gratuit de 7 jours, sans engagement.
+    <br /><br />Découvrez tout sur <strong>www.mystela.fr</strong>
+  </div>
+
+  <p class="cover-foot" style="margin-top:1.6rem;">© 2026 Stela · Ce guide est offert à titre informatif. Les règles de Google évoluent : en cas de doute, référez-vous aux consignes officielles de Google Business Profile. Par Corentin Janin, cofondateur de Stela.</p>
+</section>
+
+</body>
+</html>

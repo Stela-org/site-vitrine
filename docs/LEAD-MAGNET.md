@@ -20,11 +20,20 @@
 |---|---|
 | `LEAD_HMAC_SECRET` | Secret de signature du jeton double opt-in (chaîne aléatoire longue). **Obligatoire.** |
 | `RESEND_API_KEY` | Clé API Resend pour l'envoi des emails. **Obligatoire.** |
-| `LEAD_FROM` | Expéditeur, défaut `Stela <contact@mystela.fr>` (domaine à vérifier chez Resend). |
-| `LEAD_GUIDE_URL` | URL publique du PDF du guide (fourni par Nicolas), défaut `…/guide/le-guide-google-du-commercant-local.pdf`. |
+| `LEAD_FROM` | Expéditeur, défaut `Stela <contact@mystela.fr>` (domaine à vérifier chez Resend). Optionnel. |
+| `LEAD_GUIDE_URL` | URL du PDF envoyé. **Optionnel** : par défaut, le PDF servi en statique `https://www.mystela.fr/guides/guide-google-commercant-local.pdf` (généré par `npm run build:guide`). Ne définir que pour pointer un autre fichier. |
 
-Sans `LEAD_HMAC_SECRET` + `RESEND_API_KEY`, l'endpoint répond « Service non
-configuré » (aucune fuite, aucun envoi).
+Seules **`LEAD_HMAC_SECRET` + `RESEND_API_KEY`** sont nécessaires : sans elles,
+l'endpoint répond « Service non configuré » (aucune fuite, aucun envoi). Le PDF
+est fourni par défaut, plus besoin de renseigner `LEAD_GUIDE_URL`.
+
+## Le PDF du guide (VIT-8, post-clôture)
+- Contenu source : `scripts/guide-google-commercant-local.html` (charte Stela,
+  contenu original réorganisé à partir du guide et des piliers du site, auteur
+  Corentin Janin).
+- Génération : `npm run build:guide` (Playwright/chromium → `public/guides/guide-google-commercant-local.pdf`, 8 pages A4).
+- Servi automatiquement à la racine statique → devient la valeur par défaut de `LEAD_GUIDE_URL`.
+- Pour mettre à jour le guide : éditer le HTML source, relancer `npm run build:guide`, committer le PDF.
 
 ## À fournir / faire (Nicolas)
 - **Le PDF** du guide, déposé (ex. `public/guide/…pdf`) ou hébergé, et

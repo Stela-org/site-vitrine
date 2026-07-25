@@ -16,3 +16,5 @@ node_modules/
 # artefacts de diagnostic (Playwright)
 .shots/
 .overflow/
+.vercel
+.env*

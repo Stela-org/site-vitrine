@@ -7,7 +7,10 @@ const SITE = "https://www.mystela.fr";
 const SECRET = process.env.LEAD_HMAC_SECRET;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const FROM = process.env.LEAD_FROM || "Stela <contact@mystela.fr>";
-const GUIDE_URL = process.env.LEAD_GUIDE_URL || `${SITE}/guide/le-guide-google-du-commercant-local.pdf`;
+// Par défaut, le PDF servi en statique depuis public/guides/ (généré par
+// `npm run build:guide`). LEAD_GUIDE_URL ne sert qu'à pointer un autre fichier :
+// seules LEAD_HMAC_SECRET et RESEND_API_KEY restent obligatoires.
+const GUIDE_URL = process.env.LEAD_GUIDE_URL || `${SITE}/guides/guide-google-commercant-local.pdf`;
 const MAX_AGE_MS = 48 * 60 * 60 * 1000;
 
 const sign = (email, ts) => crypto.createHmac("sha256", SECRET).update(`${email}|${ts}`).digest("hex");
