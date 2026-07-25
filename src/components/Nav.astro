@@ -1,5 +1,5 @@
 ---
-import { SITE , signupUrl } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 import { FEATURES } from "../content/features";
 import { profils, secteurs } from "../content/segments";
 import Logo from "./Logo.astro";
@@ -37,7 +37,7 @@ import Logo from "./Logo.astro";
             <a href="/statistiques-avis-google-france">Statistiques des avis en France</a>
           </div>
         </details>
-        <a class="btn btn-primary nav-cta" href={signupUrl({ campaign: "nav" })}>Essayer gratuitement</a>
+        <a class="btn btn-primary nav-cta" href={TARIFS_URL}>Essayer gratuitement</a>
       </nav>
     </details>
   </div>

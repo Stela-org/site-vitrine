@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { signupUrl } from "../../config/site";
+import { TARIFS_URL } from "../../config/site";
 ---
 <Base
   title="C'est confirmé | Stela"
@@ -13,7 +13,7 @@ import { signupUrl } from "../../config/site";
       <p class="eyebrow">Merci</p>
       <h1>C'est confirmé, votre guide arrive</h1>
       <p class="lead">Nous venons de vous envoyer « Le guide Google du commerçant local » par email. Bonne lecture !</p>
-      <p style="margin-top:2rem;"><a class="btn btn-primary" href={signupUrl({ campaign: "guide" })}>Essayer Stela gratuitement</a></p>
+      <p style="margin-top:2rem;"><a class="btn btn-primary" href={TARIFS_URL}>Essayer Stela gratuitement</a></p>
     </div>
   </section>
 </Base>

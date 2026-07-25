@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, signupUrl } from "../config/site";
+import { SITE, TARIFS_URL } from "../config/site";
 
 // Page-données pensée comme aimant à backlinks et citations IA. 100 % sourcée.
 const stats = [
@@ -83,7 +83,7 @@ const faqLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Transformez ces chiffres en avis pour votre commerce</h2>
-      <a class="btn btn-primary" href={signupUrl({ campaign: "statistiques" })}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

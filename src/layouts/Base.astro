@@ -42,6 +42,8 @@ const appLd = {
   offers: [
     { "@type": "Offer", name: "Étoile", price: "49", priceCurrency: "EUR", category: "mensuel" },
     { "@type": "Offer", name: "Constellation", price: "89", priceCurrency: "EUR", category: "mensuel" },
+    { "@type": "Offer", name: "Étoile (annuel)", price: "468", priceCurrency: "EUR", category: "annuel" },
+    { "@type": "Offer", name: "Constellation (annuel)", price: "948", priceCurrency: "EUR", category: "annuel" },
   ],
 };
 ---
@@ -116,15 +118,16 @@ const appLd = {
         nums.forEach((n) => io.observe(n));
       }
 
-      // Tunnel : synchronise la période (mensuel/annuel) sur les liens
-      // d'inscription porteurs d'un plan. PE : sans JS, le lien reste « monthly ».
+      // Tunnel : le toggle mensuel/annuel bascule chaque bouton de plan sur le
+      // BON Payment Link Stripe (les deux URL sont dans data-href-*). PE : sans
+      // JS, le lien reste le lien mensuel (href par défaut).
       const billingToggle = document.getElementById("billing") as HTMLInputElement | null;
       const planCtas = document.querySelectorAll<HTMLAnchorElement>("[data-plan-cta]");
       if (billingToggle && planCtas.length) {
         const syncBilling = () => {
-          const billing = billingToggle.checked ? "yearly" : "monthly";
           planCtas.forEach((a) => {
-            try { const u = new URL(a.href); u.searchParams.set("billing", billing); a.href = u.toString(); } catch { /* noop */ }
+            const href = billingToggle.checked ? a.dataset.hrefYearly : a.dataset.hrefMonthly;
+            if (href) a.href = href;
           });
         };
         billingToggle.addEventListener("change", syncBilling);

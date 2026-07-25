@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { SITE , signupUrl } from "../../config/site";
+import { SITE , TARIFS_URL } from "../../config/site";
 import { SEGMENTS, profils, secteurs } from "../../content/segments";
 import { CITIES } from "../../content/cities";
 import ReviewCard from "../../components/ReviewCard.astro";
@@ -37,7 +37,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
         <h1>{s.h1}</h1>
         <p class="lead">{s.lead}</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={signupUrl({ campaign: "segment" })}>Essayer gratuitement</a>
+          <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
           <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
@@ -97,7 +97,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   <section class="cta-final">
     <div class="container">
       <h2>Prêt à faire grandir votre réputation ?</h2>
-      <a class="btn btn-primary" href={signupUrl({ campaign: "segment" })}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

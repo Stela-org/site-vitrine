@@ -22,15 +22,19 @@ import { SITE, PLANS } from "../config/site";
   <p>Les abonnements sont proposés aux tarifs suivants, sans frais d'installation :</p>
   <ul>
     {PLANS.map((p) => (
-      <li>{p.name} : {p.monthly} € par mois. Facturation annuelle possible, équivalente à deux mois offerts.</li>
+      <li>{p.name} : {p.monthly} € par mois, ou {p.yearlyTotal} € par an en facturation annuelle (soit 120 € d'économie sur l'année).</li>
     ))}
   </ul>
-  <p>L'essai est gratuit et sans engagement. Aucune carte bancaire n'est requise pour essayer.</p>
+  <p>
+    Chaque nouvel abonnement débute par un essai gratuit de 7 jours, sans engagement et annulable en
+    un clic. La carte bancaire est demandée au moment du paiement afin d'assurer la continuité du
+    service : aucun débit n'intervient avant la fin de l'essai.
+  </p>
 
   <h2>3. Paiement</h2>
   <p>
-    Le paiement s'effectue dans l'application, via Stripe, plateforme de paiement sécurisée. Les
-    abonnements sont facturés mensuellement ou annuellement selon la formule choisie.
+    Le paiement s'effectue via Stripe, plateforme de paiement sécurisée, directement depuis le site.
+    Les abonnements sont facturés mensuellement ou annuellement selon la formule choisie.
   </p>
 
   <h2>4. Résiliation</h2>

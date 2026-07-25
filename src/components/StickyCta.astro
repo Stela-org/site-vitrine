@@ -1,12 +1,12 @@
 ---
-import { signupUrl } from "../config/site";
+import { TARIFS_URL } from "../config/site";
 // CTA sticky mobile (une seule instance, dans Base). Apparaît au scroll, JAMAIS
 // par-dessus la bannière de consentement (attend qu'un choix soit fait). Sans JS :
 // reste masqué (le CTA de la nav suffit). Desktop : jamais affiché.
 ---
 <div id="sticky-cta" class="sticky-cta">
   <span class="sticky-txt">Prêt à collecter plus d'avis ?</span>
-  <a class="btn btn-primary" href={signupUrl({ campaign: "sticky" })}>Essayer gratuitement</a>
+  <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
 </div>
 <script>
   const KEY = "stela-consent";

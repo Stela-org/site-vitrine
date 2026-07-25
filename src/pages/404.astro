@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE , signupUrl } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 ---
 <Base title="Page introuvable | Stela" description="Cette page n'existe pas ou a été déplacée." path="/404">
   <section>
@@ -9,7 +9,7 @@ import { SITE , signupUrl } from "../config/site";
       <h1>Cette page est introuvable</h1>
       <p class="lead">La page que vous cherchez a peut-être été déplacée. Revenez à l'accueil pour continuer.</p>
       <p style="margin-top:1.5rem;"><a class="btn btn-primary" href="/">Retour à l'accueil</a>
-      <a class="btn btn-ghost" href={signupUrl({ campaign: "notfound" })} style="margin-left:.5rem;">Essayer gratuitement</a></p>
+      <a class="btn btn-ghost" href={TARIFS_URL} style="margin-left:.5rem;">Essayer gratuitement</a></p>
     </div>
   </section>
 </Base>

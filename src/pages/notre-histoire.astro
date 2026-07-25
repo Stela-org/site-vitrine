@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE, signupUrl } from "../config/site";
+import { SITE, TARIFS_URL } from "../config/site";
 
 const founders = [
   { name: "Nicolas Anquetin", role: "Cofondateur", photo: "/images/equipe-nicolas.png",
@@ -78,7 +78,7 @@ const breadcrumbLd = {
   <section class="cta-final">
     <div class="container">
       <h2>Envie de faire grandir votre réputation avec nous ?</h2>
-      <a class="btn btn-primary" href={signupUrl({ campaign: "histoire" })}>Essayer gratuitement</a>
+      <a class="btn btn-primary" href={TARIFS_URL}>Essayer gratuitement</a>
     </div>
   </section>
 </Base>

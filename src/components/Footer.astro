@@ -1,5 +1,5 @@
 ---
-import { SITE , signupUrl } from "../config/site";
+import { SITE , TARIFS_URL } from "../config/site";
 import { FEATURES } from "../content/features";
 import { SEGMENTS } from "../content/segments";
 import { CITIES } from "../content/cities";
@@ -29,7 +29,7 @@ const year = new Date().getFullYear();
       <a href="/statistiques-avis-google-france">Statistiques des avis</a>
       <a href="/guide-google-commercant-local">Guide gratuit</a>
       <a href="/stela-vs-dokaa">Stela vs Dokaa</a>
-      <a href={signupUrl({ campaign: "footer" })}>Essayer gratuitement</a>
+      <a href={TARIFS_URL}>Essayer gratuitement</a>
       <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/politique-confidentialite">Confidentialité</a>

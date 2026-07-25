@@ -2,7 +2,7 @@
 // Signature « triple zéro » de Stela, motif récurrent (hero, tarifs, CTA final).
 interface Props { variant?: "light" | "dark"; }
 const { variant = "light" } = Astro.props;
-const items = ["engagement", "carte requise", "filtrage"];
+const items = ["engagement", "filtrage", "rendez-vous imposé"];
 ---
 <p class={`tz tz-${variant}`}>
   {items.map((label, i) => (
