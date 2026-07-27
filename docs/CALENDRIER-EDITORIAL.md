@@ -43,7 +43,7 @@
 | S6 | Mesurer sa visibilité dans les IA (pilier GEO 3) | geo | Livré |
 | S7 | E-réputation d'un commerce local : guide complet (migration) | guide | Livré |
 | S8 | Un avis peut-il être supprimé de Google ? (migration recadrée) | guide | Livré |
-| S9 | Nouveautés Google Business Profile du mois | google-business-profile | À faire |
+| S9 | Nouveautés Google Business Profile du mois | google-business-profile | En relecture (PR) |
 | S10 | Avis Google restaurant à Paris et Lyon (villes, migration) | ville | À faire |
 | S11 | Avis Google restaurant : Marseille, Bordeaux, Nice (villes) | ville | À faire |
 | S12 | Nantes, Brest, Rouen, Nancy + bilan trimestriel GEO | ville | À faire |
