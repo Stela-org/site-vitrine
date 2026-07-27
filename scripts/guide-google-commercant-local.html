@@ -32,8 +32,16 @@
   .cover{ page-break-after:always; height:245mm; display:flex; flex-direction:column;
     background:linear-gradient(180deg,#fff 0%, var(--cream) 100%); border-radius:0; }
   .cover-top{ display:flex; align-items:center; gap:.5rem; font-size:15pt; }
-  .cover-badge{ margin-top:auto; display:inline-block; align-self:flex-start; background:var(--ink); color:#fff;
+  .cover-badge{ margin-top:1.6rem; display:inline-block; align-self:flex-start; background:var(--ink); color:#fff;
     font-size:9pt; font-weight:700; padding:.35rem .8rem; border-radius:999px; letter-spacing:.02em; }
+  .cover-learn{ margin:1.4rem 0 0; background:#fff; border:1px solid var(--border); border-radius:14px;
+    padding:1rem 1.2rem; }
+  .cover-learn .eyebrow{ margin-bottom:.4rem; }
+  .cover-learn ul.check{ margin:.2rem 0 0; }
+  .cover-learn li{ font-size:10.8pt; margin:.42rem 0; }
+  .cover-stats{ display:flex; gap:.8rem; margin:1.4rem 0 0; }
+  .cover-stats .stat{ background:#fff; }
+  .cover-author{ margin-top:auto; }
   .cover h1{ font-size:33pt; margin:.6rem 0 .4rem; letter-spacing:-.02em; }
   .cover .sub{ font-size:13pt; color:var(--sec); max-width:150mm; }
   .cover-rule{ height:4px; width:70mm; background:linear-gradient(90deg,var(--brass),var(--gold)); border-radius:4px; margin:1.2rem 0; }
@@ -97,6 +105,20 @@
   <h1>Le Guide Google du commerçant local</h1>
   <p class="sub">Maîtriser sa fiche, collecter des avis en toute conformité et rester visible, y compris dans les réponses des intelligences artificielles.</p>
   <div class="cover-rule"></div>
+  <div class="cover-learn">
+    <p class="eyebrow">Ce que vous allez apprendre</p>
+    <ul class="check">
+      <li>Créer et optimiser sa fiche Google Business Profile, étape par étape</li>
+      <li>Collecter des avis en continu, sans jamais enfreindre les règles</li>
+      <li>Répondre aux avis, positifs comme négatifs, avec des modèles prêts à l'emploi</li>
+      <li>Être visible dans les réponses de ChatGPT, Gemini et Perplexity</li>
+      <li>Éviter les erreurs qui font suspendre une fiche, et mesurer vos progrès</li>
+    </ul>
+  </div>
+  <div class="cover-stats stat-row">
+    <div class="stat"><div class="n">94 %</div><div class="l">des consommateurs ont déjà renoncé à un commerce à cause d'un avis négatif.</div></div>
+    <div class="stat"><div class="n">81 %</div><div class="l">consultent Google avant de choisir un commerce de proximité.</div></div>
+  </div>
   <p class="cover-author">Par <strong>Corentin Janin</strong>, cofondateur de Stela</p>
   <p class="cover-foot">Stela · Le moteur de croissance Google conforme des commerces locaux · www.mystela.fr</p>
 </section>
