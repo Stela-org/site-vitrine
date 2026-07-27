@@ -4,29 +4,98 @@
   "trailingSlash": false,
   "buildCommand": "astro build && (node scripts/indexnow-ping.mjs || true)",
   "redirects": [
-    { "source": "/stela-vs-dokaa", "destination": "https://www.mystela.fr/comparatif", "permanent": true },
-    { "source": "/blog/e-reputation-restaurant-guide-complet.html", "destination": "https://www.mystela.fr/blog/e-reputation-commerce-local-guide", "permanent": true },
-    { "source": "/blog/qr-code-avis-google-restaurant.html", "destination": "https://www.mystela.fr/blog/qr-code-avis-google", "permanent": true },
-    { "source": "/blog/avis-google-restaurant-:ville.html", "destination": "https://www.mystela.fr/restaurants-:ville", "permanent": true },
-    { "source": "/blog/:slug.html", "destination": "https://www.mystela.fr/blog/:slug", "permanent": true },
-    { "source": "/blog/index.html", "destination": "https://www.mystela.fr/blog", "permanent": true },
-    { "source": "/restaurants-:ville.html", "destination": "https://www.mystela.fr/restaurants-:ville", "permanent": true },
-    { "source": "/qui-sommes-nous.html", "destination": "https://www.mystela.fr/", "permanent": true },
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "mystela.fr" }],
-      "destination": "https://www.mystela.fr/:path*",
+      "source": "/stela-vs-dokaa",
+      "destination": "https://www.mystela.fr/comparatif",
       "permanent": true
     },
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "avistars.fr" }],
+      "source": "/blog/e-reputation-restaurant-guide-complet.html",
+      "destination": "https://www.mystela.fr/blog/e-reputation-commerce-local-guide",
+      "permanent": true
+    },
+    {
+      "source": "/blog/qr-code-avis-google-restaurant.html",
+      "destination": "https://www.mystela.fr/blog/qr-code-avis-google",
+      "permanent": true
+    },
+    {
+      "source": "/blog/avis-google-restaurant-:ville.html",
+      "destination": "https://www.mystela.fr/restaurants-:ville",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:slug.html",
+      "destination": "https://www.mystela.fr/blog/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/blog/index.html",
+      "destination": "https://www.mystela.fr/blog",
+      "permanent": true
+    },
+    {
+      "source": "/restaurants-:ville.html",
+      "destination": "https://www.mystela.fr/restaurants-:ville",
+      "permanent": true
+    },
+    {
+      "source": "/qui-sommes-nous.html",
+      "destination": "https://www.mystela.fr/",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "avistars.fr"
+        }
+      ],
+      "destination": "https://www.mystela.fr/",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.avistars.fr"
+        }
+      ],
       "destination": "https://www.mystela.fr/",
       "permanent": true
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.avistars.fr" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "mystela.fr"
+        }
+      ],
+      "destination": "https://www.mystela.fr/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "avistars.fr"
+        }
+      ],
+      "destination": "https://www.mystela.fr/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.avistars.fr"
+        }
+      ],
       "destination": "https://www.mystela.fr/",
       "permanent": true
     }
@@ -35,11 +104,26 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()" },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()"
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://app.mystela.fr; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://www.googletagmanager.com https://eu.i.posthog.com https://eu-assets.i.posthog.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://eu.i.posthog.com https://eu-assets.i.posthog.com; upgrade-insecure-requests"
