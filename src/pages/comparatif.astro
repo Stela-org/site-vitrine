@@ -6,15 +6,17 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 // vendeuse et exacte. Colonne « les autres solutions » = pratiques COURANTES du
 // marché, formulées de façon générique et défendable (aucune affirmation
 // invérifiable sur un acteur précis).
+// VIT-10 : tableau à scan visuel. Chaque cellule porte une marque ✓ (vert) ou
+// ✗ (rouge) + une phrase courte, pour comprendre d'un coup d'oeil.
 const rows = [
-  { critere: "Prix affichés publiquement", stela: "Oui : 49 € et 89 € par mois, tout compris", autre: "Souvent sur devis, prix non affichés" },
-  { critere: "Essayer sans commercial", stela: "Essai gratuit de 7 jours, en autonomie", autre: "Démonstration commerciale souvent obligatoire" },
-  { critere: "Mise en route", stela: "Compte créé et prêt en 10 minutes", autre: "Onboarding piloté, parfois long" },
-  { critere: "Conformité Google", stela: "Tous les avis publics, jamais de filtrage", autre: "Filtrage des avis parfois proposé, risqué et interdit par Google" },
-  { critere: "Réponses aux avis", stela: "Rédigées par Nova, votre IA, en 10 secondes", autre: "À écrire à la main ou modèles génériques" },
-  { critere: "Visibilité dans les IA (GEO)", stela: "Incluse : Bing, ChatGPT, Copilot, Gemini", autre: "Rarement adressée" },
-  { critere: "Secteurs couverts", stela: "Tous les commerces locaux", autre: "Souvent spécialisé sur un seul secteur" },
-  { critere: "Engagement", stela: "Sans engagement, résiliable à tout moment", autre: "Engagement annuel fréquent" },
+  { critere: "Prix affichés en clair", stela: "49 € et 89 € par mois, tout compris", stelaOk: true, autre: "Souvent sur devis", autreOk: false },
+  { critere: "Essayer sans rendez-vous commercial", stela: "7 jours gratuits, tout seul", stelaOk: true, autre: "Démonstration souvent obligatoire", autreOk: false },
+  { critere: "Prêt en 10 minutes", stela: "Compte créé et prêt tout de suite", stelaOk: true, autre: "Mise en route parfois longue", autreOk: false },
+  { critere: "100 % conforme aux règles de Google", stela: "Tous les avis, jamais de tri", stelaOk: true, autre: "Tri des avis parfois proposé, interdit par Google", autreOk: false },
+  { critere: "Réponses aux avis écrites pour vous", stela: "Nova les écrit en 10 secondes", stelaOk: true, autre: "À écrire à la main", autreOk: false },
+  { critere: "Visible dans ChatGPT et les autres IA", stela: "Inclus dans Constellation", stelaOk: true, autre: "Rarement pris en charge", autreOk: false },
+  { critere: "Pour tous les commerces", stela: "Restaurant, coiffeur, garage, santé...", stelaOk: true, autre: "Souvent un seul métier", autreOk: false },
+  { critere: "Sans engagement", stela: "On s'arrête quand on veut", stelaOk: true, autre: "Engagement d'un an fréquent", autreOk: false },
 ];
 
 const faq = [
@@ -51,14 +53,20 @@ const faqLd = {
       <div class="table-wrap">
         <table class="cmp">
           <thead>
-            <tr><th>Critère</th><th>Stela</th><th>Les autres solutions</th></tr>
+            <tr><th>Critère</th><th class="th-stela">Stela</th><th>Les autres solutions</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr>
                 <th scope="row">{r.critere}</th>
-                <td class="ok">{r.stela}</td>
-                <td>{r.autre}</td>
+                <td class="col-stela">
+                  <span class={`mark ${r.stelaOk ? "mark-ok" : "mark-no"}`} aria-label={r.stelaOk ? "Oui" : "Non"}>{r.stelaOk ? "✓" : "✗"}</span>
+                  <span class="cell-txt">{r.stela}</span>
+                </td>
+                <td>
+                  <span class={`mark ${r.autreOk ? "mark-ok" : "mark-no"}`} aria-label={r.autreOk ? "Oui" : "Non"}>{r.autreOk ? "✓" : "✗"}</span>
+                  <span class="cell-txt">{r.autre}</span>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -102,9 +110,17 @@ const faqLd = {
   .cmp { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
   .cmp th, .cmp td { text-align: left; padding: .9rem 1rem; border-bottom: 1px solid var(--border); font-size: .92rem; vertical-align: top; }
   .cmp thead th { background: var(--ink); color: #fff; font-size: .9rem; }
+  .cmp thead .th-stela { background: #0f1a30; }
   .cmp tbody th { font-weight: 700; color: var(--ink); width: 34%; }
   .cmp td { color: var(--text-secondary); }
-  .cmp td.ok { color: var(--ink); font-weight: 600; }
+  /* Colonne Stela surlignée (crème) pour tirer l'oeil vers le bon choix. */
+  .cmp .col-stela { background: #fbf7ef; color: var(--ink); font-weight: 600; }
+  /* Marque ✓/✗ : gros, coloré, alignée en haut de la cellule pour un scan rapide. */
+  .mark { display: inline-flex; align-items: center; justify-content: center; width: 1.4rem; height: 1.4rem;
+    border-radius: 50%; font-weight: 900; font-size: .85rem; margin-right: .5rem; flex: none; vertical-align: -.35rem; }
+  .mark-ok { background: rgba(30,158,99,.14); color: #1E9E63; }
+  .mark-no { background: rgba(192,57,43,.12); color: #C0392B; }
+  .cell-txt { display: inline; }
   .note { font-size: .82rem; color: var(--text-muted); margin-top: 1rem; }
   .conformite { background: #fff; }
   .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }

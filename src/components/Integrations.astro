@@ -1,14 +1,23 @@
 ---
 import { CHANNELS } from "../config/site";
+import LogoWall from "./LogoWall.astro";
 // Section « Intégrations » : où Stela vous rend visible + où vos infos se
-// propagent + les caisses/réservations. Source = CHANNELS (config). Pas de logo
-// tiers (marques déposées + CSP sans hôte externe) : cartes sobres et honnêtes.
+// propagent + les caisses/réservations. Source = CHANNELS (config). Wordmarks
+// monochromes (pas d'artwork tiers : marques déposées + CSP sans hôte externe).
 // Aucun « Disponible » qui ne soit pas réellement livré dans le produit.
 const plateformes = CHANNELS.filter((c) => c.kind === "plateforme");
+// Mur de logos (VIT-10) : toutes les plateformes de visibilité couvertes, en
+// libellés courts. Ordre pédagogique : Google d'abord, puis IA et avis.
+const logoNames = [
+  "Google", "Google Maps", "Bing", "ChatGPT", "Gemini",
+  "Microsoft Copilot", "Perplexity", "Waze", "TripAdvisor", "TheFork",
+] as const;
 // Les plateformes « en aval » (alimentées par Google/Bing) ont leur propre
 // rangée pédagogique : on les retire de la 1re grille pour éviter les doublons.
 const DOWNSTREAM = ["Waze", "Google Maps", "Assistant Google", "ChatGPT", "Microsoft Copilot"];
-const direct = plateformes.filter((c) => c.status === "live" && !DOWNSTREAM.includes(c.name));
+// TheFork est « live » mais présenté dans sa carte dédiée (caisses & réservation)
+// plus bas : on l'exclut de cette 1re grille pour ne pas le lister deux fois.
+const direct = plateformes.filter((c) => c.status === "live" && !DOWNSTREAM.includes(c.name) && c.name !== "TheFork");
 const viaGoogle = ["Waze", "Google Maps", "Assistant Google"];
 const viaBing = ["ChatGPT", "Microsoft Copilot"];
 ---
@@ -17,6 +26,8 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
     <p class="eyebrow">Intégrations</p>
     <h2>Une présence, partout où vos clients regardent</h2>
     <p class="int-lead">Stela travaille votre visibilité sur Google (fiche, Maps, recherche) et sur Bing, qui alimente aussi les réponses des intelligences artificielles. Vos avis des autres plateformes se centralisent au même endroit.</p>
+
+    <div class="int-logos"><LogoWall items={logoNames} tone="light" /></div>
 
     <p class="int-group-title">Disponible aujourd'hui</p>
     <ul class="int-grid">
@@ -54,12 +65,12 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
         <div class="int-soft-head"><span class="int-name">Square</span><span class="int-status int-live">Disponible</span></div>
         <p class="int-soft-desc">Connectez votre caisse : <strong>vous voyez en euros ce que rapporte chaque campagne</strong>.</p>
       </li>
-      <li class="int-soft-card int-soft-partner">
-        <div class="int-soft-head"><span class="int-name">TheFork</span><span class="int-status int-partner">Partenaire officiel</span></div>
-        <p class="int-soft-desc">Réservations et avis, dans le cadre de notre partenariat officiel.</p>
+      <li class="int-soft-card int-soft-live">
+        <div class="int-soft-head"><span class="int-name">TheFork</span><span class="int-status int-live">Disponible</span></div>
+        <p class="int-soft-desc">Réservations et avis, via notre partenariat officiel.</p>
       </li>
-      <li class="int-soft-card int-soft-soon">
-        <div class="int-soft-head"><span class="int-name">Zelty</span><span class="int-status int-soon">À venir</span></div>
+      <li class="int-soft-card int-soft-live">
+        <div class="int-soft-head"><span class="int-name">Zelty</span><span class="int-status int-live">Disponible</span></div>
         <p class="int-soft-desc">Caisse et commandes.</p>
       </li>
       <li class="int-soft-card int-soft-soon">
@@ -72,6 +83,7 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
 <style>
   .integrations { padding-block: 2.5rem; }
   .int-lead { color: var(--text-secondary); max-width: 62ch; }
+  .int-logos { margin: 1.4rem 0 .5rem; padding: 1rem 0; border-block: 1px solid var(--border); }
   .int-group-title { text-transform: uppercase; letter-spacing: .1em; font-size: .74rem; font-weight: 800; color: var(--text-muted); margin: 1.5rem 0 .6rem; }
   .int-sub { color: var(--text-secondary); font-size: .92rem; max-width: 60ch; margin: 0 0 .8rem; }
   .int-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
@@ -82,7 +94,6 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
   .int-name { font-weight: 700; color: var(--ink); font-size: .9rem; }
   .int-status { font-size: .66rem; font-weight: 800; border-radius: 999px; padding: .2rem .5rem; white-space: nowrap; }
   .int-live { background: rgba(176,138,62,.14); color: var(--brass); }
-  .int-partner { background: var(--ink); color: #fff; }
   .int-soon { background: #ece4d4; color: var(--muted, #6C6558); }
 
   /* Rangée « voyagent partout » : 2 colonnes source → puces. */
@@ -98,7 +109,6 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
   @media (max-width: 640px) { .int-soft { grid-template-columns: 1fr; } }
   .int-soft-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .75rem .9rem; }
   .int-soft-live { border-color: rgba(176,138,62,.4); }
-  .int-soft-partner { border-color: var(--ink); }
   .int-soft-soon { background: var(--cream); }
   .int-soft-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .3rem; }
   .int-soft-desc { margin: 0; font-size: .84rem; color: var(--text-secondary); }

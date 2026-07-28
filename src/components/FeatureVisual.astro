@@ -60,7 +60,9 @@ const qr = [1,0,1,1,0,1, 0,1,0,0,1,0, 1,0,1,1,0,1, 1,1,0,0,1,1, 0,1,1,0,1,0, 1,0
 </div>
 
 <style>
-  .fv { height: 132px; margin-bottom: 1rem; border-radius: 12px; border: 1px solid var(--border);
+  /* min-height (et non height fixe) : sur mobile, un contenu qui grandit (ex. le
+     visuel « Analyse / tendance ») n'est plus rogné par overflow:hidden. */
+  .fv { min-height: 132px; margin-bottom: 1rem; border-radius: 12px; border: 1px solid var(--border);
     background: linear-gradient(180deg, #fff, #fbf9f5); padding: .8rem .9rem; overflow: hidden;
     display: flex; flex-direction: column; justify-content: center; }
 

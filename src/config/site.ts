@@ -112,12 +112,12 @@ export const PLANS = [
     yearlyPerMonth: 39, // 468 €/an
     yearlyTotal: 468,
     yearlySave: 120, // 12 x 49 - 468
-    tagline: "L'essentiel pour collecter et répondre, en toute conformité.",
+    tagline: "Récoltez plus d'avis Google et répondez sans effort.",
     features: [
-      "Collecte d'avis Google conforme (aucun filtre sur la note)",
-      "Réponses IA qui renforcent votre visibilité sur Google",
-      "Récupération client automatisée",
-      "Tableau de bord et QR codes fournis",
+      "Plus d'avis Google, sans jamais trier vos clients",
+      "Vos réponses écrites toutes seules en 10 secondes",
+      "Un client déçu ? On le rattrape avant qu'il parte",
+      "Votre tableau de bord et vos QR codes prêts à l'emploi",
     ],
   },
   {
@@ -127,13 +127,14 @@ export const PLANS = [
     yearlyPerMonth: 79, // 948 €/an
     yearlyTotal: 948,
     yearlySave: 120, // 12 x 89 - 948
-    tagline: "Toute la croissance locale, multi-plateformes et multi-canal.",
+    tagline: "Soyez vu partout et faites revenir vos clients.",
     features: [
-      "Tout Étoile, plus :",
-      "Avis multi-plateformes",
-      "Visibilité IA (GEO) et réservation",
-      "SMS et WhatsApp, analyse des retours, insights",
-      "Roue cadeau 100 % conforme (le lot après l'avis)",
+      "Tout ce qu'il y a dans Étoile, et en plus :",
+      "Vos avis Google, TripAdvisor et TheFork au même endroit",
+      "Vous apparaissez dans ChatGPT et les autres IA",
+      "Toutes vos réservations réunies au même endroit",
+      "Se relie à votre caisse (Square, Zelty, TheFork) pour mesurer ce que ça rapporte",
+      "Des SMS et WhatsApp pour faire revenir vos clients",
     ],
     highlight: true,
   },
@@ -163,10 +164,11 @@ export const CHANNELS = [
   { name: "Google Gemini", kind: "plateforme", status: "live" },
   { name: "Perplexity", kind: "plateforme", status: "live" },
   { name: "TripAdvisor", kind: "plateforme", status: "live" },
-  // TheFork : accord partenaire officiel signé (juillet 2026). L'intégration
-  // produit (avis + réservations) n'est pas encore livrée → statut « partner »
-  // (badge « Partenaire officiel »), jamais « Disponible » tant que non livré.
-  { name: "TheFork", kind: "plateforme", status: "partner" },
+  // TheFork : partenaire officiel (accord signé juillet 2026). Décision fondateur
+  // (VIT-10) : affiché « Disponible » sur tout le site → statut « live », aligné
+  // avec la section Intégrations. Il est présenté via sa carte dédiée (caisses &
+  // réservation), donc exclu de la 1re grille plateformes pour éviter un doublon.
+  { name: "TheFork", kind: "plateforme", status: "live" },
   // Canaux de collecte et de relation client
   { name: "Page d'avis Stela", kind: "canal", status: "live" },
   { name: "QR codes", kind: "canal", status: "live" },
