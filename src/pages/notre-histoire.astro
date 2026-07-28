@@ -3,21 +3,22 @@ import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
 
-// VIT-11 §5 - storytelling fondateurs : parcours + déclic, rôle aujourd'hui,
-// engagement personnel. Faits stricts (aucun nom d'école ni détail inventé) :
-// Nicolas = master finance d'entreprise, produit + relation commerçants ;
-// Corentin = master achats & supply chain, conçoit la technologie.
+// VIT-12 §2 : storytelling fondateurs enrichi du vrai parcours (pas un CV).
+// Faits stricts : Nicolas = années en restauration sur le terrain (responsable
+// bar, barman, responsable de salle, maître d'hôtel en traiteur), JAMAIS un
+// établissement nommé ; puis finance d'entreprise. Corentin = acheteur chez
+// Veolia (employeur nommé), a quitté son poste pour rejoindre le projet.
 // `photo` optionnelle : le rendu reste propre sans (cercle à initiales).
 const founders = [
   {
     name: "Nicolas Anquetin", role: "Cofondateur, produit & commerçants", photo: "/images/equipe-nicolas.png",
-    story: "Formé à la finance d'entreprise (master), Nicolas a d'abord appris à lire ce qui fait vraiment vivre un commerce : pas des tableaux, des clients qui reviennent. Le déclic est venu du terrain, au contact des restaurateurs : les meilleurs d'entre eux restaient invisibles en ligne, ou pire, se faisaient piéger par des méthodes interdites. Il a voulu un outil qui fasse grandir leur réputation sans jamais la mettre en danger.",
+    story: "Avant la finance, Nicolas a passé des années en salle : responsable de bar, barman, responsable de salle, puis maître d'hôtel en traiteur. Il connaît le coup de feu de l'intérieur, le client mécontent qu'on rattrape en deux phrases, et ce bouche-à-oreille qui fait vivre une maison, ou la condamne. C'est ce vécu, prolongé par un master en finance d'entreprise, qui a nourri le déclic : au contact des restaurateurs, il a vu les meilleurs rester invisibles en ligne, ou se faire piéger par des méthodes interdites. Il a voulu leur mettre entre les mains un outil qui fasse grandir leur réputation sans jamais la mettre en danger.",
     role_today: "Aujourd'hui, il pilote le produit et reste au contact quotidien des commerçants : chaque fonctionnalité de Stela naît d'un besoin réel entendu sur le terrain.",
     pledge: "Je m'engage à ne jamais vous vendre un raccourci qui pourrait coûter votre fiche Google. Votre réputation, on la construit pour durer.",
   },
   {
     name: "Corentin Janin", role: "Cofondateur, technologie", photo: "/images/equipe-corentin.png",
-    story: "Formé aux achats et à la supply chain (master), Corentin a passé des années à traquer la complexité inutile et à rendre les process simples et fiables. Il a retrouvé le même combat chez les commerçants : des outils lourds, pensés pour des experts, jamais pour quelqu'un qui enchaîne les services. Sa conviction : la meilleure technologie est celle qu'on ne remarque pas.",
+    story: "Acheteur chez Veolia, formé aux achats et à la supply chain, Corentin a passé des années à traquer la complexité inutile et à rendre les process simples et fiables. Le soir où Nicolas lui a parlé du projet, il a compris la douleur réelle des commerçants derrière l'idée : des outils lourds, pensés pour des experts, jamais pour quelqu'un qui enchaîne les services. Il a quitté son poste parce qu'il sentait qu'il servait enfin une vraie cause. Sa conviction : la meilleure technologie est celle qu'on ne remarque pas.",
     role_today: "Aujourd'hui, il conçoit la technologie de Stela, de la page d'avis aux réponses assistées par IA, avec une seule obsession : que tout se fasse en quelques clics, sans manuel.",
     pledge: "Je m'engage à ce que Stela vous fasse gagner du temps, jamais en prendre. Si une fonction n'est pas évidente, c'est à nous de la corriger.",
   },

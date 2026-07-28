@@ -12,11 +12,14 @@ import LogoWall from "../components/LogoWall.astro";
 import TripleZero from "../components/TripleZero.astro";
 import Integrations from "../components/Integrations.astro";
 
-// Plateformes de visibilité RÉELLEMENT couvertes (sous-ensemble de CHANNELS,
-// libellés courts pour le mur de logos). Sert le bandeau « visible partout ».
+// VIT-12 §3 : bandeau « Ils nous font confiance » (partenaires). Plateformes
+// de visibilité + caisses partenaires (Square, Zelty). Libellés courts pour le
+// mur de logos ; ceux sans logo simple-icons tombent sur un wordmark (LogoWall),
+// exactement comme la section Intégrations qui les liste déjà en toutes lettres.
 const coveragePlatforms = [
   "Google", "Google Maps", "TripAdvisor", "TheFork", "Bing",
   "ChatGPT", "Gemini", "Microsoft Copilot", "Waze", "Perplexity",
+  "Square", "Zelty",
 ] as const;
 
 // Plateformes d'avis réunies dans « Avis publics » (offre multi-plateformes).
@@ -122,12 +125,12 @@ const websiteLd = {
     </div>
   </section>
 
-  {/* COUVERTURE : bandeau plateformes. VIT-11 §2 : grille statique élégante
-      (le défilement doublé faisait « cheap » : la même série visible 2×). Sizes
-      et espacements unifiés par LogoWall, fond encre, honnête. */}
+  {/* PARTENAIRES : bandeau « Ils nous font confiance » (VIT-12 §3, décision
+      fondateur : on travaille avec eux et pour eux). Grille statique élégante
+      (VIT-11 §2), tailles/espacements unifiés par LogoWall, fond encre. */}
   <section class="coverage">
     <div class="container">
-      <p class="coverage-lead">Vos clients vous trouvent sur Google, Maps et l'IA</p>
+      <p class="coverage-lead">Ils nous font confiance</p>
       <LogoWall items={coveragePlatforms} tone="dark" marquee={false} />
     </div>
   </section>
