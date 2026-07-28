@@ -7,6 +7,7 @@ interface Props {
   rows: { label: string; value: string }[];
 }
 const { active, heading, rows } = Astro.props;
+import Glyph from "./Glyph.astro";
 
 const SPACES = [
   { label: "Aujourd'hui", modules: ["Aujourd'hui"] },
@@ -22,7 +23,7 @@ const SPACES = [
   </div>
   <div class="mk-body">
     <aside class="mk-side">
-      <div class="mk-brand"><span class="mk-star">✳</span> Stela</div>
+      <div class="mk-brand"><Glyph class="mk-star" /> Stela</div>
       {SPACES.map((s) => (
         <div class="mk-space">
           <p class="mk-space-label">{s.label}</p>

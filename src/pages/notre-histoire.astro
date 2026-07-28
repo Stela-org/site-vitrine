@@ -3,11 +3,24 @@ import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
 
+// VIT-11 §5 - storytelling fondateurs : parcours + déclic, rôle aujourd'hui,
+// engagement personnel. Faits stricts (aucun nom d'école ni détail inventé) :
+// Nicolas = master finance d'entreprise, produit + relation commerçants ;
+// Corentin = master achats & supply chain, conçoit la technologie.
+// `photo` optionnelle : le rendu reste propre sans (cercle à initiales).
 const founders = [
-  { name: "Nicolas Anquetin", role: "Cofondateur", photo: "/images/equipe-nicolas.png",
-    bio: "Titulaire d'un master en finance d'entreprise, Nicolas pilote le produit et la relation avec les commerçants. C'est lui qui a fait le choix, dès le départ, d'une collecte d'avis strictement conforme aux règles de Google." },
-  { name: "Corentin Janin", role: "Cofondateur", photo: "/images/equipe-corentin.png",
-    bio: "Formé aux achats et à la supply chain (master), Corentin conçoit la technologie de Stela, de la page d'avis aux réponses assistées par IA, avec une obsession : la simplicité pour le commerçant." },
+  {
+    name: "Nicolas Anquetin", role: "Cofondateur, produit & commerçants", photo: "/images/equipe-nicolas.png",
+    story: "Formé à la finance d'entreprise (master), Nicolas a d'abord appris à lire ce qui fait vraiment vivre un commerce : pas des tableaux, des clients qui reviennent. Le déclic est venu du terrain, au contact des restaurateurs : les meilleurs d'entre eux restaient invisibles en ligne, ou pire, se faisaient piéger par des méthodes interdites. Il a voulu un outil qui fasse grandir leur réputation sans jamais la mettre en danger.",
+    role_today: "Aujourd'hui, il pilote le produit et reste au contact quotidien des commerçants : chaque fonctionnalité de Stela naît d'un besoin réel entendu sur le terrain.",
+    pledge: "Je m'engage à ne jamais vous vendre un raccourci qui pourrait coûter votre fiche Google. Votre réputation, on la construit pour durer.",
+  },
+  {
+    name: "Corentin Janin", role: "Cofondateur, technologie", photo: "/images/equipe-corentin.png",
+    story: "Formé aux achats et à la supply chain (master), Corentin a passé des années à traquer la complexité inutile et à rendre les process simples et fiables. Il a retrouvé le même combat chez les commerçants : des outils lourds, pensés pour des experts, jamais pour quelqu'un qui enchaîne les services. Sa conviction : la meilleure technologie est celle qu'on ne remarque pas.",
+    role_today: "Aujourd'hui, il conçoit la technologie de Stela, de la page d'avis aux réponses assistées par IA, avec une seule obsession : que tout se fasse en quelques clics, sans manuel.",
+    pledge: "Je m'engage à ce que Stela vous fasse gagner du temps, jamais en prendre. Si une fonction n'est pas évidente, c'est à nous de la corriger.",
+  },
 ];
 
 const aboutLd = {
@@ -58,36 +71,61 @@ const aboutLd = {
   </section>
 
   <section class="founders-sec">
-    <div class="container" style="max-width:820px;">
+    <div class="container" style="max-width:900px;">
       <h2 style="text-align:center;">Les fondateurs</h2>
+      <p class="founders-intro">Deux parcours, une même conviction : votre réputation mérite un outil qui la respecte.</p>
       <div class="founders">
-        {founders.map((f) => (
-          <div class="founder card" id={f.name.toLowerCase().replace(/\s+/g, "-")}>
-            <img src={f.photo} alt={`Portrait de ${f.name}, ${f.role} de Stela`} width="400" height="400" loading="lazy" decoding="async" />
-            <div>
-              <h3>{f.name}</h3>
-              <p class="founder-role">{f.role}</p>
-              <p>{f.bio}</p>
+        {founders.map((f) => {
+          const initials = f.name.split(" ").map((p) => p[0]).join("").slice(0, 2);
+          return (
+          <article class="founder card" id={f.name.toLowerCase().replace(/\s+/g, "-")}>
+            <div class="founder-photo">
+              <span class="founder-initials" aria-hidden="true">{initials}</span>
+              {f.photo && <img src={f.photo} alt={`Portrait de ${f.name}, ${f.role} de Stela`} width="400" height="400" loading="lazy" decoding="async" />}
             </div>
-          </div>
-        ))}
+            <h3>{f.name}</h3>
+            <p class="founder-role">{f.role}</p>
+            <p class="founder-story">{f.story}</p>
+            <p class="founder-today">{f.role_today}</p>
+            <p class="founder-pledge">« {f.pledge} »</p>
+          </article>
+          );
+        })}
       </div>
     </div>
   </section>
 </Base>
 
 <style>
+  /* VIT-11 §4 - page moins aérée : sections resserrées, titres rapprochés. */
   .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
-  .story h2 { margin-top: 2rem; }
-  .story p { color: var(--text-secondary); line-height: 1.8; }
+  .hero { padding-block: clamp(28px, 4vw, 44px); }
+  section { padding-block: clamp(24px, 3.6vw, 40px); }
+  .story h2 { margin-top: 1.5rem; margin-bottom: .4rem; }
+  .story h2:first-child { margin-top: 0; }
+  .story p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 .6rem; }
+
   .founders-sec { background: var(--cream); }
-  .founders { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+  .founders-intro { text-align: center; color: var(--text-secondary); max-width: 46ch; margin: .5rem auto 0; }
+  .founders { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.6rem; }
   @media (max-width: 720px) { .founders { grid-template-columns: 1fr; } }
-  .founder { display: flex; gap: 1.1rem; align-items: flex-start; }
-  .founder img { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--surface); box-shadow: var(--shadow); }
+
+  /* Carte fondateur : photo en tête, storytelling, engagement mis en avant.
+     Emplacement photo robuste : le cercle à initiales sert de fond, l'image le
+     recouvre - le rendu reste propre même sans photo (§5). */
+  .founder { display: flex; flex-direction: column; align-items: flex-start; }
+  .founder-photo { position: relative; width: 76px; height: 76px; border-radius: 50%; flex: none;
+    background: linear-gradient(135deg, var(--brass), var(--gold)); display: grid; place-items: center;
+    box-shadow: var(--shadow); margin-bottom: .9rem; overflow: hidden; }
+  .founder-initials { color: #fff; font-weight: 800; font-size: 1.5rem; letter-spacing: .02em; }
+  .founder-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .founder h3 { margin: 0; }
-  .founder-role { color: var(--brass); font-weight: 700; font-size: .85rem; margin: .1rem 0 .5rem; }
-  .founder p:last-child { color: var(--text-secondary); font-size: .92rem; margin: 0; }
+  .founder-role { color: var(--brass); font-weight: 700; font-size: .85rem; margin: .1rem 0 .7rem; }
+  .founder-story { color: var(--text-secondary); font-size: .92rem; line-height: 1.6; margin: 0 0 .7rem; }
+  .founder-today { color: var(--ink); font-size: .9rem; line-height: 1.55; margin: 0 0 .9rem; font-weight: 600; }
+  .founder-pledge { margin: 0; padding: .75rem .9rem; background: var(--surface); border-left: 3px solid var(--brass);
+    border-radius: 0 10px 10px 0; color: var(--ink); font-size: .92rem; line-height: 1.5; font-style: italic; }
+
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
 </style>

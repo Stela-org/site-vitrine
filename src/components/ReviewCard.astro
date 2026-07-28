@@ -1,7 +1,13 @@
 ---
-// Carte d'avis Google réaliste, ANONYMISÉE (initiales, pas de vrai client) et
+// Carte d'avis réaliste, ANONYMISÉE (initiales, pas de vrai client) et
 // présentée par la section comme une ILLUSTRATION du fonctionnement, jamais
-// comme un témoignage réel. Étoiles or, réponse du gérant + badge Stela.
+// comme un témoignage réel. Étoiles or, réponse du gérant + badge Nova.
+// VIT-11 §3 : la collecte ne se limite pas à Google - chaque carte affiche le
+// logo et les codes visuels de SA plateforme (Google, TheFork, TripAdvisor).
+import Glyph from "./Glyph.astro";
+import { PLATFORM_LOGOS } from "../data/platformLogos";
+
+type Platform = "google" | "thefork" | "tripadvisor";
 interface Props {
   initial: string; // ex. "M."
   name: string; // ex. "Marie L." (anonymisé)
@@ -9,22 +15,52 @@ interface Props {
   text: string;
   reply: string;
   featured?: boolean;
+  platform?: Platform;
 }
-const { initial, name, meta = "Avis Google", text, reply, featured = false } = Astro.props;
+const { initial, name, meta, text, reply, featured = false, platform = "google" } = Astro.props;
+
+// Libellé de plateforme par défaut (surchargé par `meta` si fourni).
+const PLATFORM_META: Record<Platform, string> = {
+  google: "Avis Google",
+  thefork: "Avis TheFork",
+  tripadvisor: "Avis TripAdvisor",
+};
+const metaLabel = meta ?? PLATFORM_META[platform];
+const taPath = PLATFORM_LOGOS.TripAdvisor.d;
 ---
-<figure class={`rc${featured ? " rc-featured" : ""}`}>
+<figure class={`rc${featured ? " rc-featured" : ""} rc-p-${platform}`}>
   <div class="rc-head">
     <span class="rc-avatar" aria-hidden="true">{initial}</span>
     <div class="rc-id">
       <span class="rc-name">{name}</span>
-      <span class="rc-meta">{meta}</span>
+      <span class="rc-meta">{metaLabel}</span>
     </div>
-    <svg class="rc-g" viewBox="0 0 24 24" width="20" height="20" aria-label="Google" role="img">
-      <path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.6z"/>
-      <path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.4 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.9 11.9 0 0 0 12 24z"/>
-      <path fill="#FBBC05" d="M5.6 14.7a7.1 7.1 0 0 1 0-4.5v-3H1.8a12 12 0 0 0 0 10.5z"/>
-      <path fill="#EA4335" d="M12 4.8c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.8 11.8 0 0 0 12 0 11.9 11.9 0 0 0 1.8 6.2l3.8 3a7.1 7.1 0 0 1 6.4-4.4z"/>
-    </svg>
+    {platform === "google" && (
+      <svg class="rc-plat" viewBox="0 0 24 24" width="22" height="22" aria-label="Google" role="img">
+        <path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.6z"/>
+        <path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.4 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.9 11.9 0 0 0 12 24z"/>
+        <path fill="#FBBC05" d="M5.6 14.7a7.1 7.1 0 0 1 0-4.5v-3H1.8a12 12 0 0 0 0 10.5z"/>
+        <path fill="#EA4335" d="M12 4.8c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.8 11.8 0 0 0 12 0 11.9 11.9 0 0 0 1.8 6.2l3.8 3a7.1 7.1 0 0 1 6.4-4.4z"/>
+      </svg>
+    )}
+    {platform === "tripadvisor" && (
+      <svg class="rc-plat" viewBox="0 0 24 24" width="22" height="22" aria-label="TripAdvisor" role="img" fill="#34E0A1">
+        <path d={taPath} />
+      </svg>
+    )}
+    {platform === "thefork" && (
+      <span class="rc-plat rc-plat-fork" role="img" aria-label="TheFork">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <rect width="24" height="24" rx="6" fill="#1E824C" />
+          <g fill="#fff">
+            <rect x="7.4" y="4.6" width="1.4" height="6.2" rx=".7" />
+            <rect x="10.8" y="4.6" width="1.4" height="6.2" rx=".7" />
+            <rect x="14.2" y="4.6" width="1.4" height="6.2" rx=".7" />
+            <path d="M7.2 10.3h9a4.3 4.3 0 0 1-3.6 4.24V19a.9.9 0 0 1-1.8 0v-4.46A4.3 4.3 0 0 1 7.2 10.3Z" />
+          </g>
+        </svg>
+      </span>
+    )}
   </div>
   <div class="rc-stars" role="img" aria-label="Note : 5 sur 5">
     {[0, 1, 2, 3, 4].map((i) => <span class="rc-star" style={`--i:${i}`}>★</span>)}
@@ -32,7 +68,7 @@ const { initial, name, meta = "Avis Google", text, reply, featured = false } = A
   <blockquote class="rc-text">{text}</blockquote>
   <div class="rc-reply">
     <div class="rc-reply-head">
-      <span class="rc-reply-glyph" aria-hidden="true">✳</span>
+      <Glyph class="rc-reply-glyph" />
       <span class="rc-reply-title">Réponse du propriétaire</span>
       <span class="rc-badge">rédigé par Nova</span>
     </div>
@@ -49,7 +85,9 @@ const { initial, name, meta = "Avis Google", text, reply, featured = false } = A
   .rc-id { display: flex; flex-direction: column; line-height: 1.2; }
   .rc-name { font-weight: 700; color: var(--ink); font-size: .95rem; }
   .rc-meta { color: var(--text-muted); font-size: .78rem; }
-  .rc-g { margin-left: auto; }
+  /* Logo de plateforme, aligné à droite, taille unifiée quelle que soit la plateforme. */
+  .rc-plat { margin-left: auto; flex: none; display: block; }
+  .rc-plat-fork { line-height: 0; }
   .rc-stars { display: flex; gap: 2px; margin: .7rem 0 .5rem; font-size: 1.1rem; letter-spacing: 1px; }
   .rc-star { color: #E7B008; }
   .rc-text { margin: 0 0 1rem; color: var(--text-secondary); font-size: .95rem; line-height: 1.6; }

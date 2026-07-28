@@ -4,6 +4,7 @@
 // nous ? », « Touchez une étoile », « Propulsé par Stela »). Reconstruit en
 // HTML/CSS, étoiles qui se remplissent en boucle (sans JS). Décoratif : le
 // contenu informatif du hero vit dans le texte à côté, pas ici.
+import Glyph from "./Glyph.astro";
 ---
 <div class="phone-tilt">
 <div class="phone" role="img" aria-label="Aperçu de la page d'avis Stela : cinq étoiles se remplissent après un dîner">
@@ -26,7 +27,7 @@
         {[0, 1, 2, 3, 4].map((i) => <span class="ps-star" style={`--i:${i}`}>★</span>)}
       </div>
       <p class="ps-hint">Touchez une étoile</p>
-      <div class="ps-foot"><span class="ps-glyph">✳</span> Propulsé par <strong>Stela</strong></div>
+      <div class="ps-foot"><Glyph class="ps-glyph" /> Propulsé par <strong>Stela</strong></div>
     </div>
   </div>
 </div>

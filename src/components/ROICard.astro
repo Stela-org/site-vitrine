@@ -1,7 +1,7 @@
 ---
 // Carte « Reporting » reprenant le visuel du tableau de bord CRM Stela.
-// Chiffres d'un ÉTABLISSEMENT DE DÉMONSTRATION, jamais présentés comme des
-// données client réelles (mention explicite + aria-label).
+// Chiffres ILLUSTRATIFS (exemple), jamais présentés comme des données client
+// réelles (mention explicite + aria-label).
 interface Props {
   place?: string; period?: string;
   avis?: string; note?: string; ca?: string; roi?: string;
@@ -12,14 +12,14 @@ const {
   avis = "+38", note = "4,7", ca = "1 240 €", roi = "6,2×",
 } = Astro.props;
 ---
-<div class="rep" role="img" aria-label={`Reporting Stela d'un établissement de démonstration : ${avis} avis, note ${note}, chiffres illustratifs`}>
+<div class="rep" role="img" aria-label={`Reporting Stela (exemple illustratif) : ${avis} avis, note ${note}, chiffres illustratifs`}>
   <div class="rep-head">
     <span class="rep-dot" aria-hidden="true"></span>
     <div>
       <p class="rep-title">Reporting</p>
       <p class="rep-place">{place}</p>
     </div>
-    <span class="rep-tag">Établissement de démonstration</span>
+    <span class="rep-tag">Exemple illustratif</span>
   </div>
   <p class="rep-period">{period}</p>
 
@@ -45,7 +45,7 @@ const {
   <div class="rep-spark" aria-hidden="true">
     {[34, 41, 38, 52, 47, 63, 71].map((h) => <span style={`--h:${h}%`}></span>)}
   </div>
-  <p class="rep-foot">Reporting Stela &middot; chiffres illustratifs d'un établissement de démonstration, non contractuels.</p>
+  <p class="rep-foot">Reporting Stela &middot; chiffres illustratifs, non contractuels.</p>
 </div>
 <style>
   .rep { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); }

@@ -25,9 +25,9 @@ const reviewPlatforms = ["Google", "TripAdvisor", "TheFork", "Pages Jaunes", "Ye
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
 const demoReviews = [
-  { initial: "M.", name: "Marie L.", meta: "Avis Google · il y a 2 jours", text: "Accueil adorable et cuisine généreuse, on reviendra sans hésiter.", reply: "Merci Marie ! Ravis que notre cuisine du marché vous ait plu, à très vite dans le Marais.", featured: true },
-  { initial: "K.", name: "Karim B.", meta: "Avis Google · il y a 5 jours", text: "Très bon moment, service attentionné et belle terrasse au calme.", reply: "Merci Karim, la terrasse vous attend dès les beaux jours. Au plaisir de vous revoir." },
-  { initial: "S.", name: "Sophie D.", meta: "Avis Google · il y a 1 semaine", text: "Parfait pour un dîner en famille, les enfants ont adoré le dessert.", reply: "Un grand merci Sophie, on transmet le compliment au chef pâtissier !" },
+  { initial: "M.", name: "Marie L.", platform: "google" as const, meta: "Avis Google · il y a 2 jours", text: "Accueil adorable et cuisine généreuse, on reviendra sans hésiter.", reply: "Merci Marie ! Ravis que notre cuisine du marché vous ait plu, à très vite dans le Marais.", featured: true },
+  { initial: "K.", name: "Karim B.", platform: "thefork" as const, meta: "Avis TheFork · il y a 5 jours", text: "Réservation en deux clics, table prête à l'heure et service attentionné.", reply: "Merci Karim, ravis que la réservation ait été simple. La terrasse vous attend dès les beaux jours." },
+  { initial: "S.", name: "Sophie D.", platform: "tripadvisor" as const, meta: "Avis TripAdvisor · il y a 1 semaine", text: "Parfait pour un dîner en famille, les enfants ont adoré le dessert.", reply: "Un grand merci Sophie, on transmet le compliment au chef pâtissier !" },
 ];
 
 // Maillage : les cartes de la home pointent vers les pages fonctionnalités
@@ -122,12 +122,13 @@ const websiteLd = {
     </div>
   </section>
 
-  {/* COUVERTURE : bandeau plateformes (remplace l'ancienne bande de 5 chiffres,
-      jugée cheap). Mur de wordmarks défilant, fond encre, honnête. */}
+  {/* COUVERTURE : bandeau plateformes. VIT-11 §2 : grille statique élégante
+      (le défilement doublé faisait « cheap » : la même série visible 2×). Sizes
+      et espacements unifiés par LogoWall, fond encre, honnête. */}
   <section class="coverage">
     <div class="container">
-      <p class="coverage-lead">Vous, visible partout où vos clients cherchent</p>
-      <LogoWall items={coveragePlatforms} tone="dark" />
+      <p class="coverage-lead">Vos clients vous trouvent sur Google, Maps et l'IA</p>
+      <LogoWall items={coveragePlatforms} tone="dark" marquee={false} />
     </div>
   </section>
 
@@ -136,7 +137,7 @@ const websiteLd = {
     <div class="container">
       <p class="eyebrow">Voici ce que ça donne</p>
       <h2>Des avis qui arrivent, des réponses déjà prêtes</h2>
-      <p class="reviews-note">Nova, votre assistante, écrit la réponse en 10 secondes, et chaque réponse renforce votre visibilité sur Google. Vous relisez, vous envoyez. Exemples illustratifs, avis anonymisés.</p>
+      <p class="reviews-note">Nova, votre assistante, écrit la réponse en 10 secondes, et chaque réponse renforce votre visibilité en ligne, sur Google comme sur les autres plateformes. Vous relisez, vous envoyez. Exemples illustratifs, avis anonymisés.</p>
       <div class="reviews-band reveal-stagger">
         {demoReviews.map((r) => <ReviewCard {...r} />)}
       </div>
@@ -499,10 +500,14 @@ const websiteLd = {
   .calc-range { display: flex; align-items: center; gap: .8rem; }
   .calc-range input[type="range"] { flex: 1; accent-color: var(--brass); }
   .calc-range output { font-weight: 800; color: var(--brass); min-width: 3ch; }
-  .calc-result { font-size: 1.3rem; font-weight: 700; color: var(--ink); margin: 1.1rem 0 .3rem; }
-  .calc-result strong { color: var(--brass); font-size: 1.6rem; }
-  .calc-tag { font-size: .68rem; font-weight: 700; color: var(--text-muted); background: var(--cream);
-    border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem; vertical-align: middle; }
+  /* VIT-11 §7 : le pill « fourchette prudente » était coupé sur mobile étroit
+     (320/375px). La phrase peut retourner à la ligne (overflow-wrap) et le pill
+     reste insécable ET peut basculer sur sa propre ligne au lieu d'être rogné. */
+  .calc-result { font-size: 1.3rem; font-weight: 700; color: var(--ink); margin: 1.1rem 0 .3rem; overflow-wrap: anywhere; }
+  .calc-result strong { color: var(--brass); font-size: 1.6rem; overflow-wrap: normal; }
+  .calc-tag { display: inline-block; white-space: nowrap; font-size: .68rem; font-weight: 700; color: var(--text-muted);
+    background: var(--cream); border: 1px solid var(--border); border-radius: 999px; padding: .12rem .5rem;
+    vertical-align: middle; margin-top: .2rem; }
   .calc-note { font-size: .78rem; color: var(--text-muted); margin: 0; }
   .story-mock { max-width: 400px; margin-inline: auto; }
   .results-cred { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 1.25rem auto 0; max-width: 60ch; }
