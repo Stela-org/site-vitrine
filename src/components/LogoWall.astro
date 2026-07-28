@@ -1,0 +1,60 @@
+---
+import { PLATFORM_LOGOS } from "../data/platformLogos";
+// Mur de logos plateformes (VIT-10, amendement). Logos OFFICIELS quand ils
+// existent (paquet simple-icons, CC0), rendus en SVG inline et colorés à la
+// teinte de marque. Les plateformes absentes de simple-icons (Bing, ChatGPT,
+// Copilot, TheFork, Pages Jaunes) tombent sur un wordmark monochrome uniforme
+// (on ne redessine pas un logo tiers). SVG inline = zéro hôte externe (CSP OK).
+// Décoratif : le cadre est aria-hidden, le sens vient du titre de section.
+// Défilement (marquee) sans JS ; coupé si prefers-reduced-motion. overflow:hidden
+// sur le cadre → aucun scroll horizontal de page.
+interface Props {
+  items: readonly string[];
+  tone?: "dark" | "light";
+  marquee?: boolean;
+}
+const { items, tone = "dark", marquee = true } = Astro.props;
+// On double la liste pour un défilement continu sans couture.
+const loop = marquee ? [...items, ...items] : items;
+---
+<div class={`lw lw-${tone}${marquee ? " lw-marquee" : " lw-static"}`} aria-hidden="true">
+  <ul class="lw-track">
+    {loop.map((name) => {
+      const logo = PLATFORM_LOGOS[name];
+      return (
+        <li class="lw-item">
+          {logo ? (
+            <svg class="lw-logo" viewBox="0 0 24 24" role="img" aria-label={name} fill={`#${logo.hex}`}>
+              <path d={logo.d} />
+            </svg>
+          ) : (
+            <span class="lw-name">{name}</span>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</div>
+<style>
+  .lw { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .lw-track { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 2.4rem; width: max-content; }
+  .lw-item { display: inline-flex; align-items: center; white-space: nowrap; }
+  /* Taille et alignement uniformes : logos et wordmarks à la même hauteur. */
+  .lw-logo { height: 26px; width: auto; display: block; }
+  .lw-name { font-weight: 700; font-size: 1.05rem; letter-spacing: .01em; line-height: 26px; }
+
+  .lw-dark .lw-name { color: #e6ebf4; }
+  .lw-light .lw-name { color: var(--ink); }
+
+  /* Défilement continu : la piste doublée glisse de -50% (une longueur de liste). */
+  .lw-marquee .lw-track { animation: lw-scroll 34s linear infinite; }
+  @keyframes lw-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* Sans mouvement : rangée centrée, repli à la ligne, aucune animation. */
+  @media (prefers-reduced-motion: reduce) {
+    .lw { mask-image: none; -webkit-mask-image: none; }
+    .lw-marquee .lw-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; gap: 1.1rem 2rem; }
+  }
+  .lw-static .lw-track { flex-wrap: wrap; justify-content: center; width: auto; gap: 1.1rem 2rem; }
+</style>
