@@ -1,0 +1,22 @@
+---
+// Glyphe étoile Stela en SVG inline (VIT-11 §1). JAMAIS le caractère étoile
+// U+2733 : rendu comme un emoji VERT sur iOS/mobile à petite taille. Ce SVG
+// hérite de la taille (1em par défaut) et de la couleur du contexte via
+// `fill="currentColor"` - les classes existantes (.ps-glyph, .mk-star,
+// .rc-reply-glyph) qui posent `color: var(--brass)` continuent de teinter le
+// glyphe. Décoratif : aria-hidden.
+interface Props { size?: string; class?: string; }
+const { size = "1em", class: cls } = Astro.props;
+---
+<svg
+  class={cls}
+  viewBox="0 0 100 100"
+  width={size}
+  height={size}
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+  style="display:inline-block;vertical-align:-0.12em;"
+>
+  <path d="M50 4 L53.8 43.42 L89.84 27 L57.6 50 L89.84 73 L53.8 56.58 L50 96 L46.2 56.58 L10.16 73 L42.4 50 L10.16 27 L46.2 43.42Z" />
+</svg>
