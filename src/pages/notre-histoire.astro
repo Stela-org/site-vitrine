@@ -38,7 +38,7 @@ const aboutLd = {
 ---
 <Base
   title="Notre histoire | Stela"
-  description="Comment Stela est née de l'expérience de plus de 170 restaurants équipés, et pourquoi nous avons fait le choix d'une collecte d'avis 100 % conforme aux règles de Google."
+  description="Stela est le produit phare d'une agence spécialisée en e-réputation et SEO local, née de l'expérience de plus de 170 restaurants équipés et d'un choix : une collecte d'avis 100 % conforme aux règles de Google."
   path="/notre-histoire"
 >
   <script type="application/ld+json" set:html={JSON.stringify(aboutLd)} is:inline />
@@ -52,29 +52,12 @@ const aboutLd = {
     </div>
   </section>
 
-  <section>
-    <div class="container story" style="max-width:760px;">
-      <h2>Pourquoi Stela existe</h2>
-      <p>Stela part d'un constat fait sur le terrain : un commerçant peut faire un travail remarquable et rester invisible en ligne, faute d'avis, ou pire, se faire piéger par des outils qui trichent. Nous avons vu des restaurateurs perdre des clients à cause d'une fiche Google mal tenue, et d'autres risquer leur réputation avec des méthodes interdites, sans même le savoir. Nous avons construit l'outil que nous aurions voulu leur mettre entre les mains.</p>
-
-      <h2>Un parcours né du terrain, pas d'un tableau blanc</h2>
-      <p>Avant de lancer Stela, nous avons appris le métier au plus près des commerçants. Nos parcours se complètent : un master en finance d'entreprise d'un côté, un master en achats et supply chain de l'autre, et surtout des années passées au contact des restaurateurs. On sait ce que c'est qu'un service qui déborde, un client mécontent à rattraper, une bonne table qui mériterait d'être mieux connue. C'est cette expérience concrète qui guide chaque décision : un outil doit faire gagner du temps, jamais en prendre.</p>
-
-      <h2>D'abord, plus de 170 restaurants équipés</h2>
-      <p>Avant Stela, notre équipe a accompagné plus de 170 restaurants avec une première génération de l'outil. Nous avons vu ce qui marche, ce qui agace, et surtout ce qui met une fiche Google en danger. Cette expérience de terrain est le socle de tout ce que fait Stela aujourd'hui.</p>
-
-      <h2>Le choix assumé du 100 % conforme</h2>
-      <p>Beaucoup d'outils promettent des avis en filtrant les clients ou en offrant des cadeaux contre une note. C'est tentant à court terme, et interdit par Google. Nous avons fait le choix inverse : inviter tous les clients à s'exprimer publiquement, sans tri, et récupérer les mécontents en plus, jamais à la place. C'est plus exigeant, c'est surtout la seule voie qui protège votre réputation sur la durée.</p>
-
-      <h2>Aujourd'hui, Stela</h2>
-      <p>Stela réunit la collecte d'avis, les réponses assistées par IA, la réservation, la fidélisation et la visibilité dans les moteurs IA, pour tous les commerces locaux. Toujours avec la même règle : la conformité n'est pas une option, c'est le moteur.</p>
-    </div>
-  </section>
-
+  {/* VIT-13 §1 : on rencontre d'abord les PERSONNES (fondateurs), puis leur
+      ŒUVRE (l'histoire de Stela). Les deux sections ont été inversées. */}
   <section class="founders-sec">
     <div class="container" style="max-width:900px;">
       <h2 style="text-align:center;">Les fondateurs</h2>
-      <p class="founders-intro">Deux parcours, une même conviction : votre réputation mérite un outil qui la respecte.</p>
+      <p class="founders-intro">Avant l'outil, il y a deux personnes. Voici qui construit Stela, et d'où vient leur conviction.</p>
       <div class="founders">
         {founders.map((f) => {
           const initials = f.name.split(" ").map((p) => p[0]).join("").slice(0, 2);
@@ -95,6 +78,27 @@ const aboutLd = {
       </div>
     </div>
   </section>
+
+  <section>
+    <div class="container story" style="max-width:760px;">
+      <p class="story-bridge">De ces deux parcours est née Stela. Voici pourquoi, et comment.</p>
+
+      <h2>Pourquoi Stela existe</h2>
+      <p>Stela part d'un constat fait sur le terrain : un commerçant peut faire un travail remarquable et rester invisible en ligne, faute d'avis, ou pire, se faire piéger par des outils qui trichent. Nous avons vu des restaurateurs perdre des clients à cause d'une fiche Google mal tenue, et d'autres risquer leur réputation avec des méthodes interdites, sans même le savoir. Nous avons construit l'outil que nous aurions voulu leur mettre entre les mains.</p>
+
+      <h2>Un parcours né du terrain, pas d'un tableau blanc</h2>
+      <p>Avant de lancer Stela, nous avons appris le métier au plus près des commerçants. Nos parcours se complètent : la finance d'entreprise d'un côté, les achats et la supply chain de l'autre, et surtout des années passées au contact des restaurateurs. On sait ce que c'est qu'un service qui déborde, un client mécontent à rattraper, une bonne table qui mériterait d'être mieux connue. C'est cette expérience concrète qui guide chaque décision : un outil doit faire gagner du temps, jamais en prendre.</p>
+
+      <h2>D'abord, plus de 170 restaurants équipés</h2>
+      <p>Avant Stela, notre équipe a accompagné plus de 170 restaurants avec une première génération de l'outil. Nous avons vu ce qui marche, ce qui agace, et surtout ce qui met une fiche Google en danger. Cette expérience de terrain est le socle de tout ce que fait Stela aujourd'hui.</p>
+
+      <h2>Le choix assumé du 100 % conforme</h2>
+      <p>Beaucoup d'outils promettent des avis en filtrant les clients ou en offrant des cadeaux contre une note. C'est tentant à court terme, et interdit par Google. Nous avons fait le choix inverse : inviter tous les clients à s'exprimer publiquement, sans tri, et récupérer les mécontents en plus, jamais à la place. C'est plus exigeant, c'est surtout la seule voie qui protège votre réputation sur la durée.</p>
+
+      <h2>Aujourd'hui, Stela</h2>
+      <p>Derrière Stela, il y a une vraie agence spécialisée en e-réputation et en référencement local (SEO) : des spécialistes qui accompagnent des commerçants au quotidien, pas seulement un logiciel. Stela est notre produit phare, celui qui réunit la collecte d'avis, les réponses assistées par IA, la réservation, la fidélisation et la visibilité dans les moteurs IA, pour tous les commerces locaux. Toujours avec la même règle : la conformité n'est pas une option, c'est le moteur.</p>
+    </div>
+  </section>
 </Base>
 
 <style>
@@ -105,6 +109,8 @@ const aboutLd = {
   .story h2 { margin-top: 1.5rem; margin-bottom: .4rem; }
   .story h2:first-child { margin-top: 0; }
   .story p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 .6rem; }
+  /* VIT-13 §1 : phrase de transition « personnes -> œuvre », en tête de l'histoire. */
+  .story-bridge { margin: 0 0 1rem; color: var(--ink); font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
 
   .founders-sec { background: var(--cream); }
   .founders-intro { text-align: center; color: var(--text-secondary); max-width: 46ch; margin: .5rem auto 0; }
