@@ -1,5 +1,6 @@
 ---
 title: "Comment avoir plus d'avis Google, sans filtrer une seule note"
+metaTitle: "Comment avoir plus d'avis Google"
 description: "Des méthodes concrètes pour obtenir plus d'avis Google sur votre commerce, au bon moment et sans effort, tout en respectant les règles de Google."
 pubDate: 2026-06-15
 updatedDate: 2026-07-24

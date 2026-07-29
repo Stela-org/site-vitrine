@@ -5,6 +5,11 @@
   "buildCommand": "astro build && (node scripts/indexnow-ping.mjs || true)",
   "redirects": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap-index.xml",
+      "permanent": true
+    },
+    {
       "source": "/stela-vs-dokaa",
       "destination": "https://www.mystela.fr/comparatif",
       "permanent": true

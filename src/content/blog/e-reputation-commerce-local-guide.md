@@ -1,6 +1,7 @@
 ---
 title: "E-réputation d'un commerce local : le guide complet"
-description: "Comprendre, mesurer et améliorer l'e-réputation de votre commerce local : fiche Google, avis, réponses et présence dans les moteurs IA. Un guide clair, conforme aux règles de Google."
+metaTitle: "E-réputation d'un commerce local : le guide"
+description: "Comprendre, mesurer et améliorer l'e-réputation de votre commerce local : fiche Google, avis, réponses et présence dans les moteurs IA."
 pubDate: 2026-06-17
 updatedDate: 2026-07-24
 keyword: "e-réputation commerce local"

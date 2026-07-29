@@ -1,5 +1,6 @@
 ---
 title: "Fiche Google Business Profile : les bonnes pratiques pour rester visible"
+metaTitle: "Fiche Google Business Profile : les réflexes"
 description: "Informations à jour, photos, avis, posts : le tour des réglages qui font vraiment la différence sur une fiche Google Business Profile, expliqués simplement."
 pubDate: 2026-07-27
 keyword: "fiche Google Business Profile"

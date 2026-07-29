@@ -1,6 +1,7 @@
 ---
 title: "QR code d'avis Google : comment ça marche et comment bien l'utiliser"
-description: "Le QR code d'avis est le moyen le plus simple de collecter des avis Google en un geste. Voici comment il fonctionne, où le placer, et comment l'utiliser sans enfreindre les règles de Google."
+metaTitle: "QR code d'avis Google : mode d'emploi"
+description: "Le QR code d'avis est le moyen le plus simple de collecter des avis Google en un geste. Comment il marche, où le placer, comment bien l'utiliser."
 pubDate: 2026-06-18
 updatedDate: 2026-07-24
 keyword: "QR code avis Google"

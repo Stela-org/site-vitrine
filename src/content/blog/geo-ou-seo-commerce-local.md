@@ -1,6 +1,7 @@
 ---
 title: "GEO ou SEO pour un commerce local : quelles différences, et par où commencer"
-description: "Le SEO vous place dans les résultats de recherche, le GEO vous fait citer par les intelligences artificielles. Voici les différences concrètes, ce qu'elles partagent, et par où un commerce local doit commencer."
+metaTitle: "GEO ou SEO pour un commerce local ?"
+description: "Le SEO vous place dans les résultats de recherche, le GEO vous fait citer par les IA. Les différences concrètes, et par où commencer."
 pubDate: 2026-07-27
 keyword: "GEO ou SEO commerce local"
 cluster: "geo"

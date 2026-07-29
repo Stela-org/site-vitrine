@@ -1,6 +1,7 @@
 ---
 title: "Comment mesurer sa visibilité dans les réponses des IA (méthode et suivi mensuel)"
-description: "Une méthode simple pour savoir si votre commerce est cité par ChatGPT, Gemini et Perplexity : les questions à poser, ce qu'il faut noter, et comment suivre les progrès mois après mois."
+metaTitle: "Mesurer sa visibilité dans les réponses des IA"
+description: "Une méthode simple pour savoir si votre commerce est cité par ChatGPT, Gemini et Perplexity : quoi demander, quoi noter, comment suivre."
 pubDate: 2026-08-03
 keyword: "mesurer visibilité IA commerce local"
 cluster: "geo"

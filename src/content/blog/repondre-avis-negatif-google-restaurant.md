@@ -1,6 +1,7 @@
 ---
 title: "Répondre à un avis négatif sur Google : le guide et 5 exemples"
-description: "Comment répondre à un avis négatif sur Google quand on tient un commerce local : les règles, cinq exemples concrets et les erreurs à éviter. Toujours dans le respect des règles de Google."
+metaTitle: "Répondre à un avis négatif sur Google"
+description: "Comment répondre à un avis négatif sur Google quand on tient un commerce local : les règles, cinq exemples concrets et les erreurs à éviter."
 pubDate: 2026-06-18
 updatedDate: 2026-07-24
 keyword: "répondre à un avis négatif Google"

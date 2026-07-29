@@ -18,8 +18,9 @@ export default defineConfig({
   vite: { build: { assetsInlineLimit: 0 } },
   integrations: [
     sitemap({
-      // Pages légales en noindex : hors sitemap.
-      filter: (page) => !/\/(mentions-legales|cgv|politique-confidentialite|presence-plateformes|guide-google-commercant-local\/(merci|desinscrit))\/?$/.test(page),
+      // Pages légales en noindex : hors sitemap. /presence-plateformes est
+      // une page publique indexable (VIT-14 A4) : elle reste DANS le sitemap.
+      filter: (page) => !/\/(mentions-legales|cgv|politique-confidentialite|guide-google-commercant-local\/(merci|desinscrit))\/?$/.test(page),
       // Priorités par intention : home > tarifs > fonctionnalités > segments.
       serialize(item) {
         const u = item.url;
