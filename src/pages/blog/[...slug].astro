@@ -36,7 +36,7 @@ const dateStr = (d.updatedDate ?? d.pubDate).toLocaleDateString("fr-FR", { year:
 // Maillage : autres articles.
 const others = (await getCollection("blog")).filter((p) => p.id !== post.id).slice(0, 3);
 ---
-<Base title={`${d.title} | Blog Stela`} description={d.description} path={`/blog/${post.id}`}>
+<Base title={`${d.metaTitle ?? d.title} | Blog Stela`} description={d.description} path={`/blog/${post.id}`}>
   <script type="application/ld+json" set:html={JSON.stringify(articleLd)} is:inline />
 
   <article class="post">

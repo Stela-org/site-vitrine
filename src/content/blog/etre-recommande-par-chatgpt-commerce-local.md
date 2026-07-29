@@ -1,6 +1,7 @@
 ---
 title: "Être recommandé par ChatGPT, Gemini et Perplexity quand on est un commerce local"
-description: "Les clients demandent de plus en plus à ChatGPT, Gemini ou Perplexity où aller. Voici comment un commerce local peut devenir une réponse citée par ces intelligences artificielles, secteur par secteur."
+metaTitle: "Être recommandé par ChatGPT, Gemini, Perplexity"
+description: "Les clients demandent à ChatGPT, Gemini ou Perplexity où aller. Voici comment un commerce local devient une réponse citée par ces IA."
 pubDate: 2026-07-20
 updatedDate: 2026-07-24
 keyword: "être recommandé par ChatGPT commerce local"

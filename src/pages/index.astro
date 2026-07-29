@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import { SITE, PLANS, stripeLink, PRODUCT_VIDEOS } from "../config/site";
 import ProductVideo from "../components/ProductVideo.astro";
 import { FEATURES } from "../content/features";
+import { SEGMENTS } from "../content/segments";
 import { STORIES } from "../content/stories";
 import PhoneReview from "../components/PhoneReview.astro";
 import ReviewCard from "../components/ReviewCard.astro";
@@ -27,10 +28,13 @@ const reviewPlatforms = ["Google", "TripAdvisor", "TheFork", "Pages Jaunes", "Ye
 
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
+// VIT-14 §6 : exemples répartis sur plusieurs métiers (coiffeur, restaurant,
+// hôtel), pas 100 % resto. Plateforme cohérente avec le métier (TheFork =
+// restaurant, TripAdvisor = hôtel/resto). Vocabulaire neutre côté réponses.
 const demoReviews = [
-  { initial: "M.", name: "Marie L.", platform: "google" as const, meta: "Avis Google · il y a 2 jours", text: "Accueil adorable et cuisine généreuse, on reviendra sans hésiter.", reply: "Merci Marie ! Ravis que notre cuisine du marché vous ait plu, à très vite dans le Marais.", featured: true },
+  { initial: "L.", name: "Léa M.", platform: "google" as const, meta: "Avis Google · il y a 2 jours", text: "Coupe et couleur parfaites, on ressort avec le sourire. Salon impeccable.", reply: "Merci Léa ! Ravis que le résultat vous plaise, toute l'équipe du salon vous dit à bientôt.", featured: true },
   { initial: "K.", name: "Karim B.", platform: "thefork" as const, meta: "Avis TheFork · il y a 5 jours", text: "Réservation en deux clics, table prête à l'heure et service attentionné.", reply: "Merci Karim, ravis que la réservation ait été simple. La terrasse vous attend dès les beaux jours." },
-  { initial: "S.", name: "Sophie D.", platform: "tripadvisor" as const, meta: "Avis TripAdvisor · il y a 1 semaine", text: "Parfait pour un dîner en famille, les enfants ont adoré le dessert.", reply: "Un grand merci Sophie, on transmet le compliment au chef pâtissier !" },
+  { initial: "S.", name: "Sophie D.", platform: "tripadvisor" as const, meta: "Avis TripAdvisor · il y a 1 semaine", text: "Chambre au calme, lit très confortable et accueil aux petits soins. On reviendra.", reply: "Un grand merci Sophie, ravis que votre séjour vous ait plu. Au plaisir de vous accueillir à nouveau." },
 ];
 
 // Maillage : les cartes de la home pointent vers les pages fonctionnalités
@@ -46,6 +50,14 @@ const JOURNEY = [
   { slug: "analyse-des-avis", stage: "Au fil du temps" },
   { slug: "sms-fidelisation", stage: "Fidélisation" },
 ] as const;
+// VIT-14 §7 : maillage vers les pages métier (/pour/[slug]). Secteurs d'abord
+// (Restaurant, Coiffeur, Institut, Garage), puis profils (Indépendants,
+// Multi-établissements). Une carte par segment existant, source content/segments.
+const SEGMENT_KIND_ORDER = { secteur: 0, profil: 1 } as const;
+const segmentLinks = [...SEGMENTS]
+  .sort((a, b) => SEGMENT_KIND_ORDER[a.kind] - SEGMENT_KIND_ORDER[b.kind])
+  .map((s) => ({ slug: s.slug, label: s.navLabel }));
+
 const bySlug = new Map(FEATURES.map((f) => [f.slug, f]));
 const features = JOURNEY.flatMap((j) => {
   const f = bySlug.get(j.slug);
@@ -96,7 +108,7 @@ const websiteLd = {
 ---
 
 <Base
-  title="Stela | Le moteur de croissance Google conforme des commerces locaux"
+  title="Stela | Avis Google et croissance des commerces locaux"
   description="Collecte d'avis Google 100 % conforme, réponses IA, réservation et fidélisation pour tous les commerces locaux. Prix transparents, essai gratuit."
   path="/"
 >
@@ -178,6 +190,24 @@ const websiteLd = {
             <h3>{f.t}</h3>
             <p>{f.d}</p>
             <span class="feature-more">Découvrir</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* STELA POUR VOTRE MÉTIER (VIT-14 §7) : maillage visible vers les pages
+      segment /pour/[slug]. Montre l'ouverture multi-commerces dès la home. */}
+  <section class="segments">
+    <div class="container">
+      <p class="eyebrow">Stela pour votre métier</p>
+      <h2>Pré-réglé pour votre activité</h2>
+      <p class="section-lead">Restaurant, salon de coiffure, institut, garage ou groupe : Stela arrive paramétré pour votre secteur. Choisissez le vôtre.</p>
+      <div class="segments-grid">
+        {segmentLinks.map((s) => (
+          <a class="segment-chip" href={`/pour/${s.slug}`}>
+            <span class="segment-label">{s.label}</span>
+            <span class="segment-arrow" aria-hidden="true">&rarr;</span>
           </a>
         ))}
       </div>
@@ -411,6 +441,16 @@ const websiteLd = {
     padding: .2rem .6rem; margin-bottom: .35rem; }
   .feature-more { margin-top: auto; padding-top: .75rem; color: var(--brass); font-weight: 700; font-size: .9rem; }
   .feature-more::after { content: " \2192"; }
+
+  /* Stela pour votre métier (VIT-14 §7) : chips vers /pour/[slug]. Grille souple
+     qui tient de 320px (2 col.) au desktop, sans débordement horizontal. */
+  .segments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; margin-top: 1.25rem; }
+  .segment-chip { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .8rem 1rem;
+    color: var(--ink); font-weight: 700; font-size: .95rem; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .segment-chip:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 8px 22px rgba(21,35,63,.1); }
+  .segment-label { min-width: 0; overflow-wrap: break-word; }
+  .segment-arrow { color: var(--brass); font-weight: 800; flex: none; }
 
   /* Conformité : chapitre en rupture, fond encre plein, chiffre laiton géant. */
   .conformite { background: var(--ink); color: #cdd5e4; position: relative; overflow: hidden; }

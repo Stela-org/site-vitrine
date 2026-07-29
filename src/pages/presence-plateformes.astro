@@ -2,10 +2,9 @@
 import Base from "../layouts/Base.astro";
 import { SITE , TARIFS_URL } from "../config/site";
 
-// Page PRÉPARÉE mais non indexée (noindex + hors sitemap). À publier (retirer le
-// noindex) quand la gestion de présence multi-plateformes sera disponible.
-// Angle : être visible partout, y compris dans les réponses des IA (ChatGPT
-// s'appuie notamment sur l'index Bing).
+// Page publiée et indexable (VIT-14 A4) : présente dans le sitemap, sans
+// noindex. Angle : être visible partout, y compris dans les réponses des IA
+// (ChatGPT s'appuie notamment sur l'index Bing).
 const platforms = [
   "Google Business Profile", "Bing Places", "Apple Plans", "TripAdvisor",
   "TheFork", "Yelp", "Pages Jaunes", "Facebook", "Instagram", "Waze",
@@ -18,7 +17,6 @@ const platforms = [
   title="Présence sur 20+ plateformes | Stela"
   description="Gérez votre présence sur plus de 20 plateformes depuis Stela, et restez visible partout, y compris dans les réponses des intelligences artificielles."
   path="/presence-plateformes"
-  noindex={true}
 >
   <section class="hero">
     <div class="container" style="max-width:820px;">

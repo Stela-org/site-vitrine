@@ -1,6 +1,7 @@
 ---
 title: "Supprimer un avis Google : ce qui est vraiment possible (et comment signaler un avis non conforme)"
-description: "Peut-on supprimer un avis Google ? Voici ce que Google retire ou non, comment signaler un avis contraire à ses règles, et pourquoi la meilleure défense reste le volume d'avis sincères."
+metaTitle: "Supprimer un avis Google : ce qui est possible"
+description: "Peut-on supprimer un avis Google ? Ce que Google retire ou non, comment signaler un avis non conforme, et pourquoi le volume d'avis vous protège."
 pubDate: 2026-06-16
 updatedDate: 2026-07-24
 keyword: "supprimer un avis Google"

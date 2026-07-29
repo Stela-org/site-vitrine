@@ -8,6 +8,9 @@ const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
   schema: z.object({
     title: z.string(),
+    // VIT-14 A2 : titre <title> court (<=60 car., mot-clé en tête) quand le
+    // titre editorial (h1) dépasse. Optionnel : à défaut, `title` sert de <title>.
+    metaTitle: z.string().optional(),
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),

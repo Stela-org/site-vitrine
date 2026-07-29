@@ -28,6 +28,9 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
     <p class="int-lead">Stela travaille votre visibilité sur Google (fiche, Maps, recherche) et sur Bing, qui alimente aussi les réponses des intelligences artificielles. Vos avis des autres plateformes se centralisent au même endroit.</p>
 
     <div class="int-logos"><LogoWall items={logoNames} tone="light" /></div>
+    {/* VIT-14 A4 : lien vers la page présence multi-plateformes (désormais
+        publiée et indexée) : évite une page orpheline dans le sitemap. */}
+    <p class="int-more"><a href="/presence-plateformes">Voir les 20+ plateformes où Stela vous rend visible &rarr;</a></p>
 
     <p class="int-group-title">Disponible aujourd'hui</p>
     <ul class="int-grid">
@@ -84,6 +87,8 @@ const viaBing = ["ChatGPT", "Microsoft Copilot"];
   .integrations { padding-block: 2.5rem; }
   .int-lead { color: var(--text-secondary); max-width: 62ch; }
   .int-logos { margin: 1.4rem 0 .5rem; padding: 1rem 0; border-block: 1px solid var(--border); }
+  .int-more { margin: .2rem 0 0; font-size: .9rem; }
+  .int-more a { color: var(--brass); font-weight: 700; }
   .int-group-title { text-transform: uppercase; letter-spacing: .1em; font-size: .74rem; font-weight: 800; color: var(--text-muted); margin: 1.5rem 0 .6rem; }
   .int-sub { color: var(--text-secondary); font-size: .92rem; max-width: 60ch; margin: 0 0 .8rem; }
   .int-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
