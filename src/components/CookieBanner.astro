@@ -32,7 +32,13 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
 
   // Google Consent Mode v2 : défaut « denied » avant tout chargement.
   (window as any).dataLayer = (window as any).dataLayer || [];
-  function gtag(...args: unknown[]) { (window as any).dataLayer.push(args); }
+  // ATTENTION, piège documenté du snippet officiel Google (LOT FIX-GTAG) :
+  // gtag.js ne lit QUE les entrées du dataLayer qui sont l'objet `arguments`.
+  // Pousser un tableau (`push(args)`) ne provoque aucune erreur, mais TOUT est
+  // ignoré en silence : consentement, config et événements. C'est exactement le
+  // bug qui a empêché la moindre remontée GA4 depuis le lot GADS-1. On pousse
+  // donc `arguments`, jamais `args` (qui n'est là que pour le typage des appels).
+  function gtag(..._args: unknown[]) { (window as any).dataLayer.push(arguments); }
   gtag("consent", "default", {
     ad_storage: "denied", analytics_storage: "denied",
     ad_user_data: "denied", ad_personalization: "denied",
