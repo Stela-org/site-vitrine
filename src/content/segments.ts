@@ -20,6 +20,7 @@ export type Segment = {
   reviewExamples: SegmentReview[]; // 2 avis d'exemple du métier (section preuve)
   points: { t: string; d: string }[];
   faq: { q: string; a: string }[];
+  surDevis?: boolean; // tarification sur devis (multi-établissements) : pas de grille 49/89 sur la landing
 };
 
 export const SEGMENTS: Segment[] = [
@@ -82,6 +83,7 @@ export const SEGMENTS: Segment[] = [
       { q: "Un compte par établissement ?", a: "Un seul compte pilote l'ensemble. Chaque établissement garde sa page et ses données." },
       { q: "Adapté aux réseaux et franchises ?", a: "Oui. Stela est multi-tenant dès l'origine, pensé pour les groupes." },
     ],
+    surDevis: true,
   },
   {
     slug: "restaurant",

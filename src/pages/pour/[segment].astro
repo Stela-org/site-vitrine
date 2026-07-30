@@ -30,7 +30,11 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
         <h1>{s.h1}</h1>
         <p class="lead">{s.lead}</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+          {s.surDevis ? (
+            <a class="btn btn-primary" href={SITE.calendarUrl}>Demander un devis</a>
+          ) : (
+            <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+          )}
           <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
@@ -67,25 +71,44 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
     </div>
   </section>
 
-  {/* VIT-15 §4 : tarifs (aperçu) sur la landing métier, prix transparents. */}
+  {/* VIT-15 §4 : tarifs (aperçu) sur la landing métier, prix transparents.
+      Multi-établissements (surDevis) : offre sur mesure, pas de grille 49/89. */}
   <section class="seg-tarifs">
     <div class="container">
-      <p class="eyebrow">Tarifs transparents</p>
-      <h2>Un prix clair, essai gratuit de 7 jours</h2>
-      <div class="seg-plans">
-        {PLANS.map((p) => (
-          <div class={`seg-plan${"highlight" in p && p.highlight ? " seg-plan-hl" : ""}`}>
-            <p class="seg-plan-name">{p.name}</p>
-            <p class="seg-plan-price"><strong>{p.monthly} €</strong> / mois</p>
-            <p class="seg-plan-tag">{p.tagline}</p>
+      {s.surDevis ? (
+        <>
+          <p class="eyebrow">Tarifs sur mesure</p>
+          <h2>Une offre adaptée à votre réseau</h2>
+          <p class="seg-devis-lead">
+            Chaque groupe est différent : nombre d'établissements, volumes d'avis,
+            besoins d'équipe. On construit l'offre avec vous, sur devis.
+          </p>
+          <div class="seg-tarifs-cta">
+            <a class="btn btn-primary" href={SITE.calendarUrl}>Demander un devis</a>
+            <a class="btn btn-ghost" href="/tarifs">Voir les offres à l'établissement</a>
           </div>
-        ))}
-      </div>
-      <div class="seg-tarifs-cta">
-        <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
-        <a class="btn btn-ghost" href="/tarifs">Voir le détail des offres</a>
-      </div>
-      <p class="seg-tarifs-note">Sans engagement, annulable en un clic. En annuel, 2 mois offerts.</p>
+          <p class="seg-tarifs-note">Réponse sous 24 h ouvrées, sans engagement.</p>
+        </>
+      ) : (
+        <>
+          <p class="eyebrow">Tarifs transparents</p>
+          <h2>Un prix clair, essai gratuit de 7 jours</h2>
+          <div class="seg-plans">
+            {PLANS.map((p) => (
+              <div class={`seg-plan${"highlight" in p && p.highlight ? " seg-plan-hl" : ""}`}>
+                <p class="seg-plan-name">{p.name}</p>
+                <p class="seg-plan-price"><strong>{p.monthly} €</strong> / mois</p>
+                <p class="seg-plan-tag">{p.tagline}</p>
+              </div>
+            ))}
+          </div>
+          <div class="seg-tarifs-cta">
+            <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+            <a class="btn btn-ghost" href="/tarifs">Voir le détail des offres</a>
+          </div>
+          <p class="seg-tarifs-note">Sans engagement, annulable en un clic. En annuel, 2 mois offerts.</p>
+        </>
+      )}
     </div>
   </section>
 
@@ -159,5 +182,6 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .seg-plan-price strong { font-size: 1.5rem; color: var(--ink); }
   .seg-plan-tag { margin: 0; color: var(--text-secondary); font-size: .9rem; }
   .seg-tarifs-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+  .seg-devis-lead { color: var(--text-muted); max-width: 46ch; margin: .75rem 0 0; }
   .seg-tarifs-note { color: var(--text-muted); font-size: .85rem; margin: .75rem 0 0; }
 </style>
