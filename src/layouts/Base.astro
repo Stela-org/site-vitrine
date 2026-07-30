@@ -5,6 +5,7 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import CookieBanner from "../components/CookieBanner.astro";
 import StickyCta from "../components/StickyCta.astro";
+import PartnerCode from "../components/PartnerCode.astro";
 import ClosingBlock from "../components/ClosingBlock.astro";
 
 interface Props {
@@ -93,6 +94,7 @@ const appLd = {
     <Footer />
     {analyticsEnabled() && <CookieBanner />}
     <StickyCta />
+    <PartnerCode />
 
     <script>
       // Compteurs animés (progressive enhancement, bundlé = CSP 'self'). Le
