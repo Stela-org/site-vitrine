@@ -1,6 +1,7 @@
 ---
 title: "Google Business Profile : la fin des Questions/Réponses, remplacées par l'IA"
-description: "Google a arrêté l'API Questions/Réponses de Google Business Profile et retire progressivement cette section des fiches, au profit de réponses générées par l'IA. Ce qui change, et comment rester visible."
+metaTitle: "Questions/Réponses Google Business Profile"
+description: "Google retire les Questions/Réponses de Google Business Profile au profit de l'IA. Ce qui change pour votre fiche, et comment rester visible."
 pubDate: 2026-07-27
 keyword: "Questions Réponses Google Business Profile"
 cluster: "google-business-profile"
