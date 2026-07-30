@@ -87,9 +87,23 @@ import { SITE } from "../config/site";
 
   <h2>7. Mesure d'audience et cookies</h2>
   <p>
-    La mesure d'audience n'est activée qu'après votre consentement, via une bannière dédiée. En
-    l'absence de consentement, aucun traceur de mesure n'est chargé. Vous pouvez modifier votre
-    choix à tout moment.
+    Nous utilisons <strong>Google Analytics 4</strong> (fourni par Google Ireland Limited) pour
+    mesurer l'audience du site : nombre de visites, pages consultées, origine du trafic et
+    quelques actions clés (démarrage d'un essai, demande de devis, téléchargement du guide). La
+    finalité est strictement statistique : comprendre ce qui est utile aux commerçants et
+    améliorer le site. Aucun profilage publicitaire, et aucun identifiant de compte
+    (pas de « user_id ») ne nous sert ici.
+  </p>
+  <ul>
+    <li><strong>Base légale</strong> : votre consentement, recueilli via la bannière affichée à votre première visite.</li>
+    <li><strong>Cookies déposés après consentement uniquement</strong> : tant que vous n'avez pas cliqué « Accepter », aucun script Google n'est chargé et aucun cookie de mesure n'est déposé. Si vous refusez, rien n'est chargé, jamais. Seul un témoin technique interne (« stela_consent »), déposé par notre site et conservé 6 mois, mémorise votre choix pour ne plus vous solliciter.</li>
+    <li><strong>Consent Mode v2</strong> : par défaut, le stockage à des fins statistiques comme publicitaires est positionné sur « refusé » ; il n'est levé qu'à votre acceptation explicite.</li>
+    <li><strong>Durée de conservation</strong> : les données d'audience sont conservées <strong>14 mois</strong>, puis supprimées automatiquement par Google.</li>
+    <li><strong>Retrait du consentement</strong> : vous pouvez revenir sur votre choix à tout moment avec le bouton ci-dessous. La bannière réapparaît et la mesure reste inactive tant que vous n'avez pas accepté de nouveau.</li>
+    <li><strong>En savoir plus</strong> : voir les <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">règles de Google sur les données collectées par les sites partenaires</a> et la <a href="https://policies.google.com/privacy" rel="noopener">politique de confidentialité de Google</a>.</li>
+  </ul>
+  <p>
+    <button type="button" id="consent-reset" class="btn btn-ghost">Modifier ou retirer mon consentement</button>
   </p>
 
   <h2>8. Vos droits</h2>
@@ -99,3 +113,14 @@ import { SITE } from "../config/site";
     Vous pouvez également introduire une réclamation auprès de la CNIL.
   </p>
 </Legal>
+
+<script>
+  // Retrait du consentement (section 7) : le choix stocké est effacé, la page
+  // est rechargée, la bannière réapparaît et la mesure repart de « denied ».
+  // Les traceurs déjà chargés dans l'onglet disparaissent avec le rechargement.
+  import { clearConsent } from "../lib/track";
+  document.getElementById("consent-reset")?.addEventListener("click", () => {
+    clearConsent();
+    location.reload();
+  });
+</script>

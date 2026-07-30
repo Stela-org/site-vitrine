@@ -61,6 +61,54 @@ async function scenario(label, buttonId) {
 await scenario("Refuser", "cookie-deny");
 await scenario("Accepter", "cookie-accept");
 
+// GADS-1 : preuve RESEAU. Avant tout choix, et apres un refus, aucune requete ne
+// doit partir vers un domaine Google, sur aucune des pages de conversion. Apres
+// « Accepter », gtag.js doit au contraire etre demande. On observe la REQUETE
+// emise (pas sa reponse) : le test ne depend pas d'un acces reseau reel.
+const GOOGLE_HOST = /(^|\.)(google|googletagmanager|google-analytics|doubleclick|googleadservices|gstatic)\./i;
+const PAGES = ["/", "/merci-essai", "/guide-google-commercant-local/merci", "/pour/multi-etablissements", "/politique-confidentialite"];
+
+async function networkScenario() {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const googleReqs = [];
+  page.on("request", (r) => {
+    let host = "";
+    try { host = new URL(r.url()).hostname; } catch { /* url exotique */ }
+    if (GOOGLE_HOST.test(host)) googleReqs.push(r.url());
+  });
+
+  // a) Aucun choix exprime : rien ne doit partir vers Google.
+  for (const p of PAGES) await page.goto(base + p, { waitUntil: "networkidle" });
+  if (googleReqs.length) {
+    errors.push(`AVANT consentement : ${googleReqs.length} requete(s) Google (ex. ${googleReqs[0]}).`);
+  }
+
+  // b) Refus : idem, sur toutes les pages, y compris apres navigation.
+  await page.goto(base + "/", { waitUntil: "networkidle" });
+  await page.click("#cookie-deny");
+  googleReqs.length = 0;
+  for (const p of PAGES) await page.goto(base + p, { waitUntil: "networkidle" });
+  if (googleReqs.length) {
+    errors.push(`APRES refus : ${googleReqs.length} requete(s) Google (ex. ${googleReqs[0]}). Le refus ne doit rien charger.`);
+  }
+
+  // c) Acceptation : gtag.js est demande, avec le bon identifiant de mesure.
+  await ctx.clearCookies();
+  await page.goto(base + "/merci-essai", { waitUntil: "networkidle" });
+  await page.evaluate(() => { try { localStorage.clear(); } catch { /* ignore */ } });
+  await page.reload({ waitUntil: "networkidle" });
+  googleReqs.length = 0;
+  await page.click("#cookie-accept");
+  await page.waitForTimeout(1500);
+  const gtagReq = googleReqs.find((u) => u.includes("googletagmanager.com/gtag/js"));
+  if (!gtagReq) errors.push("APRES acceptation : gtag.js n'est pas charge (aucune requete googletagmanager).");
+  else if (!/[?&]id=G-/.test(gtagReq)) errors.push(`APRES acceptation : gtag.js sans identifiant de mesure (${gtagReq}).`);
+  await ctx.close();
+}
+
+await networkScenario();
+
 await browser.close();
 server.close();
 
@@ -69,4 +117,4 @@ if (errors.length) {
   errors.forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log("check:cookies OK : bannière (Refuser + Accepter) disparaît au tap et ne revient pas au reload (mobile).");
+console.log("check:cookies OK : bannière (Refuser + Accepter) disparaît au tap et ne revient pas au reload (mobile) ; 0 requête Google avant consentement et après refus, gtag.js chargé après acceptation.");

@@ -20,7 +20,8 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
 
 <script>
   // Bundlé par Astro (servi en 'self' depuis /_astro/) : compatible CSP stricte.
-  const KEY = "stela-consent";
+  import { readConsent, writeConsent, type TrackParams } from "../lib/track";
+
   const cfgEl = document.getElementById("stela-analytics");
   const cfg = cfgEl ? JSON.parse(cfgEl.textContent || "{}") : {};
   const banner = document.getElementById("cookie-banner");
@@ -33,16 +34,44 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     ad_user_data: "denied", ad_personalization: "denied",
   });
 
+  // Émetteur d'événements : branché sur window pour que les pages (via
+  // src/lib/track.ts) puissent signaler une conversion sans connaître gtag et
+  // sans jamais déclencher de chargement. Tant que rien n'est branché, les
+  // pages empilent dans window.stelaQueue.
+  const w = window as any;
+  function sendEvent(name: string, params: TrackParams = {}) {
+    gtag("event", name, params);
+  }
+  function enableEvents() {
+    w.stelaSend = sendEvent;
+    const queued: Array<[string, TrackParams]> = w.stelaQueue || [];
+    w.stelaQueue = [];
+    for (const [name, params] of queued) sendEvent(name, params);
+  }
+  function disableEvents() {
+    // Refus (ou aucune mesure configurée) : émetteur neutre, file jetée.
+    w.stelaSend = () => {};
+    w.stelaQueue = [];
+  }
+
   let gaLoaded = false, phLoaded = false;
   function loadTrackers() {
     if (cfg.gaId && !gaLoaded) {
       gaLoaded = true;
-      gtag("consent", "update", { analytics_storage: "granted" });
+      // Consent Mode v2 : tout passe à « granted » AVANT le chargement de gtag.
+      gtag("consent", "update", {
+        ad_storage: "granted", analytics_storage: "granted",
+        ad_user_data: "granted", ad_personalization: "granted",
+      });
       const s = document.createElement("script");
       s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.gaId;
       document.head.appendChild(s);
       gtag("js", new Date());
+      // Aucun paramètre superflu, aucun user_id : mesure strictement statistique.
       gtag("config", cfg.gaId, { anonymize_ip: true });
+      enableEvents();
+    } else if (!cfg.gaId) {
+      disableEvents();
     }
     if (cfg.phKey && !phLoaded) {
       phLoaded = true;
@@ -56,31 +85,23 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     }
   }
 
-  // Persistance robuste : localStorage d'abord, repli sur un cookie first-party
-  // si indisponible (Safari en navigation privée bloque localStorage). Le choix
-  // est lu et écrit par ces deux voies, pour ne jamais réafficher après un choix.
-  function readChoice(): string | null {
-    try { const v = localStorage.getItem(KEY); if (v) return v; } catch { /* Safari privé */ }
-    const m = document.cookie.match(/(?:^|;\s*)stela_consent=([^;]+)/);
-    return m ? decodeURIComponent(m[1]) : null;
-  }
-  function writeChoice(val: string) {
-    try { localStorage.setItem(KEY, val); } catch { /* Safari privé */ }
-    document.cookie = `stela_consent=${encodeURIComponent(val)}; Path=/; Max-Age=15552000; SameSite=Lax`;
-  }
-
+  // Persistance robuste (src/lib/track.ts) : localStorage d'abord, repli sur un
+  // cookie first-party si indisponible (Safari en navigation privée bloque
+  // localStorage), durée 6 mois. Le choix vaut pour toutes les pages.
   if (banner) {
-    const choice = readChoice();
+    const choice = readConsent();
     if (choice === "granted") {
       loadTrackers();
-    } else if (choice !== "denied") {
+    } else if (choice === "denied") {
+      disableEvents();
+    } else {
       banner.hidden = false;
       // Listeners attachés DIRECTEMENT sur chaque bouton (pas de délégation) :
       // fiable sur iOS Safari. Le choix est pris au premier tap.
       const decide = (val: string) => {
-        writeChoice(val);
+        writeConsent(val);
         banner.hidden = true;
-        if (val === "granted") loadTrackers();
+        if (val === "granted") loadTrackers(); else disableEvents();
       };
       const accept = document.getElementById("cookie-accept");
       const deny = document.getElementById("cookie-deny");

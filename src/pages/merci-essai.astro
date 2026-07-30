@@ -1,0 +1,42 @@
+---
+// Page de confirmation d'essai (GADS-1). Le fondateur pose cette URL en
+// redirection de succès sur les 4 Payment Links Stripe : elle est donc atteinte
+// juste après le paiement, ce qui en fait le point de mesure de l'événement de
+// conversion `essai_demarre`. Page de service : noindex + hors sitemap
+// (filtre dans astro.config.mjs), aucun bloc de closing.
+import Base from "../layouts/Base.astro";
+import { SITE, TRIAL_DAYS } from "../config/site";
+---
+<Base
+  title="Votre essai démarre | Stela"
+  description="Votre essai Stela est lancé. Vérifiez votre email pour votre première connexion."
+  path="/merci-essai"
+  noindex={true}
+  closing={false}
+>
+  <section>
+    <div class="container" style="max-width:620px; text-align:center; padding-block:5rem;">
+      <p class="eyebrow">Bienvenue</p>
+      <h1>Votre essai démarre, vérifiez votre email</h1>
+      <p class="lead">
+        Votre essai gratuit de {TRIAL_DAYS} jours est lancé. Nous venons de vous envoyer votre
+        email de première connexion : il arrive dans quelques instants et contient le lien pour
+        créer votre mot de passe et configurer votre établissement.
+      </p>
+      <p style="color:var(--text-muted); font-size:.9rem;">
+        Rien reçu après quelques minutes ? Pensez à vérifier vos spams, ou écrivez-nous à
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>, nous débloquons votre accès.
+      </p>
+      <p style="margin-top:2rem;">
+        <a class="btn btn-primary" href={SITE.appUrl} rel="noopener">Accéder à mon espace Stela</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Conversion `essai_demarre` au chargement. `track` n'émet RIEN sans
+  // consentement : l'événement attend en file, et part si le visiteur accepte.
+  import { track } from "../lib/track";
+  track("essai_demarre");
+</script>
