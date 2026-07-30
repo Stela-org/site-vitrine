@@ -1,7 +1,7 @@
 ---
 title: "Gemini dans Google Business Profile : la nouveauté du mois, encore absente de France"
-metaTitle: "Google Business Profile : Gemini débarque (pas en France)"
-description: "Google a annoncé le 10 juin 2026 l'intégration de Gemini à Google Business Profile. Ce que fait cette nouveauté, et pourquoi elle reste absente de France pour l'instant."
+metaTitle: "Nouveautés Google Business Profile : Gemini"
+description: "Google intègre Gemini à Google Business Profile (annonce du 10 juin 2026). Ce que fait la nouveauté, et pourquoi elle reste absente de France."
 pubDate: 2026-07-30
 keyword: "nouveautés Google Business Profile"
 cluster: "google-business-profile"

@@ -1,6 +1,7 @@
 ---
 title: "Fiche Google Business Profile suspendue : les causes et comment la rétablir"
-description: "Adresse jugée non conforme, fiche en double, avis suspects : pourquoi Google suspend une fiche Business Profile, et les étapes officielles pour faire appel et la rétablir."
+metaTitle: "Fiche Google Business Profile suspendue : agir"
+description: "Fiche Google Business Profile suspendue ? Les causes (adresse, doublon, avis suspects) et les étapes officielles pour faire appel et la rétablir."
 pubDate: 2026-07-27
 keyword: "fiche Google Business Profile suspendue"
 cluster: "google-business-profile"
