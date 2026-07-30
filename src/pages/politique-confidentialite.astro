@@ -23,7 +23,7 @@ import { SITE } from "../config/site";
     <li>Données d'établissement : informations de la fiche, avis reçus, statistiques de visibilité.</li>
     <li>Données clients de l'établissement : coordonnées fournies par le professionnel pour la collecte d'avis et la fidélisation, dans le respect du consentement des personnes concernées.</li>
     <li>Données du guide gratuit : prénom et adresse électronique, transmis volontairement via le formulaire du guide, avec votre consentement explicite (voir section 2).</li>
-    <li>Données techniques : mesures d'audience, uniquement après votre consentement (voir section 7).</li>
+    <li>Données techniques : mesures d'audience et de performance publicitaire, uniquement après votre consentement (voir section 7).</li>
   </ul>
 
   <h2>2. Guide gratuit et emails de conseils</h2>
@@ -61,7 +61,8 @@ import { SITE } from "../config/site";
   <h2>4. Base légale et finalités</h2>
   <p>
     Nous traitons vos données pour exécuter le contrat (fourniture du service), respecter nos
-    obligations légales, et sur la base de votre consentement pour la mesure d'audience. Nous ne
+    obligations légales, et sur la base de votre consentement pour la mesure d'audience et la
+    mesure publicitaire (voir section 7). Nous ne
     poursuivons aucune finalité incompatible avec celles annoncées ici.
   </p>
 
@@ -82,24 +83,34 @@ import { SITE } from "../config/site";
     <li><strong>Resend</strong> : envoi des emails (guide, conseils, notifications).</li>
     <li><strong>Twilio</strong> : envoi des SMS et messages WhatsApp de collecte d'avis.</li>
     <li><strong>Google</strong> : API Google Business Profile (voir section 3).</li>
-    <li><strong>Google Analytics 4</strong> et, le cas échéant, <strong>PostHog</strong> : mesure d'audience, uniquement après votre consentement (voir section 7).</li>
+    <li><strong>Google Analytics 4</strong>, <strong>Google Ads</strong> (à venir) et, le cas échéant, <strong>PostHog</strong> : mesure d'audience et mesure publicitaire, uniquement après votre consentement (voir section 7).</li>
   </ul>
 
-  <h2>7. Mesure d'audience et cookies</h2>
+  <h2>7. Mesure d'audience, publicité et cookies</h2>
   <p>
     Nous utilisons <strong>Google Analytics 4</strong> (fourni par Google Ireland Limited) pour
     mesurer l'audience du site : nombre de visites, pages consultées, origine du trafic et
     quelques actions clés (démarrage d'un essai, demande de devis, téléchargement du guide). La
-    finalité est strictement statistique : comprendre ce qui est utile aux commerçants et
-    améliorer le site. Aucun profilage publicitaire, et aucun identifiant de compte
-    (pas de « user_id ») ne nous sert ici.
+    finalité est statistique : comprendre ce qui est utile aux commerçants et améliorer le site.
+    Aucun identifiant de compte (pas de « user_id ») ne nous sert ici.
+  </p>
+  <p>
+    Votre consentement couvre <strong>deux finalités</strong> : cette mesure d'audience, et, à
+    venir, la <strong>mesure publicitaire</strong> de nos campagnes <strong>Google Ads</strong>
+    (savoir quelles annonces amènent des inscriptions, et présenter nos offres aux personnes
+    ayant déjà visité le site). C'est pourquoi, lorsque vous cliquez sur « Accepter », les trois
+    signaux publicitaires du Consent Mode v2 de Google (<strong>ad_storage</strong>,
+    <strong>ad_user_data</strong>, <strong>ad_personalization</strong>) passent à « accordé », en
+    même temps que le signal statistique. Si vous refusez, ils restent tous sur « refusé » et
+    aucun script Google n'est chargé. Ces choix restent révocables à tout moment avec le bouton
+    de retrait ci-dessous.
   </p>
   <ul>
     <li><strong>Base légale</strong> : votre consentement, recueilli via la bannière affichée à votre première visite.</li>
     <li><strong>Cookies déposés après consentement uniquement</strong> : tant que vous n'avez pas cliqué « Accepter », aucun script Google n'est chargé et aucun cookie de mesure n'est déposé. Si vous refusez, rien n'est chargé, jamais. Seul un témoin technique interne (« stela_consent »), déposé par notre site et conservé 6 mois, mémorise votre choix pour ne plus vous solliciter.</li>
-    <li><strong>Consent Mode v2</strong> : par défaut, le stockage à des fins statistiques comme publicitaires est positionné sur « refusé » ; il n'est levé qu'à votre acceptation explicite.</li>
+    <li><strong>Consent Mode v2</strong> : par défaut, les quatre signaux (statistique et publicitaires) sont positionnés sur « refusé » ; ils ne sont levés qu'à votre acceptation explicite.</li>
     <li><strong>Durée de conservation</strong> : les données d'audience sont conservées <strong>14 mois</strong>, puis supprimées automatiquement par Google.</li>
-    <li><strong>Retrait du consentement</strong> : vous pouvez revenir sur votre choix à tout moment avec le bouton ci-dessous. La bannière réapparaît et la mesure reste inactive tant que vous n'avez pas accepté de nouveau.</li>
+    <li><strong>Retrait du consentement</strong> : vous pouvez revenir sur votre choix à tout moment avec le bouton ci-dessous. La bannière réapparaît, et la mesure d'audience comme la mesure publicitaire restent inactives tant que vous n'avez pas accepté de nouveau.</li>
     <li><strong>En savoir plus</strong> : voir les <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">règles de Google sur les données collectées par les sites partenaires</a> et la <a href="https://policies.google.com/privacy" rel="noopener">politique de confidentialité de Google</a>.</li>
   </ul>
   <p>

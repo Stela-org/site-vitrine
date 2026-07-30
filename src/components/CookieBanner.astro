@@ -9,9 +9,13 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
 
 {/* Bannière de consentement minimale. Progressive enhancement : le contenu du
     site fonctionne sans JavaScript ; la mesure d'audience (GA4 + PostHog) ne se
-    charge QU'APRÈS acceptation explicite (Google Consent Mode v2). */}
+    charge QU'APRÈS acceptation explicite (Google Consent Mode v2).
+    LOT CONSENT-1 : le texte annonce aussi la publicité, car l'acceptation passe
+    les signaux publicitaires du Consent Mode v2 (ad_storage, ad_user_data,
+    ad_personalization) à « granted ». Le texte doit couvrir ce que le clic
+    autorise réellement, pas seulement ce qui est chargé aujourd'hui. */}
 <div id="cookie-banner" class="cookie-banner" hidden>
-  <p>Ce site utilise des cookies de mesure d'audience. Vous pouvez les accepter ou les refuser.</p>
+  <p>Ce site utilise des cookies de mesure d'audience et de publicité (Google). Vous pouvez les accepter ou les refuser.</p>
   <div class="cookie-actions">
     <button type="button" id="cookie-deny" class="btn btn-ghost">Refuser</button>
     <button type="button" id="cookie-accept" class="btn btn-primary">Accepter</button>
