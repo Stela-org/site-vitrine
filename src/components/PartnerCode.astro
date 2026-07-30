@@ -1,0 +1,34 @@
+---
+// Propagation du code partenaire (LOT PARTNER-1v). Aucun markup : uniquement un
+// script bundlé par Astro (servi en 'self' depuis /_astro/, compatible avec la
+// CSP stricte). Présent sur toutes les pages via le layout Base, car un
+// partenaire peut diffuser n'importe quelle URL du site.
+---
+<script>
+  import { partnerCodeFromSearch, writePartnerCode, readPartnerCode, decorateStripeUrl } from "../lib/partner";
+
+  // 1. Arrivée : ?p=SONCODE valide -> mémorisé 90 jours (last-touch, un nouveau
+  //    code remplace l'ancien). Un code au mauvais format est ignoré, et NE
+  //    remplace pas un code déjà mémorisé.
+  const captured = partnerCodeFromSearch(window.location.search);
+  if (captured) writePartnerCode(captured);
+
+  // 2. Clic sur un bouton d'achat : le Payment Link est décoré à la volée avec
+  //    client_reference_id. En phase de capture, donc avant tout autre listener
+  //    et avant la navigation. Le HTML statique, lui, n'est jamais modifié :
+  //    sans JavaScript, le lien reste un lien Stripe normal (sans code).
+  const decorate = (event: Event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const link = target.closest("a[href]");
+    if (!(link instanceof HTMLAnchorElement)) return;
+    const code = readPartnerCode();
+    if (!code) return;
+    const next = decorateStripeUrl(link.href, code);
+    if (next !== link.href) link.href = next;
+  };
+  // 'click' couvre le clic gauche, le clavier et le tap ; 'auxclick' couvre le
+  // clic molette (ouverture dans un nouvel onglet).
+  document.addEventListener("click", decorate, true);
+  document.addEventListener("auxclick", decorate, true);
+</script>
