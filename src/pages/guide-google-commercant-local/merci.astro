@@ -19,3 +19,10 @@ import { TARIFS_URL } from "../../config/site";
     </div>
   </section>
 </Base>
+
+<script>
+  // Conversion `guide_telecharge` au chargement de la page de confirmation du
+  // lead magnet. Sans consentement, rien n'est émis : l'événement attend en file.
+  import { track } from "../../lib/track";
+  track("guide_telecharge");
+</script>

@@ -172,6 +172,23 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   </section>
 </Base>
 
+<script>
+  // Conversion `demande_devis` au submit VALIDE du formulaire (page
+  // /pour/multi-etablissements uniquement : ailleurs, le formulaire n'existe pas
+  // et ce script ne fait rien). Le POST /api/devis redirige vers un site externe
+  // (calendrier) : l'événement part en transport 'beacon' pour survivre à la
+  // navigation, SANS preventDefault ni délai, donc sans retarder l'envoi.
+  // Le submit natif n'est émis que si la validation HTML passe, et le honeypot
+  // rempli (bot) est exclu.
+  import { track } from "../../lib/track";
+  const devis = document.querySelector<HTMLFormElement>(".devis-form");
+  devis?.addEventListener("submit", () => {
+    const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
+    if (hp && hp.value.trim()) return;
+    track("demande_devis", { transport_type: "beacon" });
+  });
+</script>
+
 <style>
   .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
   .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; }
