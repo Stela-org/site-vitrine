@@ -28,13 +28,14 @@ const reviewPlatforms = ["Google", "TripAdvisor", "TheFork", "Pages Jaunes", "Ye
 
 // Cartes d'avis ILLUSTRATIVES (anonymisées, exemples de fonctionnement, pas de
 // vrais clients ni de faux chiffres).
-// VIT-14 §6 : exemples répartis sur plusieurs métiers (coiffeur, restaurant,
-// hôtel), pas 100 % resto. Plateforme cohérente avec le métier (TheFork =
-// restaurant, TripAdvisor = hôtel/resto). Vocabulaire neutre côté réponses.
+// VIT-15 §3 : exemples répartis sur 4 métiers (coiffeur, restaurant, hôtel,
+// garage), pas 100 % resto. Plateforme cohérente avec le métier (TheFork =
+// restaurant, TripAdvisor = hôtel/resto, Google = partout). Réponses neutres.
 const demoReviews = [
   { initial: "L.", name: "Léa M.", platform: "google" as const, meta: "Avis Google · il y a 2 jours", text: "Coupe et couleur parfaites, on ressort avec le sourire. Salon impeccable.", reply: "Merci Léa ! Ravis que le résultat vous plaise, toute l'équipe du salon vous dit à bientôt.", featured: true },
   { initial: "K.", name: "Karim B.", platform: "thefork" as const, meta: "Avis TheFork · il y a 5 jours", text: "Réservation en deux clics, table prête à l'heure et service attentionné.", reply: "Merci Karim, ravis que la réservation ait été simple. La terrasse vous attend dès les beaux jours." },
   { initial: "S.", name: "Sophie D.", platform: "tripadvisor" as const, meta: "Avis TripAdvisor · il y a 1 semaine", text: "Chambre au calme, lit très confortable et accueil aux petits soins. On reviendra.", reply: "Un grand merci Sophie, ravis que votre séjour vous ait plu. Au plaisir de vous accueillir à nouveau." },
+  { initial: "T.", name: "Thomas R.", platform: "google" as const, meta: "Avis Google · il y a 3 jours", text: "Diagnostic clair, réparation rapide et tarif honnête. Je recommande ce garage.", reply: "Merci Thomas ! Ravis d'avoir remis votre véhicule en route, bonne route à vous." },
 ];
 
 // Maillage : les cartes de la home pointent vers les pages fonctionnalités
@@ -56,7 +57,7 @@ const JOURNEY = [
 const SEGMENT_KIND_ORDER = { secteur: 0, profil: 1 } as const;
 const segmentLinks = [...SEGMENTS]
   .sort((a, b) => SEGMENT_KIND_ORDER[a.kind] - SEGMENT_KIND_ORDER[b.kind])
-  .map((s) => ({ slug: s.slug, label: s.navLabel }));
+  .map((s) => ({ slug: s.slug, label: s.navLabel, icon: s.icon, tagline: s.tagline }));
 
 const bySlug = new Map(FEATURES.map((f) => [f.slug, f]));
 const features = JOURNEY.flatMap((j) => {
@@ -137,6 +138,28 @@ const websiteLd = {
     </div>
   </section>
 
+  {/* AIGUILLAGE MÉTIER (VIT-15 §2) : juste sous le hero. La home est générique,
+      chacun clique SUR SA page métier. Cartes visuelles vers /pour/[slug]. */}
+  <section class="segments">
+    <div class="container">
+      <p class="eyebrow">Stela pour votre métier</p>
+      <h2>Vous tenez un commerce ? Il y a une page pour vous.</h2>
+      <p class="section-lead">Restaurant, salon, institut, garage, hôtel ou plusieurs adresses : Stela arrive pré-réglé pour votre activité. Choisissez la vôtre.</p>
+      <div class="segments-grid">
+        {segmentLinks.map((s) => (
+          <a class="segment-card" href={`/pour/${s.slug}`}>
+            <span class="segment-ic" aria-hidden="true">{s.icon}</span>
+            <span class="segment-body">
+              <span class="segment-label">{s.label}</span>
+              <span class="segment-tag">{s.tagline}</span>
+            </span>
+            <span class="segment-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
   {/* PARTENAIRES : bandeau « Ils font partie de la constellation Stela »
       (VIT-13 §2, univers étoilé + offre Constellation). Grille statique élégante
       (VIT-11 §2), tailles/espacements unifiés par LogoWall, fond encre. */}
@@ -190,24 +213,6 @@ const websiteLd = {
             <h3>{f.t}</h3>
             <p>{f.d}</p>
             <span class="feature-more">Découvrir</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  {/* STELA POUR VOTRE MÉTIER (VIT-14 §7) : maillage visible vers les pages
-      segment /pour/[slug]. Montre l'ouverture multi-commerces dès la home. */}
-  <section class="segments">
-    <div class="container">
-      <p class="eyebrow">Stela pour votre métier</p>
-      <h2>Pré-réglé pour votre activité</h2>
-      <p class="section-lead">Restaurant, salon de coiffure, institut, garage ou groupe : Stela arrive paramétré pour votre secteur. Choisissez le vôtre.</p>
-      <div class="segments-grid">
-        {segmentLinks.map((s) => (
-          <a class="segment-chip" href={`/pour/${s.slug}`}>
-            <span class="segment-label">{s.label}</span>
-            <span class="segment-arrow" aria-hidden="true">&rarr;</span>
           </a>
         ))}
       </div>
@@ -424,8 +429,10 @@ const websiteLd = {
   /* Bande d'avis illustratifs */
   .reviews { background: var(--cream); }
   .reviews-note { color: var(--text-muted); font-size: .9rem; margin: -.25rem 0 0; }
-  .reviews-band { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem; align-items: start; }
-  @media (max-width: 860px) { .reviews-band { grid-template-columns: 1fr; } }
+  /* VIT-15 §3 : 4 métiers d'exemple, grille souple (4 -> 2 -> 1 colonnes). */
+  .reviews-band { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; margin-top: 1.25rem; align-items: start; }
+  @media (max-width: 1000px) { .reviews-band { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .reviews-band { grid-template-columns: 1fr; } }
   .reviews-plats-title { text-align: center; color: var(--text-muted); font-size: .82rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .06em; margin: 1.75rem 0 .9rem; }
 
@@ -442,15 +449,20 @@ const websiteLd = {
   .feature-more { margin-top: auto; padding-top: .75rem; color: var(--brass); font-weight: 700; font-size: .9rem; }
   .feature-more::after { content: " \2192"; }
 
-  /* Stela pour votre métier (VIT-14 §7) : chips vers /pour/[slug]. Grille souple
-     qui tient de 320px (2 col.) au desktop, sans débordement horizontal. */
-  .segments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; margin-top: 1.25rem; }
-  .segment-chip { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
-    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .8rem 1rem;
-    color: var(--ink); font-weight: 700; font-size: .95rem; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
-  .segment-chip:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 8px 22px rgba(21,35,63,.1); }
-  .segment-label { min-width: 0; overflow-wrap: break-word; }
-  .segment-arrow { color: var(--brass); font-weight: 800; flex: none; }
+  /* Aiguillage métier (VIT-15 §2) : cartes visuelles vers /pour/[slug], sous le
+     hero. Grille souple qui tient de 320px au desktop, sans débordement. */
+  .segments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .85rem; margin-top: 1.25rem; }
+  @media (max-width: 480px) { .segments-grid { grid-template-columns: 1fr; } }
+  .segment-card { display: flex; align-items: center; gap: .75rem;
+    background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: .85rem 1rem;
+    color: var(--ink); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .segment-card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 8px 22px rgba(21,35,63,.1); }
+  .segment-ic { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+    font-size: 1.25rem; background: rgba(176,138,62,.12); }
+  .segment-body { display: flex; flex-direction: column; min-width: 0; }
+  .segment-label { font-weight: 800; font-size: .98rem; }
+  .segment-tag { color: var(--text-secondary); font-size: .82rem; line-height: 1.35; overflow-wrap: break-word; }
+  .segment-arrow { margin-left: auto; color: var(--brass); font-weight: 800; flex: none; align-self: center; }
 
   /* Conformité : chapitre en rupture, fond encre plein, chiffre laiton géant. */
   .conformite { background: var(--ink); color: #cdd5e4; position: relative; overflow: hidden; }

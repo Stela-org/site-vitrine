@@ -17,17 +17,19 @@ const qr = [1,0,1,1,0,1, 0,1,0,0,1,0, 1,0,1,1,0,1, 1,1,0,0,1,1, 0,1,1,0,1,0, 1,0
     </div>
   )}
 
+  {/* VIT-15 §3 : exemple métier = salon de coiffure (pas de resto par défaut). */}
   {slug === "reponse-automatique-avis" && (
     <div class="fv-reply">
       <span class="fv-reply-who">Réponse de Nova</span>
-      <p class="fv-reply-txt">Merci ! Au plaisir dans notre <span class="fv-kw">pizzeria à Belleville</span>, pour une <span class="fv-kw">pizza au feu de bois</span>.</p>
+      <p class="fv-reply-txt">Merci ! Au plaisir de vous revoir au <span class="fv-kw">salon à Belleville</span>, pour votre <span class="fv-kw">prochaine coupe</span>.</p>
     </div>
   )}
 
+  {/* VIT-15 §3 : exemple métier = garage (recommandation IA cross-secteur). */}
   {slug === "avis-multi-plateformes" && (
     <div class="fv-ia">
-      <div class="fv-ia-q">« un resto italien à Belleville ? »</div>
-      <div class="fv-ia-a"><span class="fv-ia-dot"></span><span>Le Bistrot du Marais, très bien noté <span class="fv-ia-star">★ 4,8</span></span></div>
+      <div class="fv-ia-q">« un bon garage près de Lyon ? »</div>
+      <div class="fv-ia-a"><span class="fv-ia-dot"></span><span>Garage Central, très bien noté <span class="fv-ia-star">★ 4,8</span></span></div>
     </div>
   )}
 
@@ -41,10 +43,11 @@ const qr = [1,0,1,1,0,1, 0,1,0,0,1,0, 1,0,1,1,0,1, 1,1,0,0,1,1, 0,1,1,0,1,0, 1,0
     </div>
   )}
 
+  {/* VIT-15 §3 : rendez-vous neutre (résa/RDV valables resto, coiffeur, garage...). */}
   {slug === "centralisation-reservations" && (
     <div class="fv-resa">
-      <div class="fv-resa-row"><span class="fv-resa-when">20:00 · Table Durand</span><span class="fv-badge">Confirmée</span></div>
-      <div class="fv-resa-row"><span class="fv-resa-when">21:15 · Table Léa</span><span class="fv-badge fv-badge-soft">Avis après visite</span></div>
+      <div class="fv-resa-row"><span class="fv-resa-when">14:00 · Rendez-vous Durand</span><span class="fv-badge">Confirmé</span></div>
+      <div class="fv-resa-row"><span class="fv-resa-when">15:30 · Rendez-vous Léa</span><span class="fv-badge fv-badge-soft">Avis après visite</span></div>
     </div>
   )}
 
