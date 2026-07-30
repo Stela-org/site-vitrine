@@ -16,6 +16,10 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     keyword: z.string(),
     cluster: z.enum(["geo", "google-business-profile", "guide", "ville"]).default("guide"),
+    // VIT-16 : image de l'article (chemin public, ex. "/images/og-article.png").
+    // Sert à la fois à la balise og:image et à la propriété `image` du schema
+    // Article, requise par Google. À défaut, l'image OG par défaut du site.
+    ogImage: z.string().optional(),
     // Ancienne URL .html (ancien site) pour la redirection 301 au VIT-4.
     legacyHtml: z.string().optional(),
   }),
