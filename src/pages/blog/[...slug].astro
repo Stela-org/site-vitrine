@@ -13,11 +13,16 @@ const { Content } = await render(post);
 const url = new URL(`/blog/${post.id}`, SITE.url).href;
 const d = post.data;
 
+// VIT-16 ② : Google exige la propriété `image` sur un Article pour accorder le
+// rich result. On prend l'image OG déclarée dans le frontmatter de l'article,
+// et à défaut l'image OG par défaut du site. URL absolue, comme demandé.
+const articleImage = new URL(d.ogImage ?? "/images/og-default.png", SITE.url).href;
 const articleLd = {
   "@context": "https://schema.org",
   "@type": "Article",
   headline: d.title,
   description: d.description,
+  image: [articleImage],
   inLanguage: "fr-FR",
   datePublished: d.pubDate.toISOString(),
   dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
@@ -36,7 +41,7 @@ const dateStr = (d.updatedDate ?? d.pubDate).toLocaleDateString("fr-FR", { year:
 // Maillage : autres articles.
 const others = (await getCollection("blog")).filter((p) => p.id !== post.id).slice(0, 3);
 ---
-<Base title={`${d.metaTitle ?? d.title} | Blog Stela`} description={d.description} path={`/blog/${post.id}`}>
+<Base title={`${d.metaTitle ?? d.title} | Blog Stela`} description={d.description} path={`/blog/${post.id}`} ogImage={d.ogImage ?? "/images/og-default.png"}>
   <script type="application/ld+json" set:html={JSON.stringify(articleLd)} is:inline />
 
   <article class="post">

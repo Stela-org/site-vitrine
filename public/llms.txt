@@ -12,14 +12,63 @@
 
 - Étoile : 49 € par mois. Collecte d'avis Google conforme, réponses assistées par IA, récupération client, tableau de bord, QR codes et supports fournis.
 - Constellation : 89 € par mois. Tout Étoile, plus les avis multi-plateformes, la visibilité IA (GEO), la réservation, les SMS et WhatsApp, l'analyse des retours et les insights.
-- L'abonnement annuel revient à deux mois offerts. L'essai est gratuit et sans engagement, aucune carte n'est requise pour essayer.
-- Le paiement se fait dans l'application, après la création du compte.
+- L'abonnement annuel revient à deux mois offerts. L'essai est gratuit pendant 7 jours et sans engagement, résiliable en un clic.
+- Le parcours d'achat se fait depuis le site : le choix d'une offre mène à Stripe Checkout, où la carte est demandée pour ouvrir l'essai. Le compte est créé ensuite, par email.
+
+## Pages principales
+
+- [Fonctionnalités](https://www.mystela.fr/fonctionnalites) : tout ce que fait Stela, de la collecte d'avis à la réservation, canal par canal.
+- [Tarifs](https://www.mystela.fr/tarifs) : les deux offres Étoile et Constellation, en mensuel et en annuel, avec le détail de ce qui est inclus.
+- [Comparatif](https://www.mystela.fr/comparatif) : comment Stela se situe face aux autres solutions d'avis et de réputation locale.
+- [Présence sur les plateformes](https://www.mystela.fr/presence-plateformes) : les plateformes d'avis et les canaux couverts.
+- [Statistiques sur les avis Google en France](https://www.mystela.fr/statistiques-avis-google-france) : données publiques sourcées sur les avis et la recherche locale.
+- [Notre histoire](https://www.mystela.fr/notre-histoire) : qui sont les fondateurs et pourquoi Stela refuse le filtrage des avis.
+
+## Pages par métier et par profil
+
+- [Restaurant](https://www.mystela.fr/pour/restaurant) : collecte d'avis et réponses pour la restauration.
+- [Coiffeur](https://www.mystela.fr/pour/coiffeur) : avis et fidélisation pour les salons de coiffure.
+- [Institut de beauté](https://www.mystela.fr/pour/institut) : avis et rappels pour les instituts.
+- [Garage automobile](https://www.mystela.fr/pour/garage) : avis après intervention pour les garages.
+- [Hôtel](https://www.mystela.fr/pour/hotel) : avis multi-plateformes pour l'hôtellerie.
+- [Indépendants](https://www.mystela.fr/pour/independants) : usage en solo, sans équipe dédiée.
+- [Multi-établissements](https://www.mystela.fr/pour/multi-etablissements) : groupes et réseaux, offre sur devis.
+
+## Visibilité dans les IA (GEO)
+
+- [Être recommandé par ChatGPT quand on est un commerce local](https://www.mystela.fr/blog/etre-recommande-par-chatgpt-commerce-local) : comment les assistants choisissent les commerces qu'ils citent.
+- [GEO ou SEO pour un commerce local](https://www.mystela.fr/blog/geo-ou-seo-commerce-local) : ce qui change entre être classé dans Google et être cité par une IA.
+- [Mesurer sa visibilité dans les IA](https://www.mystela.fr/blog/mesurer-visibilite-ia-commerce-local) : une méthode simple pour savoir si son commerce est cité par les assistants.
+- [Gemini dans Google Business Profile](https://www.mystela.fr/blog/gemini-google-business-profile-nouveaute) : ce que l'arrivée de Gemini change pour les fiches d'établissement.
+- [Fin des Questions/Réponses dans Google Business Profile](https://www.mystela.fr/blog/google-business-profile-fin-questions-reponses-ia) : le retrait de la rubrique et ses conséquences pour les commerçants.
+
+## Guides sur les avis Google
+
+- [Comment avoir plus d'avis Google](https://www.mystela.fr/blog/comment-avoir-plus-avis-google-restaurant) : méthodes conformes pour augmenter le nombre d'avis.
+- [QR code d'avis Google](https://www.mystela.fr/blog/qr-code-avis-google) : comment il fonctionne, où le placer, comment l'utiliser.
+- [Répondre à un avis négatif](https://www.mystela.fr/blog/repondre-avis-negatif-google-restaurant) : la méthode de réponse publique, exemples à l'appui.
+- [Supprimer un mauvais avis Google](https://www.mystela.fr/blog/supprimer-mauvais-avis-google-restaurant) : ce que Google retire, ce qu'il ne retire pas, et quoi faire.
+- [E-réputation d'un commerce local](https://www.mystela.fr/blog/e-reputation-commerce-local-guide) : comprendre, mesurer et améliorer sa réputation en ligne.
+- [Bonnes pratiques de la fiche Google Business Profile](https://www.mystela.fr/blog/bonnes-pratiques-fiche-google-business-profile) : les réglages qui comptent vraiment.
+- [Fiche Google Business Profile suspendue](https://www.mystela.fr/blog/fiche-google-business-profile-suspendue) : causes fréquentes et procédure de rétablissement.
+
+## Restauration, ville par ville
+
+- [Restaurants à Paris](https://www.mystela.fr/restaurants-paris) : densité, clientèle internationale, avis multilingues.
+- [Restaurants à Lyon](https://www.mystela.fr/restaurants-lyon) : bouchons, Vieux Lyon, clientèle d'affaires.
+- [Restaurants à Marseille](https://www.mystela.fr/restaurants-marseille) : saisonnalité forte, Vieux-Port, quartiers de bureaux.
+- [Restaurants à Bordeaux](https://www.mystela.fr/restaurants-bordeaux) : œnotourisme, centre classé, clientèle de week-end.
+- [Restaurants à Nice](https://www.mystela.fr/restaurants-nice) : clientèle de passage, tourisme d'affaires, avis en langue étrangère.
+- [Restaurants à Nantes](https://www.mystela.fr/restaurants-nantes) : clientèle jeune et connectée, quartiers de sortie.
+- [Restaurants à Brest](https://www.mystela.fr/restaurants-brest) : marché resserré, clientèle locale et étudiante.
+- [Restaurants à Rouen](https://www.mystela.fr/restaurants-rouen) : indépendants face aux chaînes, centre médiéval et quais.
+- [Restaurants à Nancy](https://www.mystela.fr/restaurants-nancy) : place Stanislas, Ville-Vieille, quartier de la gare.
 
 ## Questions fréquentes
 
 - Stela filtre-t-il les avis négatifs ? Non, jamais. Tous les clients sont invités à laisser un avis public. Filtrer les avis selon la note est interdit par Google.
 - Pour quels commerces ? Tous les commerces locaux : restaurants, coiffeurs, instituts, garages, hôtels, santé.
-- Comment commencer ? En créant un compte sur l'application, sans démonstration obligatoire.
+- Comment commencer ? En choisissant une offre sur la page Tarifs, avec un essai gratuit de 7 jours et sans démonstration obligatoire.
 
 ## Liens
 

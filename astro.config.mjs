@@ -1,6 +1,28 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import { readFileSync, globSync } from "node:fs";
+import { basename } from "node:path";
+
+// VIT-16 ③ : dates de dernière modification du sitemap.
+// Avant, TOUTES les URL portaient un lastmod = date du build, ce qui annonce à
+// Google que 50 pages changent à chaque déploiement. Signal faux, donc ignoré.
+// Désormais : seuls les billets de blog portent un lastmod, issu de leur
+// frontmatter (updatedDate, à défaut pubDate). Les pages statiques n'en portent
+// aucun, ce qui est préférable à une date inventée. Les dates de frontmatter
+// existantes ne sont PAS touchées (décision actée) : seules les futures mises à
+// jour porteront leur vraie date.
+// Lecture directe des fichiers Markdown : la config Astro ne peut pas importer
+// `astro:content`, et un parseur de frontmatter complet serait ici superflu.
+const blogDates = new Map(
+  globSync("src/content/blog/*.md").map((file) => {
+    const raw = readFileSync(file, "utf8");
+    const fm = raw.split(/^---\s*$/m)[1] ?? "";
+    const pick = (key) => fm.match(new RegExp(`^${key}:\\s*"?([0-9]{4}-[0-9]{2}-[0-9]{2})"?`, "m"))?.[1];
+    const date = pick("updatedDate") ?? pick("pubDate");
+    return [basename(file, ".md"), date];
+  }).filter(([, date]) => Boolean(date)),
+);
 
 // Domaine canonique UNIQUE (VIT-0/PRD). Le site est 100 % statique et déployé
 // sur Vercel (projet site-vitrine). `site` alimente les URL absolues du sitemap
@@ -25,7 +47,12 @@ export default defineConfig({
       // Priorités par intention : home > tarifs > fonctionnalités > segments.
       serialize(item) {
         const u = item.url;
-        item.lastmod = new Date().toISOString();
+        // lastmod : uniquement pour les billets de blog, à leur vraie date de
+        // mise à jour. Aucun lastmod sur les pages statiques (voir en-tête).
+        const slug = u.match(/\/blog\/([^/]+?)\/?$/)?.[1];
+        const date = slug ? blogDates.get(slug) : undefined;
+        if (date) item.lastmod = new Date(`${date}T00:00:00Z`).toISOString();
+        else delete item.lastmod;
         if (u === "https://www.mystela.fr/" || u === "https://www.mystela.fr") { item.priority = 1.0; item.changefreq = "weekly"; }
         else if (/\/tarifs$/.test(u)) { item.priority = 0.9; item.changefreq = "monthly"; }
         else if (/\/pour\//.test(u)) { item.priority = 0.7; item.changefreq = "monthly"; }
