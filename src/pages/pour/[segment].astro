@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { SITE , TARIFS_URL } from "../../config/site";
+import { SITE , TARIFS_URL, PLANS } from "../../config/site";
 import { SEGMENTS, profils, secteurs } from "../../content/segments";
 import { CITIES } from "../../content/cities";
 import ReviewCard from "../../components/ReviewCard.astro";
@@ -36,19 +36,56 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       </div>
       <div class="hero-review">
         <ReviewCard initial="C." name="Client vérifié" meta="Avis Google · exemple"
-          text="Service au top et vraiment à l'écoute, je recommande sans hésiter."
-          reply="Merci beaucoup pour votre confiance, au plaisir de vous revoir très vite !" featured />
+          text={s.heroReview.text} reply={s.heroReview.reply} featured />
+      </div>
+    </div>
+  </section>
+
+  {/* VIT-15 §4 : preuve dans le vocabulaire DU métier (avis d'exemple dédiés). */}
+  <section class="seg-reviews">
+    <div class="container">
+      <p class="eyebrow">Voici ce que ça donne</p>
+      <h2>Des avis {s.kind === "secteur" ? "de votre secteur" : "de vos clients"}, des réponses déjà prêtes</h2>
+      <p class="section-lead">Exemples illustratifs, avis anonymisés. Nova rédige la réponse, vous relisez et vous envoyez.</p>
+      <div class="seg-reviews-band reveal-stagger">
+        {s.reviewExamples.map((r, i) => (
+          <ReviewCard initial="C." name="Client vérifié" meta="Avis Google · exemple"
+            text={r.text} reply={r.reply} featured={i === 0} />
+        ))}
       </div>
     </div>
   </section>
 
   <section>
     <div class="container">
+      <h2 class="seg-points-title">Ce que Stela fait pour vous</h2>
       <div class="grid-3 reveal-stagger">
         {s.points.map((p) => (
           <div class="card"><h3>{p.t}</h3><p>{p.d}</p></div>
         ))}
       </div>
+    </div>
+  </section>
+
+  {/* VIT-15 §4 : tarifs (aperçu) sur la landing métier, prix transparents. */}
+  <section class="seg-tarifs">
+    <div class="container">
+      <p class="eyebrow">Tarifs transparents</p>
+      <h2>Un prix clair, essai gratuit de 7 jours</h2>
+      <div class="seg-plans">
+        {PLANS.map((p) => (
+          <div class={`seg-plan${"highlight" in p && p.highlight ? " seg-plan-hl" : ""}`}>
+            <p class="seg-plan-name">{p.name}</p>
+            <p class="seg-plan-price"><strong>{p.monthly} €</strong> / mois</p>
+            <p class="seg-plan-tag">{p.tagline}</p>
+          </div>
+        ))}
+      </div>
+      <div class="seg-tarifs-cta">
+        <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+        <a class="btn btn-ghost" href="/tarifs">Voir le détail des offres</a>
+      </div>
+      <p class="seg-tarifs-note">Sans engagement, annulable en un clic. En annuel, 2 mois offerts.</p>
     </div>
   </section>
 
@@ -106,4 +143,21 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .others-link { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: .5rem 1rem; font-weight: 600; }
   .cta-final { background: var(--ink); text-align: center; }
   .cta-final h2 { color: #fff; margin-bottom: 1.5rem; }
+
+  /* VIT-15 §4 : sections landing métier (preuve + tarifs). */
+  .seg-reviews { background: var(--cream); }
+  .section-lead { color: var(--text-secondary); max-width: 60ch; margin: -.25rem 0 0; }
+  .seg-points-title, .seg-reviews h2, .seg-tarifs h2 { margin-top: .25rem; }
+  .seg-reviews-band { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; align-items: start; }
+  @media (max-width: 760px) { .seg-reviews-band { grid-template-columns: 1fr; } }
+  .seg-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+  @media (max-width: 560px) { .seg-plans { grid-template-columns: 1fr; } }
+  .seg-plan { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.25rem; }
+  .seg-plan-hl { border: 2px solid var(--brass); }
+  .seg-plan-name { font-weight: 800; color: var(--ink); margin: 0; }
+  .seg-plan-price { margin: .25rem 0 .35rem; color: var(--text-secondary); }
+  .seg-plan-price strong { font-size: 1.5rem; color: var(--ink); }
+  .seg-plan-tag { margin: 0; color: var(--text-secondary); font-size: .9rem; }
+  .seg-tarifs-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+  .seg-tarifs-note { color: var(--text-muted); font-size: .85rem; margin: .75rem 0 0; }
 </style>
