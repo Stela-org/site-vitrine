@@ -31,11 +31,13 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
         <p class="lead">{s.lead}</p>
         <div class="hero-cta">
           {s.surDevis ? (
-            <a class="btn btn-primary" href={SITE.calendarUrl}>Demander un devis</a>
+            <a class="btn btn-primary" href="#devis">Demander un devis</a>
           ) : (
-            <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+            <>
+              <a class="btn btn-primary" href={TARIFS_URL}>Essai gratuit 7 jours</a>
+              <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
+            </>
           )}
-          <a class="btn btn-ghost" href="/tarifs">Voir les tarifs</a>
         </div>
       </div>
       <div class="hero-review">
@@ -78,15 +80,37 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       {s.surDevis ? (
         <>
           <p class="eyebrow">Tarifs sur mesure</p>
-          <h2>Une offre adaptée à votre réseau</h2>
+          <h2 id="devis">Une offre adaptée à votre réseau</h2>
           <p class="seg-devis-lead">
             Chaque groupe est différent : nombre d'établissements, volumes d'avis,
-            besoins d'équipe. On construit l'offre avec vous, sur devis.
+            besoins d'équipe. On construit l'offre avec vous, sur devis. Dites-nous
+            qui vous êtes, puis choisissez un créneau de rendez-vous.
           </p>
-          <div class="seg-tarifs-cta">
-            <a class="btn btn-primary" href={SITE.calendarUrl}>Demander un devis</a>
-            <a class="btn btn-ghost" href="/tarifs">Voir les offres à l'établissement</a>
-          </div>
+          <form method="POST" action="/api/devis" class="devis-form card">
+            {/* Honeypot anti-bot : invisible, doit rester vide. */}
+            <div class="hp" aria-hidden="true">
+              <label>Ne pas remplir<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </div>
+            <label class="devis-field">Votre nom
+              <input type="text" name="name" required placeholder="Camille Dupont" autocomplete="name" maxlength="80" />
+            </label>
+            <label class="devis-field">Nombre d'établissements
+              <input type="number" name="establishments" required min="1" max="999999" inputmode="numeric" placeholder="4" />
+            </label>
+            <label class="devis-field">Votre secteur
+              <select name="sector" required>
+                <option value="" disabled selected>Choisissez votre secteur</option>
+                <option>Restauration</option>
+                <option>Coiffure</option>
+                <option>Institut de beauté</option>
+                <option>Garage automobile</option>
+                <option>Hôtellerie</option>
+                <option>Commerce de détail</option>
+                <option>Autre</option>
+              </select>
+            </label>
+            <button type="submit" class="btn btn-primary">Demander un devis et choisir un créneau</button>
+          </form>
           <p class="seg-tarifs-note">Réponse sous 24 h ouvrées, sans engagement.</p>
         </>
       ) : (
@@ -182,6 +206,11 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .seg-plan-price strong { font-size: 1.5rem; color: var(--ink); }
   .seg-plan-tag { margin: 0; color: var(--text-secondary); font-size: .9rem; }
   .seg-tarifs-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
-  .seg-devis-lead { color: var(--text-muted); max-width: 46ch; margin: .75rem 0 0; }
+  .seg-devis-lead { color: var(--text-muted); max-width: 52ch; margin: .75rem 0 0; }
+  .devis-form { display: grid; gap: 1rem; max-width: 440px; margin-top: 1.5rem; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .devis-field { display: flex; flex-direction: column; gap: .35rem; font-weight: 700; font-size: .9rem; color: var(--ink); }
+  .devis-field input, .devis-field select { padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 10px; font: inherit; background: #fff; }
+  .devis-form .btn { justify-content: center; }
   .seg-tarifs-note { color: var(--text-muted); font-size: .85rem; margin: .75rem 0 0; }
 </style>
