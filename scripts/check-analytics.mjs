@@ -72,9 +72,45 @@ if (existsSync(sitemapFile) && /merci-essai/.test(readFileSync(sitemapFile, "utf
   errors.push("/merci-essai est dans le sitemap : elle doit en etre exclue.");
 }
 
+// 5) LOT FIX-CSP-GA4 : la CSP de production doit autoriser ce dont la mesure a
+// besoin. Google envoie ses hits GA4 tantot vers google-analytics.com, tantot
+// vers le domaine regionalise analytics.google.com (region1, region2...) : les
+// DEUX familles doivent figurer dans connect-src, sinon le navigateur bloque le
+// hit en silence et GA4 reste vide, sans la moindre erreur visible. C'est ce qui
+// a coute deux jours de donnees. Volet statique du gardien ; la preuve
+// dynamique (hit reellement abouti sous la vraie CSP) est dans check:cookies.
+const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
+const csp = vercel.headers
+  ?.flatMap((h) => h.headers ?? [])
+  .find((h) => h.key.toLowerCase() === "content-security-policy")?.value;
+if (!csp) {
+  errors.push("aucune Content-Security-Policy declaree dans vercel.json.");
+} else {
+  const directive = (name) => {
+    const found = csp.split(";").map((d) => d.trim()).find((d) => d === name || d.startsWith(`${name} `));
+    return found ? found.split(/\s+/).slice(1) : [];
+  };
+  const connect = directive("connect-src");
+  const script = directive("script-src");
+  const REQUIS_CONNECT = [
+    "https://www.google-analytics.com",
+    "https://region1.google-analytics.com",
+    "https://analytics.google.com",
+    "https://region1.analytics.google.com",
+  ];
+  for (const src of REQUIS_CONNECT) {
+    if (!connect.includes(src)) {
+      errors.push(`CSP connect-src : ${src} manquant. Les hits GA4 partant vers ce domaine seront bloques par le navigateur et GA4 restera vide.`);
+    }
+  }
+  if (!script.includes("https://www.googletagmanager.com")) {
+    errors.push("CSP script-src : https://www.googletagmanager.com manquant, gtag.js ne pourra pas se charger.");
+  }
+}
+
 if (errors.length) {
   console.error(`check:analytics ECHEC : ${errors.length} probleme(s) :`);
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, /merci-essai noindex et hors sitemap.`);
+console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4.`);

@@ -16,10 +16,32 @@ function resolve(p) {
   path = path.replace(/\/$/, "");
   return [`${DIST}${path}.html`, `${DIST}${path}/index.html`, `${DIST}${path}`].find(isFile);
 }
+// LOT FIX-CSP-GA4 : le serveur de test sert desormais la VRAIE CSP de
+// production, lue dans vercel.json. Sans elle, ce test validait un site que la
+// prod bloquait : gtag envoyait bien son hit en local, mais le navigateur le
+// refusait en prod parce que le domaine de collecte (region1.analytics.google.com)
+// ne figurait pas dans connect-src. Deux jours de donnees perdues faute d'avoir
+// teste dans les conditions reelles.
+const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
+const CSP = vercel.headers
+  ?.flatMap((h) => h.headers ?? [])
+  .find((h) => h.key.toLowerCase() === "content-security-policy")?.value;
+if (!CSP) {
+  console.error("check:cookies ECHEC : aucune Content-Security-Policy trouvee dans vercel.json.");
+  process.exit(1);
+}
+/** Directive de la CSP, sous forme de liste de sources. */
+function cspDirective(name) {
+  const found = CSP.split(";").map((d) => d.trim()).find((d) => d === name || d.startsWith(`${name} `));
+  return found ? found.split(/\s+/).slice(1) : [];
+}
+const CONNECT_SRC = cspDirective("connect-src");
+
 const server = createServer((req, res) => {
   const f = resolve(req.url);
   if (!f) { res.statusCode = 404; return res.end("404"); }
   res.setHeader("Content-Type", MIME[extname(f)] || "application/octet-stream");
+  if (extname(f) === ".html") res.setHeader("Content-Security-Policy", CSP);
   res.end(readFileSync(f));
 });
 const base = await new Promise((r) => server.listen(0, () => r(`http://127.0.0.1:${server.address().port}`)));
@@ -68,15 +90,44 @@ await scenario("Accepter", "cookie-accept");
 const GOOGLE_HOST = /(^|\.)(google|googletagmanager|google-analytics|doubleclick|googleadservices|gstatic)\./i;
 const PAGES = ["/", "/merci-essai", "/guide-google-commercant-local/merci", "/pour/multi-etablissements", "/politique-confidentialite"];
 
+/** Violations CSP remontees par le navigateur pendant tout le scenario. */
+const cspViolations = [];
+
 async function networkScenario() {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   const googleReqs = [];
+  /** URL -> statut HTTP de la reponse effectivement recue. */
+  const responses = new Map();
   page.on("request", (r) => {
     let host = "";
     try { host = new URL(r.url()).hostname; } catch { /* url exotique */ }
     if (GOOGLE_HOST.test(host)) googleReqs.push(r.url());
   });
+  page.on("response", (r) => responses.set(r.url(), r.status()));
+
+  // FIX-CSP-GA4 : toute violation CSP est collectee, y compris celles qui ne
+  // concernent pas Google (posthog, polices, images). Une requete bloquee par
+  // la CSP ne produit AUCUNE erreur cote gtag : c'est le navigateur qui la
+  // refuse en silence, d'ou ce capteur explicite.
+  await page.addInitScript(() => {
+    document.addEventListener("securitypolicyviolation", (e) => {
+      const w = window;
+      (w.__cspViolations = w.__cspViolations || []).push({
+        directive: e.effectiveDirective || e.violatedDirective,
+        blocked: e.blockedURI,
+      });
+    });
+  });
+  const drainViolations = async () => {
+    const found = await page.evaluate(() => {
+      const w = window;
+      const v = w.__cspViolations || [];
+      w.__cspViolations = [];
+      return v;
+    }).catch(() => []);
+    cspViolations.push(...found);
+  };
 
   // a) Aucun choix exprime : rien ne doit partir vers Google.
   for (const p of PAGES) await page.goto(base + p, { waitUntil: "networkidle" });
@@ -113,22 +164,59 @@ async function networkScenario() {
   // ou vers un domaine regionalise (region1.analytics.google.com). Les deux
   // formes comptent : ce qui importe est qu'un hit parte reellement.
   const COLLECT_RE = /^https:\/\/([a-z0-9-]+\.)*(google-analytics\.com|analytics\.google\.com)\/g\/collect/;
-  const deadline = Date.now() + 15000;
-  while (Date.now() < deadline && !googleReqs.some((u) => COLLECT_RE.test(u))) {
+  // On attend un hit ABOUTI, c'est-a-dire une requete qui a recu une reponse.
+  // Une requete bloquee par la CSP est emise cote page mais n'aboutit jamais :
+  // c'est precisement la difference que l'ancien test ne faisait pas.
+  const aboutis = () => googleReqs.filter((u) => COLLECT_RE.test(u) && responses.has(u));
+  const deadline = Date.now() + 20000;
+  while (Date.now() < deadline && aboutis().length === 0) {
     await page.waitForTimeout(250);
   }
+  await drainViolations();
+
   const gtagReq = googleReqs.find((u) => u.includes("googletagmanager.com/gtag/js"));
   if (!gtagReq) errors.push("APRES acceptation : gtag.js n'est pas charge (aucune requete googletagmanager).");
   else if (!/[?&]id=G-/.test(gtagReq)) errors.push(`APRES acceptation : gtag.js sans identifiant de mesure (${gtagReq}).`);
 
-  const collectReq = googleReqs.find((u) => COLLECT_RE.test(u));
-  if (!collectReq) {
+  const tentes = googleReqs.filter((u) => COLLECT_RE.test(u));
+  const collectReq = aboutis()[0];
+  if (tentes.length === 0) {
     errors.push(
       "APRES acceptation : AUCUN hit de collecte GA4 (google-analytics.com/g/collect). " +
-      "gtag.js se charge mais n'envoie rien : verifier que la fonction gtag pousse bien `arguments` dans le dataLayer, et non un tableau.",
+      "Deux causes possibles : (1) la CSP bloque le domaine de collecte avant meme l'envoi, voir les violations listees ci-dessous ; " +
+      "(2) la fonction gtag pousse un tableau dans le dataLayer au lieu de l'objet `arguments`. " +
+      `connect-src actuelle : ${CONNECT_SRC.join(" ")}`,
     );
-  } else if (!/[?&]tid=G-/.test(collectReq)) {
-    errors.push(`APRES acceptation : hit de collecte sans identifiant de mesure (${collectReq.slice(0, 160)}).`);
+  } else if (!collectReq) {
+    // Hit TENTE mais jamais abouti : signature d'un blocage CSP.
+    const host = new URL(tentes[0]).hostname;
+    errors.push(
+      `APRES acceptation : le hit de collecte vers ${host} est parti mais n'a JAMAIS abouti (aucune reponse). ` +
+      `Cause la plus probable : la connect-src de la CSP ne couvre pas ce domaine. connect-src actuelle : ${CONNECT_SRC.join(" ")}`,
+    );
+  } else {
+    const status = responses.get(collectReq);
+    if (!(status >= 200 && status < 300)) {
+      errors.push(`APRES acceptation : hit de collecte en statut ${status} (attendu 2xx/204) -> ${collectReq.slice(0, 140)}`);
+    }
+    if (!/[?&]tid=G-/.test(collectReq)) {
+      errors.push(`APRES acceptation : hit de collecte sans identifiant de mesure (${collectReq.slice(0, 160)}).`);
+    }
+    // GARDIEN FIX-CSP-GA4 : le domaine REELLEMENT utilise par gtag doit figurer
+    // dans la connect-src. Si Google change de domaine de collecte demain, ce
+    // test le dit ici, au lieu de le laisser decouvrir dans un GA4 vide.
+    const collectHost = new URL(collectReq).hostname;
+    const autorise = CONNECT_SRC.some((src) => {
+      if (src === "*" || src === "'self'") return false;
+      const s = src.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      return s.startsWith("*.") ? collectHost.endsWith(s.slice(1)) : collectHost === s;
+    });
+    if (!autorise) {
+      errors.push(
+        `APRES acceptation : le hit de collecte part vers ${collectHost}, qui n'est PAS dans la connect-src de la CSP ` +
+        `(${CONNECT_SRC.join(" ")}). En production, le navigateur le bloquera et GA4 restera vide.`,
+      );
+    }
   }
 
   // Le cookie _ga (first-party, pose par gtag.js) prouve que le consentement
@@ -152,6 +240,7 @@ async function networkScenario() {
       );
     }
   }
+  await drainViolations();
   await ctx.close();
 }
 
@@ -160,9 +249,23 @@ await networkScenario();
 await browser.close();
 server.close();
 
+// Violations CSP observees pendant le scenario. Celles qui touchent la mesure
+// sont bloquantes (elles signifient que la CSP mange les donnees) ; les autres
+// sont signalees pour information, sans faire echouer le check.
+const violations = [...new Map(cspViolations.map((v) => [`${v.directive} ${v.blocked}`, v])).values()];
+const MESURE_RE = /google-analytics|analytics\.google|googletagmanager/i;
+for (const v of violations.filter((x) => MESURE_RE.test(x.blocked || ""))) {
+  errors.push(`Violation CSP bloquant la mesure : ${v.directive} refuse ${v.blocked}.`);
+}
+const autres = violations.filter((x) => !MESURE_RE.test(x.blocked || ""));
+if (autres.length) {
+  console.warn(`check:cookies : ${autres.length} violation(s) CSP hors mesure (non bloquant) :`);
+  autres.forEach((v) => console.warn(`  ${v.directive} refuse ${v.blocked}`));
+}
+
 if (errors.length) {
   console.error(`check:cookies ECHEC : ${errors.length} probleme(s) :`);
   errors.forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log("check:cookies OK : bannière (Refuser + Accepter) disparaît au tap et ne revient pas au reload (mobile) ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit de collecte GA4 réellement envoyé, cookie _ga déposé et événement essai_demarre transmis.");
+console.log("check:cookies OK : pages servies sous la CSP de production ; bannière (Refuser + Accepter) fiable sur mobile ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit /g/collect ABOUTI (2xx) vers un domaine bien présent dans la connect-src, cookie _ga déposé, événement essai_demarre transmis, 0 violation CSP sur la mesure.");
