@@ -3,6 +3,8 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { readFileSync, globSync } from "node:fs";
 import { basename } from "node:path";
+import { satteri } from "@astrojs/markdown-satteri";
+import satteriTableLabels from "./scripts/satteri-table-labels.mjs";
 
 // VIT-16 ③ : dates de dernière modification du sitemap.
 // Avant, TOUTES les URL portaient un lastmod = date du build, ce qui annonce à
@@ -38,6 +40,13 @@ export default defineConfig({
     inlineStylesheets: "auto",
   },
   vite: { build: { assetsInlineLimit: 0 } },
+  markdown: {
+    // TABLE-1 : chaque cellule de tableau reçoit l'intitulé de sa colonne en
+    // data-label, ce qui permet l'empilement en cartes lisibles sur téléphone.
+    // Processeur par défaut d'Astro 7 (Sätteri), simplement étendu d'un plugin
+    // hast : le rendu Markdown existant n'est pas modifié.
+    processor: satteri({ hastPlugins: [satteriTableLabels] }),
+  },
   integrations: [
     sitemap({
       // Pages légales et pages de service (merci) en noindex : hors sitemap.

@@ -99,6 +99,84 @@ const others = (await getCollection("blog")).filter((p) => p.id !== post.id).sli
   .post-body :global(p), .post-body :global(li) { color: var(--text-secondary); line-height: 1.8; }
   .post-body :global(ul), .post-body :global(ol) { padding-left: 1.4rem; margin-bottom: 1rem; }
   .post-body :global(strong) { color: var(--ink); }
+
+  /* TABLE-1 : tableaux des articles. Desktop = tableau de la charte ; mobile
+     (<= 768px) = chaque ligne devient une carte, chaque cellule précédée de son
+     intitulé de colonne (data-label posé au build par satteri-table-labels).
+     Aucun défilement horizontal, jamais : check:overflow doit rester vert. */
+  .post-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: .95rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .post-body :global(thead th) {
+    background: var(--cream);
+    color: var(--ink);
+    font-weight: 700;
+    text-align: left;
+    font-size: .82rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: .8rem 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+  /* Largeurs laissées à l'algorithme automatique : une largeur fixe sur la
+     première colonne gaspillait la place sur les tableaux à 6 ou 7 colonnes
+     (« Juillet » occupait 30 % pendant que les en-têtes se coupaient en deux).
+     On borne seulement : pas de colonne trop étroite pour un mot. */
+  .post-body :global(th), .post-body :global(td) { min-width: 4.5rem; }
+  .post-body :global(tbody td) {
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    vertical-align: top;
+  }
+  .post-body :global(tbody td:first-child) { color: var(--ink); font-weight: 600; }
+  .post-body :global(tbody tr:nth-child(even)) { background: var(--cream); }
+  .post-body :global(tbody tr:last-child td) { border-bottom: 0; }
+
+  @media (max-width: 768px) {
+    /* Empilement en cartes : `display:block` casse la grille du tableau, on
+       reconstruit une carte par ligne. L'en-tête est masqué visuellement mais
+       reste dans le DOM (accessibilité, copier-coller, lecteurs d'écran). */
+    .post-body :global(table) { border: 0; background: none; border-radius: 0; font-size: .92rem; }
+    .post-body :global(thead) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .post-body :global(tbody), .post-body :global(tr), .post-body :global(td) { display: block; width: 100%; }
+    .post-body :global(tbody tr) {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: .35rem .9rem;
+      margin-bottom: 1rem;
+    }
+    .post-body :global(tbody tr:nth-child(even)) { background: var(--surface); }
+    .post-body :global(tbody td) {
+      padding: .6rem 0;
+      border-bottom: 1px solid var(--border);
+      overflow-wrap: anywhere;
+    }
+    .post-body :global(tbody tr td:last-child) { border-bottom: 0; }
+    /* L'intitulé de colonne, repris du data-label, précède la valeur. */
+    .post-body :global(tbody td[data-label])::before {
+      content: attr(data-label);
+      display: block;
+      font-size: .72rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: .15rem;
+    }
+    /* La première cellule fait office de titre de carte. */
+    .post-body :global(tbody td:first-child) { font-size: 1.02rem; padding-top: .8rem; }
+  }
+
   .post-cta { margin: 2.5rem 0; text-align: center; }
   .post-cta h2 { font-size: 1.3rem; }
   .post-others ul { list-style: none; padding: 0; }
