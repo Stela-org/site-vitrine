@@ -1,10 +1,10 @@
 // Vercel Serverless Function (Node). Demande de devis multi-établissements :
-// petit formulaire de qualification (nom, nombre d'établissements, secteur)
-// → notification email à contact@mystela.fr → redirection vers la prise de
-// rendez-vous. Défenses : honeypot + validation serveur + rate limit IP.
+// petit formulaire de qualification (nom, email, nombre d'établissements,
+// secteur) → notification email à contact@mystela.fr → redirection vers la prise
+// de rendez-vous. Défenses : honeypot + validation serveur + rate limit IP.
 // Le rendez-vous prime : tout chemin (bot, rate limit, échec d'envoi) finit
 // sur le calendrier, seule une saisie invalide revient au formulaire.
-import { sendEmail, rateLimit, clientIp, SITE } from "../lib/leads.js";
+import { sendEmail, rateLimit, clientIp, SITE, EMAIL_RE } from "../lib/leads.js";
 
 const PAGE = "/pour/multi-etablissements";
 const CALENDAR = "https://calendar.app.google/hchodXwU2y3PhpeW8";
@@ -50,11 +50,15 @@ export default async function handler(req, res) {
   const name = String(body.name || "").trim().slice(0, 80);
   const establishments = String(body.establishments || "").trim().slice(0, 10);
   const sector = String(body.sector || "").trim().slice(0, 60);
+  // LOT GADS-2 : l'email devient un champ du formulaire. Validé ICI au même titre
+  // que le reste, le `required` du navigateur ne protège de rien, un POST direct
+  // l'ignore.
+  const email = String(body.email || "").trim().slice(0, 120).toLowerCase();
   const honeypot = String(body.website || "").trim();
 
   // Bot (honeypot rempli) : on redirige sans rien envoyer.
   if (honeypot) return redirect(CALENDAR);
-  if (!name || !/^\d{1,6}$/.test(establishments) || !sector) {
+  if (!name || !/^\d{1,6}$/.test(establishments) || !sector || !EMAIL_RE.test(email)) {
     return redirect(`${SITE}${PAGE}?erreur=1#devis`);
   }
 
@@ -65,10 +69,11 @@ export default async function handler(req, res) {
   try {
     await sendEmail({
       to: NOTIFY_TO,
-      subject: `Demande de devis multi-établissements — ${name}`,
+      subject: `Demande de devis multi-établissements, ${name}`,
       html: `<p>Nouvelle demande de devis depuis ${SITE}${PAGE} :</p>
 <ul>
   <li><strong>Nom :</strong> ${esc(name)}</li>
+  <li><strong>Email :</strong> ${esc(email)}</li>
   <li><strong>Nombre d'établissements :</strong> ${esc(establishments)}</li>
   <li><strong>Secteur :</strong> ${esc(sector)}</li>
 </ul>

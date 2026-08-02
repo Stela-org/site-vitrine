@@ -24,7 +24,7 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
 
 <script>
   // Bundlé par Astro (servi en 'self' depuis /_astro/) : compatible CSP stricte.
-  import { readConsent, writeConsent, type TrackParams } from "../lib/track";
+  import { readConsent, writeConsent, EMAIL_HASH_KEY, isEmailHash, type TrackParams } from "../lib/track";
 
   const cfgEl = document.getElementById("stela-analytics");
   const cfg = cfgEl ? JSON.parse(cfgEl.textContent || "{}") : {};
@@ -49,8 +49,34 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
   // sans jamais déclencher de chargement. Tant que rien n'est branché, les
   // pages empilent dans window.stelaQueue.
   const w = window as any;
+  /** Déclare `user_data` à partir de la première conversion en attente, si elle
+      porte une empreinte. Appelé AVANT `config` : voir loadTrackers(). */
+  function declarerUserDataEnAttente() {
+    const queued: Array<[string, TrackParams]> = w.stelaQueue || [];
+    for (const [, params] of queued) {
+      const hash = params?.[EMAIL_HASH_KEY];
+      if (isEmailHash(hash)) {
+        gtag("set", "user_data", { sha256_email_address: hash });
+        return;
+      }
+    }
+  }
   function sendEvent(name: string, params: TrackParams = {}) {
-    gtag("event", name, params);
+    // LOT GADS-2 : suivi avancé des conversions. La page a pu joindre l'empreinte
+    // SHA-256 de l'email sous une clé réservée. On la SORT des paramètres (ce
+    // n'est pas un paramètre d'événement GA4, l'envoyer comme tel créerait un
+    // doublon inutile) et on la déclare en donnée fournie par l'utilisateur,
+    // AVANT l'événement : gtag l'attache alors aux hits qui suivent.
+    // On n'arrive ici qu'après « Accepter » : `stelaSend` n'est branché sur cette
+    // fonction que dans enableEvents(), donc rien ne peut partir sans consentement.
+    const { [EMAIL_HASH_KEY]: hash, ...rest } = params;
+    if (isEmailHash(hash)) {
+      // Format impose par Google : SHA-256 hexadecimal minuscule de l'email
+      // normalise (minuscules, espaces retires). Le hachage a eu lieu dans la
+      // page ; ici on ne voit deja plus que l'empreinte.
+      gtag("set", "user_data", { sha256_email_address: hash });
+    }
+    gtag("event", name, rest);
   }
   function enableEvents() {
     w.stelaSend = sendEvent;
@@ -77,6 +103,12 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
       s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.gaId;
       document.head.appendChild(s);
       gtag("js", new Date());
+      // LOT GADS-2 : si une conversion attend déjà en file avec l'empreinte de
+      // l'email (cas courant : la page de merci a appelé track() avant que le
+      // visiteur ne clique « Accepter »), on déclare la donnée utilisateur AVANT
+      // `config`. C'est l'ordre attendu par le tag Google : une donnée déclarée
+      // après coup n'est pas reprise dans la configuration initiale du tag.
+      declarerUserDataEnAttente();
       // Aucun paramètre superflu, aucun user_id : mesure strictement statistique.
       gtag("config", cfg.gaId, { anonymize_ip: true });
       enableEvents();

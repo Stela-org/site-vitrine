@@ -54,6 +54,36 @@ const chapters = [
   </section>
 </Base>
 
+<script>
+  // LOT GADS-2, suivi avancé de la conversion `guide_telecharge`. La conversion
+  // se mesure sur la page de merci, APRÈS la redirection de /api/lead-subscribe :
+  // c'est donc ici, sur la page du formulaire, qu'il faut préparer l'empreinte.
+  //
+  // On hache À LA SAISIE, pas au submit : le submit natif quitte la page, or
+  // crypto.subtle est asynchrone, une empreinte lancée au submit n'aurait aucune
+  // garantie d'être écrite avant la navigation. À la saisie, elle est prête bien
+  // avant le clic.
+  //
+  // Ce qui est mis de côté est l'EMPREINTE, dans sessionStorage. Ni l'email en
+  // clair, ni l'URL (qui fuirait par le Referer et les journaux serveur).
+  import { hashEmail, stashEmailHash } from "../lib/track";
+  const form = document.querySelector<HTMLFormElement>(".lead-form");
+  const email = form?.querySelector<HTMLInputElement>('input[name="email"]');
+  if (email) {
+    let derniere = "";
+    const preparer = () => {
+      const saisie = email.value;
+      if (saisie === derniere) return;
+      derniere = saisie;
+      // Email incomplet : hashEmail rend null, rien n'est mis de côté. La
+      // conversion partira alors sans empreinte, jamais avec une valeur inventée.
+      hashEmail(saisie).then(stashEmailHash);
+    };
+    email.addEventListener("input", preparer);
+    email.addEventListener("change", preparer);
+  }
+</script>
+
 <style>
   .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); }
   .guide-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }

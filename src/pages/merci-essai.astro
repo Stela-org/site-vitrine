@@ -37,6 +37,68 @@ import { SITE, TRIAL_DAYS } from "../config/site";
 <script>
   // Conversion `essai_demarre` au chargement. `track` n'émet RIEN sans
   // consentement : l'événement attend en file, et part si le visiteur accepte.
-  import { track } from "../lib/track";
-  track("essai_demarre");
+  //
+  // LOT GADS-2, suivi avancé. L'email est saisi chez Stripe, pas ici : on le
+  // demande à /api/checkout-email, qui lit la session Checkout et ne renvoie que
+  // l'EMPREINTE SHA-256 (jamais l'email en clair, qui ne traverse donc jamais le
+  // réseau). Sans ?session_id, sans clé Stripe configurée, ou si l'appel échoue,
+  // l'événement part SANS empreinte, c'est exactement le comportement GADS-1.
+  //
+  // L'événement est émis une fois et une seule, quel que soit le chemin. Il n'est
+  // pas retardé côté mesure : `track` empile dans la file tant que le
+  // consentement n'est pas donné, et la bannière la vide à l'acceptation.
+  // Chaque conversion dit POURQUOI elle part avec ou sans empreinte, via le
+  // paramètre `ec_statut`. Sans ça, une conversion sans empreinte est
+  // indiscernable d'un suivi avancé qui sous-performe : on accuserait le
+  // dispositif alors que la cause serait un simple délai de l'API Stripe.
+  // Le paramètre est volontairement à faible cardinalité (5 valeurs fixes) et ne
+  // contient aucune donnée personnelle, il se segmente directement dans GA4.
+  //   ok           : empreinte obtenue, suivi avancé nominal
+  //   timeout      : /api/checkout-email n'a pas répondu en 4 s
+  //   sans_session : pas de ?session_id (success_url Stripe non configurée)
+  //   api_vide     : l'API a répondu sans empreinte (clé absente, session non
+  //                  aboutie, email illisible)
+  //   erreur       : appel en échec (réseau, 5xx)
+  // Une remontée de `timeout` ou `sans_session` est un problème de configuration,
+  // pas un problème de suivi avancé.
+  import { trackWithEmailHash, isEmailHash } from "../lib/track";
+
+  type Statut = "ok" | "timeout" | "sans_session" | "api_vide" | "erreur";
+  const sessionId = new URLSearchParams(location.search).get("session_id");
+
+  function emettre(hash: string | null, statut: Statut) {
+    if (statut !== "ok") {
+      // Trace locale, en complément du paramètre : utile en préproduction et
+      // dans la console d'un visiteur qu'on dépanne.
+      console.warn(`[GADS-2] essai_demarre part sans empreinte (${statut}).`);
+    }
+    trackWithEmailHash("essai_demarre", hash, { ec_statut: statut });
+  }
+
+  if (!sessionId) {
+    emettre(null, "sans_session");
+  } else {
+    let fait = false;
+    function once(hash: string | null, statut: Statut) {
+      if (fait) return;
+      fait = true;
+      clearTimeout(secours);
+      emettre(hash, statut);
+    }
+    // Garde-fou : si l'API traîne, on n'attend pas indéfiniment, la conversion
+    // part sans empreinte plutôt que de ne pas partir du tout. Le `timeout` est
+    // signalé, jamais avalé en silence.
+    const secours = setTimeout(() => { once(null, "timeout"); }, 4000);
+    fetch(`/api/checkout-email?session_id=${encodeURIComponent(sessionId)}`, { credentials: "omit" })
+      .then((r) => {
+        // ATTENTION : `fetch` ne rejette que sur panne réseau, JAMAIS sur un
+        // statut 4xx/5xx. Sans ce tri, une API en erreur serveur serait
+        // comptabilisée « api_vide », c'est-à-dire confondue avec le cas normal
+        // où Stripe n'a simplement pas d'email. On distingue donc ici.
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+      .then((d) => (d && isEmailHash(d.h) ? once(d.h, "ok") : once(null, "api_vide")))
+      .catch(() => once(null, "erreur"));
+  }
 </script>

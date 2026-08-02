@@ -23,6 +23,11 @@ import { TARIFS_URL } from "../../config/site";
 <script>
   // Conversion `guide_telecharge` au chargement de la page de confirmation du
   // lead magnet. Sans consentement, rien n'est émis : l'événement attend en file.
-  import { track } from "../../lib/track";
-  track("guide_telecharge");
+  //
+  // LOT GADS-2 : on y joint l'empreinte SHA-256 de l'email, préparée sur la page
+  // du formulaire et relue ici (puis effacée, elle ne sert qu'une fois). Absente
+  //, arrivée directe sur cette URL, onglet neuf, stockage bloqué, l'événement
+  // part sans, ce qui reste le comportement du lot GADS-1.
+  import { trackWithEmailHash, takeEmailHash } from "../../lib/track";
+  trackWithEmailHash("guide_telecharge", takeEmailHash());
 </script>
