@@ -38,7 +38,34 @@ function cspDirective(name) {
 }
 const CONNECT_SRC = cspDirective("connect-src");
 
+// LOT GADS-2 : /api/checkout-email est une fonction serverless Vercel, absente
+// d'un build statique. Le serveur de test la simule pour pouvoir eprouver les
+// CINQ issues de la chaine Stripe, y compris celles qu'on ne saurait pas
+// declencher a la demande en production (API lente, 5xx). `stripeMode` pilote
+// la reponse ; EMPREINTE_STRIPE est l'empreinte que la vraie fonction
+// renverrait pour EMAIL_STRIPE.
+const EMAIL_STRIPE = "acheteur.stripe@exemple-test.fr";
+const EMPREINTE_STRIPE = createHash("sha256").update(EMAIL_STRIPE).digest("hex");
+let stripeMode = "ok";
+
 const server = createServer((req, res) => {
+  if (req.url.startsWith("/api/checkout-email")) {
+    if (stripeMode === "lent") return; // aucune reponse : declenche le garde-fou 4 s
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store");
+    if (stripeMode === "erreur") {
+      // ATTENTION, subtilite qui a failli rendre ce gardien decoratif : la vraie
+      // fonction repond du JSON VALIDE (`{}`) sur ses chemins d'erreur, statut
+      // compris. Si on simulait l'erreur avec un corps non-JSON, `r.json()`
+      // rejetterait, la conversion tomberait dans le `.catch` et serait etiquetee
+      // « erreur » PAR ACCIDENT, meme sans le tri explicite des statuts. Le
+      // gardien validerait alors un code casse. On reproduit donc fidelement la
+      // vraie fonction : statut d'erreur ET corps JSON valide.
+      res.statusCode = 500;
+      return res.end(JSON.stringify({}));
+    }
+    return res.end(JSON.stringify(stripeMode === "ok" ? { h: EMPREINTE_STRIPE } : {}));
+  }
   const f = resolve(req.url);
   if (!f) { res.statusCode = 404; return res.end("404"); }
   res.setHeader("Content-Type", MIME[extname(f)] || "application/octet-stream");
@@ -338,25 +365,142 @@ async function enhancedConversionScenario() {
     if (!(status >= 200 && status < 300)) {
       errors.push(`GADS-2 : conversion guide_telecharge en statut ${status} (attendu 2xx/204).`);
     }
-    // 6) L'empreinte est-elle reellement PARTIE ? Depend du reglage GA4.
+    // 6) L'empreinte est-elle reellement PARTIE sur le reseau ?
+    // Distinction essentielle : cela depend d'un reglage GA4 hors de notre code
+    // (« donnees fournies par l'utilisateur », en mode MANUEL). On interroge donc
+    // le module de donnees utilisateur de gtag :
+    //   - module ABSENT  -> Google n'accepte pas encore `user_data`. Le code n'y
+    //     peut rien : on AVERTIT sans bloquer le build.
+    //   - module PRESENT -> Google est pret et accepte `user_data`. Si l'empreinte
+    //     n'apparait quand meme pas, c'est NOTRE chaine qui a casse : ECHEC.
+    // C'est ce qui evite les deux travers symetriques : un build rouge pour une
+    // case a cocher chez Google, et une regression de code passee inapercue.
+    const updCharge = await page.evaluate(() => !!(window.google_tag_data || {}).upd);
     const surLeReseau = googleReqs.some((h) => `${h.url}\n${h.post}`.includes(EMPREINTE_ATTENDUE));
-    if (!surLeReseau) {
+    if (surLeReseau) {
+      console.log("check:cookies : empreinte SHA-256 observee sur le reseau, suivi avance pleinement actif.");
+    } else if (updCharge) {
+      errors.push(
+        "GADS-2 : gtag a bien charge son module de donnees utilisateur (Google accepte `user_data`), " +
+        "mais l'empreinte n'apparait dans AUCUN hit de collecte. La chaine de transmission est cassee cote site.",
+      );
+    } else {
       console.warn(
         "\ncheck:cookies AVERTISSEMENT (GADS-2) : l'empreinte est correctement calculee et declaree a gtag,\n" +
         "  mais elle ne part PAS sur le reseau. gtag.js n'a pas charge son module de donnees utilisateur\n" +
         "  (window.google_tag_data.upd absent) : il ignore `user_data` en silence.\n" +
-        "  A FAIRE, cote Google, une seule fois : GA4 > Admin > Parametres des donnees >\n" +
-        "  Collecte de donnees > activer « Collecte de donnees fournies par l'utilisateur ».\n" +
-        "  Tant que ce reglage est desactive, le suivi avance n'apporte aucun gain de conversions.\n",
+        "  A FAIRE, cote Google : GA4 > Admin > Parametres des donnees > Collecte de donnees >\n" +
+        "  « Collecte de donnees fournies par l'utilisateur », en mode MANUEL (le mode automatique\n" +
+        "  seul ne suffit pas : il fait scraper le DOM par Google et ignore le `user_data` fourni).\n" +
+        "  Tant que le mode manuel est desactive, le suivi avance n'apporte aucun gain de conversions.\n",
       );
-    } else {
-      console.log("check:cookies : empreinte SHA-256 observee sur le reseau, suivi avance pleinement actif.");
     }
   }
   await ctx.close();
 }
 
+// LOT GADS-2 : conversion `demande_devis`. Elle part au submit du formulaire de
+// devis, avec l'empreinte de l'email saisi. Specificite : l'empreinte est
+// preparee A LA SAISIE (crypto.subtle est asynchrone, le submit natif quitte la
+// page). Ce scenario verifie donc qu'au moment du submit elle est bien prete.
+async function devisScenario() {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const googleReqs = [];
+  const responses = new Map();
+  page.on("request", (r) => {
+    let host = "";
+    try { host = new URL(r.url()).hostname; } catch { /* url exotique */ }
+    if (GOOGLE_HOST.test(host) || /doubleclick/.test(host)) googleReqs.push({ url: r.url(), post: r.postData() || "" });
+  });
+  page.on("response", (r) => responses.set(r.url(), r.status()));
+
+  const EMAIL = "devis.test@exemple-test.fr";
+  const EMPREINTE = createHash("sha256").update(EMAIL).digest("hex");
+  await page.goto(base + "/pour/multi-etablissements", { waitUntil: "networkidle" });
+  if (await page.locator('.devis-form input[name="email"]').count() !== 1) {
+    errors.push("GADS-2 : le champ email du formulaire de devis est absent. Sans lui, demande_devis repart sans donnee d'identification.");
+    await ctx.close();
+    return;
+  }
+  await page.click("#cookie-accept");
+  await page.fill('.devis-form input[name="name"]', "Camille Dupont");
+  // Saisie sale, comme un vrai visiteur : Google exige minuscules et espaces retires.
+  await page.fill('.devis-form input[name="email"]', `  ${EMAIL.toUpperCase()} `);
+  await page.fill('.devis-form input[name="establishments"]', "4");
+  await page.selectOption('.devis-form select[name="sector"]', { label: "Restauration" });
+  await page.dispatchEvent('.devis-form input[name="email"]', "change");
+  await page.waitForTimeout(500);
+  // On neutralise UNIQUEMENT la navigation : /api/devis est une fonction
+  // serverless, absente du build statique, et un 404 emporterait la page avant
+  // que le hit ne parte. Le code de suivi, lui, n'est pas touche.
+  await page.evaluate(() => {
+    document.querySelector(".devis-form")?.addEventListener("submit", (e) => e.preventDefault());
+  });
+  await page.click('.devis-form button[type="submit"]');
+  await page.waitForTimeout(6000);
+
+  const dl = await page.evaluate(() => (window.dataLayer || []).map((a) => {
+    try { return JSON.stringify(Array.prototype.slice.call(a)); } catch { return String(a); }
+  }));
+  if (!dl.some((e) => e.includes("user_data") && e.includes(EMPREINTE))) {
+    errors.push(`GADS-2 : demande_devis n'a pas declare l'empreinte attendue (${EMPREINTE}). Normalisation, hachage, ou preparation a la saisie casses.`);
+  }
+  if (!dl.some((e) => e.includes('"demande_devis"'))) {
+    errors.push("GADS-2 : l'evenement demande_devis n'a pas ete emis au submit du formulaire.");
+  }
+  const clair = googleReqs.filter((h) => `${h.url}\n${h.post}`.toLowerCase().includes(EMAIL));
+  if (clair.length) {
+    errors.push(`GADS-2 : EMAIL EN CLAIR vers Google depuis le formulaire de devis (${clair[0].url.slice(0, 140)}).`);
+  }
+  await ctx.close();
+}
+
+// LOT GADS-2 : chaine Stripe de la conversion `essai_demarre`. L'email est chez
+// Stripe : la page interroge /api/checkout-email, qui ne renvoie QUE l'empreinte.
+// Chaque issue doit etre correctement etiquetee par `ec_statut`, sinon une
+// conversion sans empreinte passerait pour un suivi avance qui sous-performe
+// alors qu'il s'agit d'un simple timeout ou d'une configuration absente.
+async function stripeScenario(mode, chemin, statutAttendu, empreinteAttendue) {
+  stripeMode = mode;
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(base + chemin, { waitUntil: "domcontentloaded" });
+  await page.click("#cookie-accept").catch(() => { /* banniere deja tranchee */ });
+  // Le mode « lent » doit franchir le garde-fou de 4 s avant d'emettre.
+  await page.waitForTimeout(mode === "lent" ? 7000 : 3000);
+
+  const dl = await page.evaluate(() => (window.dataLayer || []).map((a) => {
+    try { return JSON.stringify(Array.prototype.slice.call(a)); } catch { return String(a); }
+  }));
+  const evts = dl.filter((e) => e.includes('"essai_demarre"'));
+  const statut = (evts.join(" ").match(/"ec_statut":"(\w+)"/) || [])[1];
+  if (evts.length !== 1) {
+    errors.push(`GADS-2 (Stripe/${mode}) : ${evts.length} evenement(s) essai_demarre au lieu d'un seul. Risque de conversion comptee deux fois ou perdue.`);
+  }
+  if (statut !== statutAttendu) {
+    errors.push(`GADS-2 (Stripe/${mode}) : ec_statut vaut « ${statut} », attendu « ${statutAttendu} ». Une conversion sans empreinte deviendrait indiagnosticable.`);
+  }
+  const aEmpreinte = dl.some((e) => e.includes("user_data") && e.includes(EMPREINTE_STRIPE));
+  if (empreinteAttendue && !aEmpreinte) {
+    errors.push(`GADS-2 (Stripe/${mode}) : l'empreinte renvoyee par /api/checkout-email n'a pas ete declaree a gtag.`);
+  }
+  if (!empreinteAttendue && aEmpreinte) {
+    errors.push(`GADS-2 (Stripe/${mode}) : une empreinte a ete declaree alors qu'aucune n'etait disponible. Jamais de valeur inventee.`);
+  }
+  await ctx.close();
+}
+
 await enhancedConversionScenario();
+await devisScenario();
+// Les cinq issues de la chaine Stripe, y compris celles qu'on ne peut pas
+// provoquer a la demande en production.
+await stripeScenario("ok", "/merci-essai?session_id=cs_test_gads2guardian", "ok", true);
+await stripeScenario("lent", "/merci-essai?session_id=cs_test_gads2guardian", "timeout", false);
+await stripeScenario("vide", "/merci-essai?session_id=cs_test_gads2guardian", "api_vide", false);
+await stripeScenario("erreur", "/merci-essai?session_id=cs_test_gads2guardian", "erreur", false);
+await stripeScenario("ok", "/merci-essai", "sans_session", false);
+stripeMode = "ok";
 
 await browser.close();
 server.close();
@@ -381,3 +525,4 @@ if (errors.length) {
   process.exit(1);
 }
 console.log("check:cookies OK : pages servies sous la CSP de production ; bannière (Refuser + Accepter) fiable sur mobile ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit /g/collect ABOUTI (2xx) vers un domaine bien présent dans la connect-src, cookie _ga déposé, événement essai_demarre transmis, 0 violation CSP sur la mesure.");
+console.log("check:cookies OK (GADS-2) : les 3 conversions portent l'empreinte SHA-256 de l'email quand il existe, 0 email en clair vers Google ; guide_telecharge reporté d'une page à l'autre et abouti en 2xx ; demande_devis préparé à la saisie et émis au submit ; chaîne Stripe étiquetée sur ses 5 issues (ok, timeout, api_vide, erreur, sans_session), 1 seul événement par issue.");
