@@ -14,10 +14,10 @@
 //
 // Nécessite Playwright + chromium, comme check:cookies et check:overflow.
 import { createServer } from "node:http";
-import { CALENDAR_URL } from "../lib/booking.js";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname } from "node:path";
 import { chromium } from "playwright";
+import { CALENDAR_URL } from "../lib/booking.js";
 
 const isFile = (p) => existsSync(p) && statSync(p).isFile();
 const DIST = "dist";
@@ -40,9 +40,23 @@ if (!CSP) {
   process.exit(1);
 }
 
+/** Sources autorisees par `form-action`, la directive qui gouverne les soumissions. */
+function cspDirective(name) {
+  const found = CSP.split(";").map((d) => d.trim()).find((d) => d === name || d.startsWith(`${name} `));
+  return found ? found.split(/\s+/).slice(1) : [];
+}
+const FORM_ACTION = cspDirective("form-action");
+
 // `/api/devis` est une fonction serverless, absente du build statique. On la
 // simule pour eprouver le VRAI parcours de soumission, redirection comprise,
 // sans jamais sortir sur le calendrier Google.
+//
+// CORRECTIF DEVIS-1b : `redirectionMode` pilote la destination du 303. C'est le
+// manque qui a rendu ce gardien complaisant : il ne testait QUE la redirection
+// meme origine, alors que la production renvoyait vers calendar.app.google, que
+// `form-action` bloque. Meme piege que FIX-CSP-GA4 sous une autre forme, un test
+// qui ne rejoue pas les conditions reelles valide un site casse.
+let redirectionMode = "confirmation";
 const server = createServer((req, res) => {
   if (req.url.startsWith("/api/devis")) {
     // Reponse VOLONTAIREMENT lente. En local la redirection est instantanee et
@@ -52,14 +66,7 @@ const server = createServer((req, res) => {
     // dans la condition ou l'etat sert a quelque chose.
     return setTimeout(() => {
       res.statusCode = 303;
-      // LOT DEVIS-2, CORRECTION DU GARDIEN. Ce stub redirigeait vers
-      // `${PAGE}?envoye=1`, une cible SAME-ORIGIN. La production, elle, redirige
-      // vers le calendrier Google, donc CROSS-ORIGIN. Or `form-action 'self'`
-      // autorise la premiere et refuse la seconde : le gardien servait la vraie
-      // CSP mais rejouait la MAUVAISE CIBLE, et ne pouvait donc pas voir que la
-      // prod bloquait la redirection en silence. Deux jours de formulaire mort.
-      // On rejoue desormais la cible REELLE, lue dans lib/booking.js.
-      res.setHeader("Location", CALENDAR_URL);
+      res.setHeader("Location", redirectionMode === "calendrier" ? CALENDAR_URL : `${PAGE}?envoye=1#devis`);
       res.end();
     }, 1200);
   }
@@ -75,28 +82,56 @@ const errors = [];
 const browser = await chromium.launch();
 const ctx = await browser.newContext();
 
-// LOT DEVIS-2. Le calendrier est INTERCEPTE : le gardien ne doit dependre
-// d'aucun acces reseau a Google. Ce qui compte est de savoir si le navigateur a
-// seulement TENTE d'y aller : une redirection refusee par la form-action de la
-// CSP n'emet aucune requete, et c'est precisement la signature du bug.
-let calendrierAtteint = false;
-await ctx.route("https://calendar.app.google/**", async (route) => {
-  calendrierAtteint = true;
-  await route.fulfill({ status: 200, contentType: "text/html", body: "<h1>calendrier</h1>" });
-});
-/** Violations CSP observees pendant tout le scenario. */
-const cspViolations = [];
-
 /** La banniere de consentement recouvre le formulaire : on la tranche d'abord. */
+/**
+ * (d) CAPTEUR DE VIOLATIONS CSP, repris de la session qui a livre fbb6111 et
+ * elargi. L'assertion statique plus bas compare les destinations connues de
+ * `api/devis.js` a form-action ; elle est aveugle a une destination introduite
+ * ailleurs, ou a un blocage d'une autre directive. Ce capteur, lui, ecoute tout
+ * ce que le navigateur refuse pendant le parcours, y compris ce qu'on n'avait
+ * pas prevu. Les deux sont complementaires, aucun ne remplace l'autre.
+ *
+ * La violation est aussi renvoyee par la console : survenue juste avant une
+ * navigation, elle serait sinon perdue avec le contexte d'execution.
+ */
+const violationsParcours = [];
+const MARQUEUR = "__CSPVIOL__";
+const pagesEcoutees = new WeakSet();
+
 async function ouvrir(page, query = "") {
-  await page.addInitScript(() => {
+  await page.addInitScript((marqueur) => {
     document.addEventListener("securitypolicyviolation", (e) => {
-      (window.__cspViol = window.__cspViol || []).push({ d: e.effectiveDirective || e.violatedDirective, b: e.blockedURI });
+      console.warn(marqueur + JSON.stringify({ d: e.effectiveDirective || e.violatedDirective, b: e.blockedURI }));
     });
-  }).catch(() => { /* deja injecte */ });
-  await page.goto(`${base}${PAGE}${query}`, { waitUntil: "networkidle" });
+  }, MARQUEUR).catch(() => { /* deja injecte */ });
+  if (!pagesEcoutees.has(page)) {
+    pagesEcoutees.add(page);
+    page.on("console", (m) => {
+      const t = m.text();
+      if (!t.startsWith(MARQUEUR)) return;
+      // Le scenario du filet de securite PROVOQUE volontairement une violation
+      // (il rejoue la panne de production) : elle ne compte pas comme un defaut.
+      if (redirectionMode === "calendrier") return;
+      try { violationsParcours.push(JSON.parse(t.slice(MARQUEUR.length))); } catch { /* illisible */ }
+    });
+  }
+  // `networkidle` peut ne jamais survenir (une requete lente reste pendante) et
+  // `goto` leve alors une exception qui fait CRASHER le gardien au lieu de
+  // produire un diagnostic. On se rabat sur le chargement du document, et on
+  // transforme tout echec en erreur lisible.
+  try {
+    await page.goto(`${base}${PAGE}${query}`, { waitUntil: "networkidle", timeout: 15000 });
+  } catch {
+    try {
+      await page.goto(`${base}${PAGE}${query}`, { waitUntil: "domcontentloaded", timeout: 15000 });
+    } catch (e) {
+      errors.push(`Page inaccessible (${query || "sans parametre"}) : ${String(e).split("\n")[0]}`);
+      return false;
+    }
+  }
   const deny = page.locator("#cookie-deny");
-  if (await deny.isVisible().catch(() => false)) await deny.click();
+  if (await deny.isVisible().catch(() => false)) await deny.click().catch(() => {});
+  return true;
 }
 
 const texteVisible = (page, sel) => page.locator(sel).innerText().catch(() => "");
@@ -206,38 +241,6 @@ for (const [code, attendu, selecteur] of CAS) {
 
   await page.waitForLoadState("networkidle").catch(() => {});
 
-  // ── LOT DEVIS-2 : LA REDIRECTION DOIT REELLEMENT ABOUTIR ─────────────────
-  // Le defaut de production : le POST partait, l'email de notification arrivait,
-  // mais la form-action de la CSP refusait la redirection 303 CROSS-ORIGIN vers
-  // le calendrier. Aucune erreur visible, aucun log : le bouton restait fige sur
-  // « Envoi en cours… » et le visiteur ne prenait jamais rendez-vous.
-  //
-  // Le gardien precedent ne pouvait pas le voir : il servait la vraie CSP mais
-  // redirigeait vers une cible SAME-ORIGIN, que `form-action 'self'` autorise.
-  // Servir la bonne CSP ne suffit pas, il faut rejouer la bonne CIBLE.
-  // Le stub repond volontairement avec 1,2 s de delai, puis le navigateur suit
-  // la redirection : on ATTEND le resultat au lieu de le lire trop tot, avec une
-  // limite de temps pour ne pas suspendre le gardien si rien ne vient.
-  const limite = Date.now() + 15000;
-  while (Date.now() < limite && !calendrierAtteint) await page.waitForTimeout(200);
-
-  const violations = await page.evaluate(() => window.__cspViol || []).catch(() => []);
-  cspViolations.push(...violations);
-  const bloqueeParCsp = cspViolations.filter((v) => v.d === "form-action");
-  if (bloqueeParCsp.length > 0) {
-    errors.push(
-      `§5 REDIRECTION BLOQUEE PAR LA CSP : form-action refuse ${bloqueeParCsp[0].b}. ` +
-      "Le visiteur reste sur un bouton fige et n'arrive JAMAIS sur le calendrier. " +
-      `form-action actuelle : ${(CSP.split(";").map((d) => d.trim()).find((d) => d.startsWith("form-action")) || "absente")}`,
-    );
-  }
-  if (!calendrierAtteint) {
-    errors.push(
-      "§5 : apres une soumission valide, le navigateur n'a jamais tente d'aller sur le calendrier. " +
-      "La demande part, mais le rendez-vous, lui, ne peut pas etre pris.",
-    );
-  }
-
   // §2 : le visiteur revient sur la page sans avoir pris de creneau.
   await ouvrir(page);
   if (!(await estVisible(page, "#devis-confirm"))) {
@@ -270,6 +273,93 @@ for (const [code, attendu, selecteur] of CAS) {
   await page.close();
 }
 
+// ── CORRECTIF DEVIS-1b : la panne de production, rejouee ────────────────────
+// Le formulaire ne doit renvoyer QU'A des destinations que `form-action`
+// autorise. Un 303 vers le calendrier partait bien, mais le navigateur refusait
+// de le suivre, sans rien dire : le visiteur restait devant un ecran mort.
+{
+  const source = readFileSync("api/devis.js", "utf8");
+  const origineCalendrier = new URL(CALENDAR_URL).origin;
+  // `'self'` designe l'origine de la PAGE, jamais celle du calendrier : seul un
+  // domaine cite explicitement autoriserait la redirection.
+  const calendrierAutorise = FORM_ACTION.some((s) => s === origineCalendrier || s.startsWith(`${origineCalendrier}/`));
+  const redirigeVersCalendrier = source.includes(CALENDAR_URL) || /redirect\(\s*CALENDAR\b/.test(source);
+  if (redirigeVersCalendrier && !calendrierAutorise) {
+    errors.push(
+      `CSP : api/devis.js renvoie la soumission vers ${origineCalendrier}, absent de form-action (${FORM_ACTION.join(" ") || "vide"}). ` +
+      `Le navigateur bloque cette navigation SANS RIEN DIRE : la demande part, l'email arrive, et le visiteur n'atteint jamais le calendrier.`
+    );
+  }
+}
+
+// Le parcours complet sous la VRAIE CSP : soumission, confirmation meme origine,
+// puis saut vers le calendrier par une navigation ordinaire.
+{
+  const page = await ctx.newPage();
+  const violations = [];
+  await ouvrir(page);
+  await page.evaluate(() => {
+    window.__v = [];
+    document.addEventListener("securitypolicyviolation", (e) => window.__v.push(e.violatedDirective));
+  });
+  // On intercepte le depart vers le calendrier : le gardien ne doit jamais
+  // dependre de Google, ni le solliciter.
+  let versCalendrier = false;
+  await page.route(`${CALENDAR_URL}*`, (route) => {
+    versCalendrier = true;
+    route.fulfill({ status: 200, contentType: "text/html", body: "<html><body>calendrier simule</body></html>" });
+  });
+
+  await page.fill('input[name="name"]', "Camille Dupont");
+  await page.fill('input[name="email"]', "camille@groupe-restaurants.fr");
+  await page.fill('input[name="establishments"]', "4");
+  await page.selectOption('select[name="sector"]', { label: "Restauration" });
+  await page.evaluate(() => document.querySelector(".devis-form").requestSubmit());
+
+  await page.waitForURL(/envoye=1/, { timeout: 8000 }).catch(() => {});
+  if (!/envoye=1/.test(page.url())) {
+    errors.push(`CSP : la soumission n'a pas abouti a la page de confirmation (URL = ${page.url()}). C'est la panne du 02/08.`);
+  }
+  await page.waitForTimeout(2500);
+  if (!versCalendrier) {
+    errors.push("§1b : apres confirmation, le visiteur n'est jamais emmene au calendrier. Le rendez-vous etant L'etape du parcours, personne ne reserve.");
+  }
+  violations.push(...await page.evaluate(() => window.__v || []).catch(() => []));
+  if (violations.includes("form-action")) {
+    errors.push("CSP : la soumission declenche encore une violation form-action.");
+  }
+  await page.close();
+}
+
+// Le filet de securite : meme si la navigation est bloquee, l'ecran ne reste
+// JAMAIS mort. On rejoue litteralement la panne (303 vers le calendrier) et on
+// exige que le visiteur reprenne la main.
+{
+  redirectionMode = "calendrier";
+  const page = await ctx.newPage();
+  await ouvrir(page);
+  await page.fill('input[name="name"]', "Camille Dupont");
+  await page.fill('input[name="email"]', "camille@groupe-restaurants.fr");
+  await page.fill('input[name="establishments"]', "4");
+  await page.selectOption('select[name="sector"]', { label: "Restauration" });
+  await page.evaluate(() => document.querySelector(".devis-form").requestSubmit());
+
+  const repris = await page.waitForSelector("#devis-submit:not([disabled])", { timeout: 12000 }).then(() => true).catch(() => false);
+  if (!repris) {
+    errors.push("§2b : le bouton reste bloque sur « Envoi en cours… » indefiniment. Un ecran mort est pire que pas d'etat du tout.");
+  }
+  if (!(await estVisible(page, "#devis-secours"))) {
+    errors.push("§2b : aucun message ni lien manuel quand l'ouverture du calendrier echoue.");
+  } else {
+    const lien = await page.locator("#devis-secours a").getAttribute("href");
+    if (!lien || !lien.includes("calendar.app.google")) {
+      errors.push(`§2b : le message de secours ne propose pas de lien vers le calendrier (href = ${lien}).`);
+    }
+  }
+  await page.close();
+  redirectionMode = "confirmation";
+}
+
 // ── La note sous le bouton ne promet plus un email ──────────────────────────
 {
   const html = readFileSync(`${DIST}${PAGE}.html`, "utf8");
@@ -278,73 +368,33 @@ for (const [code, attendu, selecteur] of CAS) {
   }
 }
 
-// ── LOT DEVIS-2 §6 : LE GARDE-FOU ANTI-ECRAN MORT ───────────────────────────
-// On rejoue la panne EXACTE de production : une CSP dont la form-action ne
-// couvre pas le calendrier, donc une redirection refusee en silence. Le
-// visiteur ne doit PAS rester devant un bouton fige : au bout de quelques
-// secondes, la main lui est rendue, avec un message et un lien manuel.
-//
-// Ce scenario a sa propre CSP et son propre serveur : il teste ce qui se passe
-// QUAND la configuration est fausse, et doit donc rester vert meme apres la
-// correction de vercel.json. C'est la ceinture, pas les bretelles.
+// (d) Le parcours nominal ne doit produire AUCUNE violation, quelle que soit la
+// directive : un refus de la CSP ne laisse aucune trace ailleurs.
 {
-  const CSP_SANS_CALENDRIER = CSP.replace(" https://calendar.app.google", "");
-  const srv = createServer((req, res) => {
-    if (req.url.startsWith("/api/devis")) {
-      res.statusCode = 303;
-      res.setHeader("Location", CALENDAR_URL);
-      return res.end();
-    }
-    const f = resolve(req.url);
-    if (!f) { res.statusCode = 404; return res.end("404"); }
-    res.setHeader("Content-Type", MIME[extname(f)] || "application/octet-stream");
-    if (extname(f) === ".html") res.setHeader("Content-Security-Policy", CSP_SANS_CALENDRIER);
-    res.end(readFileSync(f));
-  });
-  const b2 = await new Promise((r) => srv.listen(0, () => r(`http://127.0.0.1:${srv.address().port}`)));
-  const nav = await browser.newContext();
-  const pg = await nav.newPage();
-  await pg.goto(`${b2}${PAGE}`, { waitUntil: "networkidle" });
-  await pg.fill('input[name="name"]', "Camille Dupont");
-  await pg.fill('input[name="email"]', "camille@groupe-restaurants.fr");
-  await pg.fill('input[name="establishments"]', "4");
-  await pg.selectOption('select[name="sector"]', { label: "Restauration" });
-  await pg.evaluate(() => document.querySelector(".devis-form").requestSubmit());
+  const vues = new Map();
+  for (const v of violationsParcours) vues.set(`${v.d}|${v.b}`, v);
+  for (const v of vues.values()) {
+    errors.push(`CSP : le parcours declenche une violation « ${v.d} » sur ${v.b}. Ce blocage est silencieux cote visiteur.`);
+  }
+}
 
-  // Juste apres : l'etat d'envoi est pose et le bouton desactive.
-  const fige = await pg.evaluate(() => {
-    const b = document.querySelector("#devis-submit");
-    return { desactive: !!b && b.disabled, texte: b ? b.textContent.trim() : "" };
-  });
-  if (!fige.desactive) errors.push("§6 : le bouton n'est pas desactive au submit.");
-
-  // Au-dela du delai de secours, la main DOIT etre rendue.
-  await pg.waitForTimeout(9000);
-  const secours = await pg.evaluate(() => {
-    const b = document.querySelector("#devis-submit");
-    const s = document.querySelector("#devis-status");
-    const a = s ? s.querySelector("a") : null;
-    return {
-      rendu: !!b && !b.disabled,
-      texte: b ? b.textContent.trim() : "",
-      message: s && !s.hidden ? s.textContent.trim() : "",
-      lien: a ? a.getAttribute("href") : null,
-    };
-  });
-  if (!secours.rendu) {
-    errors.push(`§6 ECRAN MORT : la redirection est bloquee et le bouton reste fige sur « ${secours.texte} ». Le visiteur n'a aucune issue.`);
+// (e) L'ANGLE MORT : form-action ne doit contenir AUCUNE origine externe inutile.
+//
+// Les assertions precedentes verifient toutes que les destinations du formulaire
+// sont AUTORISEES. Aucune ne verifie l'inverse : qu'on n'autorise pas plus que
+// necessaire. Une origine externe laissee la apres coup, comme
+// calendar.app.google devenu sans objet des lors que la soumission reste en meme
+// origine, elargit la surface d'attaque sans que rien ne le signale jamais.
+// C'est exactement le genre de residu que personne ne retire, faute d'alerte.
+{
+  const AUTORISEES = new Set(["'self'", "https://app.mystela.fr"]);
+  const superflues = FORM_ACTION.filter((s) => !AUTORISEES.has(s));
+  if (superflues.length > 0) {
+    errors.push(
+      `CSP : form-action autorise ${superflues.join(", ")} sans necessite. La soumission reste en meme origine ` +
+      `et c'est la page qui mene ensuite au calendrier : seules 'self' et https://app.mystela.fr sont justifiees.`,
+    );
   }
-  if (/envoi/i.test(secours.texte)) {
-    errors.push(`§6 : le bouton dit encore « ${secours.texte} » alors que plus rien n'est en cours.`);
-  }
-  if (!secours.lien || !secours.lien.includes("calendar.app.google")) {
-    errors.push(`§6 : aucun lien manuel vers le calendrier n'est propose (href = ${secours.lien}).`);
-  }
-  if (!/partie|envoy/i.test(secours.message)) {
-    errors.push(`§6 : le message laisse croire a un echec de la demande, alors qu'elle est bien partie. Recu : « ${secours.message} »`);
-  }
-  await nav.close();
-  srv.close();
 }
 
 await browser.close();
@@ -355,4 +405,7 @@ if (errors.length > 0) {
   for (const e of errors) console.error(`  - ${e}`);
   process.exit(1);
 }
-console.log("check:devis OK : etat d'envoi, confirmation orientee creneau, 4 erreurs serveur affichees, conseil email non bloquant.");
+console.log(
+  "check:devis OK : soumission autorisee par form-action, arrivee au calendrier verifiee sous la vraie CSP, " +
+  "filet de securite si la navigation echoue, etat d'envoi, confirmation orientee creneau, 4 erreurs serveur affichees, conseil email non bloquant."
+);

@@ -2,14 +2,36 @@
 // petit formulaire de qualification (nom, email, nombre d'établissements,
 // secteur) → notification email à contact@mystela.fr → redirection vers la prise
 // de rendez-vous. Défenses : honeypot + validation serveur + rate limit IP.
-// Le rendez-vous prime : tout chemin (bot, rate limit, échec d'envoi) finit
-// sur le calendrier, seule une saisie invalide revient au formulaire.
+// Le rendez-vous prime : tout chemin (bot, rate limit, échec d'envoi) finit sur
+// la page de confirmation, qui mène au calendrier ; seule une saisie invalide
+// revient au formulaire avec le détail de ce qui ne va pas.
 import { sendEmail, rateLimit, clientIp, SITE, EMAIL_RE } from "../lib/leads.js";
-import { CALENDAR_URL } from "../lib/booking.js";
 
 const PAGE = "/pour/multi-etablissements";
-const CALENDAR = CALENDAR_URL;
 const NOTIFY_TO = "contact@mystela.fr";
+
+// CORRECTIF DEVIS-1b : cette fonction ne redirige PLUS vers le calendrier.
+//
+// Elle le faisait, et le navigateur refusait de suivre : `form-action` de la CSP
+// vaut `'self' https://app.mystela.fr`, et cette directive s'applique à TOUTE la
+// chaîne de redirection d'une soumission, pas seulement à sa première étape. Le
+// POST partait, l'email de notification arrivait, puis la navigation vers
+// calendar.app.google était bloquée. Le visiteur restait devant un écran mort,
+// bouton figé sur « Envoi en cours… », et ne réservait jamais.
+//
+// Deux corrections étaient possibles : étendre `form-action` aux domaines du
+// calendrier, ou cesser d'y renvoyer depuis une soumission. La seconde est
+// retenue. La première aurait supposé d'autoriser calendar.app.google ET
+// calendar.google.com (le lien court redirige vers le second), donc de faire
+// dépendre la conversion la plus chère du site d'une chaîne de redirections
+// Google qu'on ne maîtrise pas : le jour où Google ajoute un domaine, la panne
+// revient, aussi silencieuse qu'aujourd'hui.
+//
+// La fonction renvoie donc vers une page du site, MÊME ORIGINE, toujours
+// autorisée par `'self'`. C'est la page qui emmène ensuite le visiteur au
+// calendrier, par une navigation ordinaire que `form-action` ne régit pas, et
+// qui affiche de toute façon un bouton manuel si ce saut échoue.
+const CONFIRMATION = `${SITE}${PAGE}?envoye=1#devis`;
 
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -58,7 +80,7 @@ export default async function handler(req, res) {
   const honeypot = String(body.website || "").trim();
 
   // Bot (honeypot rempli) : on redirige sans rien envoyer.
-  if (honeypot) return redirect(CALENDAR);
+  if (honeypot) return redirect(CONFIRMATION);
 
   // LOT DEVIS-1 §3 : la validation disait seulement « erreur=1 », et la page
   // n'affichait rien du tout. Le visiteur revenait sur un formulaire muet, sans
@@ -76,7 +98,7 @@ export default async function handler(req, res) {
 
   // Rate limit par IP : au-delà, on redirige quand même (pas d'indice) sans email.
   const byIp = await rateLimit(`devis:${clientIp(req)}`, { max: 5, windowSec: 3600 });
-  if (!byIp.ok) return redirect(CALENDAR);
+  if (!byIp.ok) return redirect(CONFIRMATION);
 
   try {
     await sendEmail({
@@ -89,11 +111,11 @@ export default async function handler(req, res) {
   <li><strong>Nombre d'établissements :</strong> ${esc(establishments)}</li>
   <li><strong>Secteur :</strong> ${esc(sector)}</li>
 </ul>
-<p>Le contact a été redirigé vers la prise de rendez-vous.</p>`,
+<p>Le contact a été renvoyé vers la prise de rendez-vous.</p>`,
     });
   } catch {
     /* la notification est best effort : le rendez-vous prime */
   }
 
-  return redirect(CALENDAR);
+  return redirect(CONFIRMATION);
 }
