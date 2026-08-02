@@ -98,7 +98,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
               Il reste l'essentiel : choisir le moment où on en parle. Une offre de
               groupe se construit pendant l'échange, pas par email.
             </p>
-            <a class="btn btn-primary" href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
+            <a class="btn btn-primary" id="devis-calendrier" href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
             <button type="button" class="devis-confirm-redo" id="devis-redo">Envoyer une autre demande</button>
           </div>
 
@@ -151,6 +151,13 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
                 calendrier tardait à charger, rien ne disait que la demande
                 partait. */}
             <p class="devis-status" id="devis-status" role="status" hidden>Envoi en cours, ne fermez pas cette page.</p>
+            {/* CORRECTIF DEVIS-1b : filet de sécurité. Si rien ne s'est passé au
+                bout de quelques secondes, le visiteur reprend la main plutôt que
+                de rester devant un écran mort. */}
+            <p class="devis-secours" id="devis-secours" role="alert" hidden>
+              L'ouverture du calendrier n'a pas abouti. Votre demande, elle, est bien partie.
+              <a href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
+            </p>
           </form>
           {/* LOT DEVIS-1 §2 : cette offre se close en appel, jamais par email.
               L'ancienne note (« Réponse sous 24 h ouvrées ») laissait croire
@@ -231,7 +238,6 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   // hachage à ce moment-là reviendrait soit à retarder l'envoi, soit à le rater.
   // Au submit, l'empreinte est donc déjà prête et se lit sans await.
   import { trackWithEmailHash, hashEmail } from "../../lib/track";
-  import { CALENDAR_URL } from "../../../lib/booking.js";
   const devis = document.querySelector<HTMLFormElement>(".devis-form");
   const emailInput = devis?.querySelector<HTMLInputElement>('input[name="email"]');
   let emailHash: string | null = null;
@@ -300,6 +306,10 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   };
 
   if (devis) {
+    // L'URL du calendrier est lue sur le bouton de la confirmation plutôt que
+    // recopiée ici : le lien affiché et la destination du saut ne peuvent alors
+    // pas diverger, et il n'y a toujours qu'un seul endroit à changer.
+    const CALENDRIER = document.querySelector<HTMLAnchorElement>("#devis-calendrier")?.href || "";
     const bouton = document.querySelector<HTMLButtonElement>("#devis-submit");
     const statut = document.querySelector<HTMLElement>("#devis-status");
     const bloc = document.querySelector<HTMLElement>("#devis-erreur");
@@ -309,7 +319,9 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
 
     // §3 : erreurs renvoyées par le serveur. `erreur=1` reste compris : c'est ce
     // que produit un corps de requête illisible, et d'anciens liens en circulent.
-    const codes = (new URLSearchParams(location.search).get("erreur") || "")
+    const params = new URLSearchParams(location.search);
+    const envoye = params.get("envoye") === "1";
+    const codes = (params.get("erreur") || "")
       .split(",").map((c) => c.trim()).filter(Boolean);
     if (codes.length > 0 && bloc && liste) {
       const connus = codes.filter((c) => c in MESSAGES);
@@ -326,10 +338,20 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       }
       const premier = devis.querySelector<HTMLElement>(`[aria-invalid="true"]`);
       premier?.focus();
-    } else if (confirm && demandeEnvoyee()) {
-      // §2 : retour sur la page après un envoi : on ne redemande rien, on
-      // ramène au créneau.
-      confirm.hidden = false;
+    } else if (envoye || (confirm && demandeEnvoyee())) {
+      // §2 : retour sur la page après un envoi, on ne redemande rien, on ramène
+      // au créneau.
+      if (confirm) confirm.hidden = false;
+      if (envoye) {
+        // CORRECTIF DEVIS-1b : c'est ICI que le visiteur part au calendrier, et
+        // plus depuis la redirection serveur, que la CSP bloquait.
+        // `location.assign` est une navigation ordinaire, hors du champ de
+        // `form-action` : elle aboutit là où la soumission échouait.
+        // `assign` et non `replace` : le bouton « précédent » doit ramener sur
+        // la confirmation, pas relancer une soumission.
+        memoriser();
+        setTimeout(() => { location.assign(CALENDRIER); }, 400);
+      }
     }
 
     // §4 : conseil sur l'adresse, sans jamais empêcher l'envoi.
@@ -348,12 +370,6 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       devis.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
     });
 
-    // Delai au-dela duquel on considere que la navigation n'aura pas lieu.
-    // Assez long pour ne pas clignoter sur une connexion lente, assez court
-    // pour qu'un visiteur bloque ne reste pas devant un ecran mort.
-    const DELAI_SECOURS_MS = 6000;
-    const BOUTON_LIBELLE = bouton?.textContent?.trim() || "Demander un devis et choisir un creneau";
-
     devis.addEventListener("submit", () => {
       const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
       if (hp && hp.value.trim()) return;
@@ -363,44 +379,31 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       // donnée de la soumission déjà déclenchée.
       memoriser();
       if (statut) statut.hidden = false;
+      const libelle = bouton?.textContent ?? "";
       if (bouton) {
         bouton.disabled = true;
         bouton.textContent = "Envoi en cours…";
       }
 
-      // LOT DEVIS-2 : GARDE-FOU ANTI-ECRAN MORT.
+      // CORRECTIF DEVIS-1b : un état d'envoi qui ne se termine jamais est PIRE
+      // que pas d'état du tout. C'est exactement ce qui s'est produit en
+      // production : la CSP bloquait la redirection, la page ne bougeait plus,
+      // et le bouton restait figé sur « Envoi en cours… » indéfiniment.
       //
-      // Cet etat n'est cense durer qu'un instant : la navigation vers le
-      // calendrier emporte la page. S'il dure, c'est que la navigation n'a PAS
-      // eu lieu, et le visiteur reste devant un bouton mort, sans explication,
-      // en croyant que sa demande n'est pas partie. C'est exactement ce qui
-      // s'est produit en production : la form-action de la CSP bloquait la
-      // redirection 303 vers le calendrier, en silence, sans erreur visible.
-      //
-      // La CSP est corrigee (vercel.json), mais on ne remet pas le sort du
-      // prospect le plus cher du site entre les mains d'une seule ligne de
-      // configuration : si rien ne s'est passe au bout de quelques secondes, on
-      // rend la main au visiteur.
-      //
-      // La demande, elle, est DEJA partie (le POST a eu lieu, la notification
-      // aussi) : le message ne doit donc pas laisser croire a un echec, mais
-      // proposer le rendez-vous par un autre chemin.
+      // Au-delà du délai, on rend la main : bouton réactivé, message franc (la
+      // demande EST partie, c'est l'ouverture du calendrier qui a échoué) et
+      // lien manuel. Ce filet ne dépend d'aucune hypothèse sur la cause : il
+      // couvre aussi bien une CSP, une coupure réseau qu'un serveur muet.
+      const secours = document.querySelector<HTMLElement>("#devis-secours");
       window.setTimeout(() => {
+        if (document.visibilityState === "hidden") return; // page déjà quittée
+        if (statut) statut.hidden = true;
+        if (secours) secours.hidden = false;
         if (bouton) {
           bouton.disabled = false;
-          bouton.textContent = BOUTON_LIBELLE;
+          bouton.textContent = libelle;
         }
-        if (statut) {
-          statut.hidden = false;
-          statut.textContent = "Votre demande est bien partie. L'ouverture du calendrier a echoue : ";
-          const lien = document.createElement("a");
-          lien.href = CALENDAR_URL;
-          lien.rel = "noopener";
-          lien.textContent = "choisir un creneau";
-          statut.appendChild(lien);
-          statut.append(".");
-        }
-      }, DELAI_SECOURS_MS);
+      }, 6000);
     });
   }
 </script>
@@ -460,4 +463,6 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .devis-field input[aria-invalid="true"], .devis-field select[aria-invalid="true"] { border-color: #c2564a; }
   .devis-hint { margin: -.5rem 0 0; font-size: .85rem; color: var(--text-muted); }
   .devis-status { margin: 0; font-size: .85rem; color: var(--text-secondary); text-align: center; }
+  .devis-secours { margin: 0; font-size: .85rem; color: #8a2b1e; text-align: center; }
+  .devis-secours a { color: #8a2b1e; font-weight: 700; text-decoration: underline; margin-left: .25rem; }
 </style>
