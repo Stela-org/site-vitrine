@@ -8,7 +8,7 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/indexnow-ping.mjs",
     "preview": "astro preview",
-    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities",
+    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities && npm run check:devis",
     "lint:copy": "node scripts/check-copy.mjs",
     "check:brand": "node scripts/check-brand.mjs",
     "check:links": "node scripts/check-links.mjs",
@@ -22,7 +22,8 @@
     "build:guide": "node scripts/build-guide-pdf.mjs",
     "indexnow": "node scripts/indexnow-ping.mjs",
     "check:overflow": "node scripts/check-overflow.mjs",
-    "check:cookies": "node scripts/check-cookies.mjs"
+    "check:cookies": "node scripts/check-cookies.mjs",
+    "check:devis": "node scripts/check-devis.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.3.4",

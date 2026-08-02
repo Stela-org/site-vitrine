@@ -5,6 +5,7 @@ import { SEGMENTS, profils, secteurs } from "../../content/segments";
 import { CITIES } from "../../content/cities";
 import ReviewCard from "../../components/ReviewCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import { CALENDAR_URL } from "../../../lib/booking.js";
 
 export function getStaticPaths() {
   return SEGMENTS.map((s) => ({ params: { segment: s.slug }, props: { s } }));
@@ -86,6 +87,29 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
             besoins d'équipe. On construit l'offre avec vous, sur devis. Dites-nous
             qui vous êtes, puis choisissez un créneau de rendez-vous.
           </p>
+
+          {/* LOT DEVIS-1 §2 : le visiteur revenu sur la page sans avoir pris de
+              créneau retrouve son chemin vers le calendrier, sans re-remplir
+              quoi que ce soit. Masqué par défaut, révélé par le script quand la
+              demande a bien été envoyée depuis ce navigateur. */}
+          <div id="devis-confirm" class="devis-confirm" hidden>
+            <p class="devis-confirm-title">Votre demande est enregistrée.</p>
+            <p class="devis-confirm-text">
+              Il reste l'essentiel : choisir le moment où on en parle. Une offre de
+              groupe se construit pendant l'échange, pas par email.
+            </p>
+            <a class="btn btn-primary" href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
+            <button type="button" class="devis-confirm-redo" id="devis-redo">Envoyer une autre demande</button>
+          </div>
+
+          {/* LOT DEVIS-1 §3 : la validation serveur redirigeait avec `?erreur=`
+              et le HTML n'en disait rien. Rempli par le script à partir de la
+              liste des champs refusés. */}
+          <div id="devis-erreur" class="devis-erreur" hidden role="alert">
+            <p class="devis-erreur-title">Votre demande n'a pas été envoyée.</p>
+            <ul id="devis-erreur-liste" class="devis-erreur-liste"></ul>
+          </div>
+
           <form method="POST" action="/api/devis" class="devis-form card">
             {/* Honeypot anti-bot : invisible, doit rester vide. */}
             <div class="hp" aria-hidden="true">
@@ -98,8 +122,15 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
                 répondre au prospect sans dépendre du seul créneau pris, et
                 joindre son empreinte SHA-256 à la conversion `demande_devis`. */}
             <label class="devis-field">Votre email professionnel
-              <input type="email" name="email" required placeholder="vous@etablissement.fr" autocomplete="email" maxlength="120" />
+              <input type="email" name="email" required placeholder="vous@etablissement.fr" autocomplete="email" maxlength="120" aria-describedby="devis-email-hint" />
             </label>
+            {/* LOT DEVIS-1 §4 : incitation, jamais blocage. Beaucoup de
+                restaurateurs indépendants, y compris multi-sites, pilotent leur
+                groupe depuis une adresse Gmail. Refuser la saisie coûterait de
+                vrais prospects sur la conversion la plus chère du site. */}
+            <p class="devis-hint" id="devis-email-hint" hidden>
+              Une adresse professionnelle nous aide à préparer votre devis.
+            </p>
             <label class="devis-field">Nombre d'établissements
               <input type="number" name="establishments" required min="1" max="999999" inputmode="numeric" placeholder="4" />
             </label>
@@ -115,9 +146,16 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
                 <option>Autre</option>
               </select>
             </label>
-            <button type="submit" class="btn btn-primary">Demander un devis et choisir un créneau</button>
+            <button type="submit" class="btn btn-primary" id="devis-submit">Demander un devis et choisir un créneau</button>
+            {/* LOT DEVIS-1 §1 : jusqu'ici, on soumettait dans le vide. Si le
+                calendrier tardait à charger, rien ne disait que la demande
+                partait. */}
+            <p class="devis-status" id="devis-status" role="status" hidden>Envoi en cours, ne fermez pas cette page.</p>
           </form>
-          <p class="seg-tarifs-note">Réponse sous 24 h ouvrées, sans engagement.</p>
+          {/* LOT DEVIS-1 §2 : cette offre se close en appel, jamais par email.
+              L'ancienne note (« Réponse sous 24 h ouvrées ») laissait croire
+              qu'attendre suffirait, et sabordait la prise de créneau. */}
+          <p class="seg-tarifs-note">Vous choisissez votre créneau juste après l'envoi. 20 minutes, sans engagement.</p>
         </>
       ) : (
         <>
@@ -209,11 +247,121 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
     emailInput.addEventListener("input", preparer);
     emailInput.addEventListener("change", preparer);
   }
-  devis?.addEventListener("submit", () => {
-    const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
-    if (hp && hp.value.trim()) return;
-    trackWithEmailHash("demande_devis", emailHash, { transport_type: "beacon" });
-  });
+  // ── LOT DEVIS-1 ───────────────────────────────────────────────────────────
+  // Trois manques traités ici, tous côté client : la page est statique et le
+  // POST part vers une fonction serveur qui redirige hors du site.
+  //
+  //   §1 état d'envoi : on soumettait dans le vide.
+  //   §2 le rendez-vous EST l'étape, pas une suite optionnelle : on mémorise
+  //      qu'une demande est partie pour ramener au calendrier le visiteur qui
+  //      revient sans avoir réservé, sans lui refaire remplir le formulaire.
+  //   §3 les erreurs de validation serveur, jusqu'ici invisibles.
+  //
+  // La mémorisation utilise localStorage, jamais un cookie de mesure : c'est un
+  // état fonctionnel déclenché par le visiteur lui-même (il vient d'envoyer un
+  // formulaire), sans lien avec le consentement publicitaire de la bannière.
+  const DEVIS_KEY = "stela_devis_envoye";
+  const DEVIS_TTL_MS = 30 * 24 * 3600 * 1000;
+
+  const MESSAGES: Record<string, string> = {
+    nom: "Indiquez votre nom, pour qu'on sache à qui l'on s'adresse.",
+    email: "L'adresse email saisie n'est pas valide, vérifiez sa forme (vous@etablissement.fr).",
+    etablissements: "Indiquez le nombre d'établissements, en chiffres (par exemple 4).",
+    secteur: "Choisissez votre secteur dans la liste.",
+  };
+  const CHAMPS: Record<string, string> = {
+    nom: "name", email: "email", etablissements: "establishments", secteur: "sector",
+  };
+  const GENERIQUE = "Votre demande n'a pas pu être lue. Vérifiez les champs et réessayez.";
+
+  // §4 : fournisseurs grand public. Liste volontairement courte et explicite ;
+  // elle ne sert qu'à afficher un conseil, jamais à refuser une saisie.
+  const GRAND_PUBLIC = [
+    "gmail", "googlemail", "yahoo", "ymail", "hotmail", "outlook", "live", "msn",
+    "orange", "wanadoo", "free", "sfr", "neuf", "bbox", "laposte", "icloud", "me",
+    "aol", "gmx", "protonmail", "proton",
+  ];
+
+  const memoriser = () => {
+    try { localStorage.setItem(DEVIS_KEY, String(Date.now())); } catch { /* navigation privée : on continue sans */ }
+  };
+  const demandeEnvoyee = (): boolean => {
+    try {
+      const brut = localStorage.getItem(DEVIS_KEY);
+      if (!brut) return false;
+      const quand = Number(brut);
+      if (!Number.isFinite(quand) || Date.now() - quand > DEVIS_TTL_MS) {
+        localStorage.removeItem(DEVIS_KEY);
+        return false;
+      }
+      return true;
+    } catch { return false; }
+  };
+
+  if (devis) {
+    const bouton = document.querySelector<HTMLButtonElement>("#devis-submit");
+    const statut = document.querySelector<HTMLElement>("#devis-status");
+    const bloc = document.querySelector<HTMLElement>("#devis-erreur");
+    const liste = document.querySelector<HTMLUListElement>("#devis-erreur-liste");
+    const confirm = document.querySelector<HTMLElement>("#devis-confirm");
+    const indice = document.querySelector<HTMLElement>("#devis-email-hint");
+
+    // §3 : erreurs renvoyées par le serveur. `erreur=1` reste compris : c'est ce
+    // que produit un corps de requête illisible, et d'anciens liens en circulent.
+    const codes = (new URLSearchParams(location.search).get("erreur") || "")
+      .split(",").map((c) => c.trim()).filter(Boolean);
+    if (codes.length > 0 && bloc && liste) {
+      const connus = codes.filter((c) => c in MESSAGES);
+      const aAfficher = connus.length > 0 ? connus.map((c) => MESSAGES[c]) : [GENERIQUE];
+      for (const texte of aAfficher) {
+        const li = document.createElement("li");
+        li.textContent = texte;
+        liste.appendChild(li);
+      }
+      bloc.hidden = false;
+      for (const code of connus) {
+        const champ = devis.querySelector<HTMLElement>(`[name="${CHAMPS[code]}"]`);
+        champ?.setAttribute("aria-invalid", "true");
+      }
+      const premier = devis.querySelector<HTMLElement>(`[aria-invalid="true"]`);
+      premier?.focus();
+    } else if (confirm && demandeEnvoyee()) {
+      // §2 : retour sur la page après un envoi : on ne redemande rien, on
+      // ramène au créneau.
+      confirm.hidden = false;
+    }
+
+    // §4 : conseil sur l'adresse, sans jamais empêcher l'envoi.
+    if (emailInput && indice) {
+      const jugerAdresse = () => {
+        const domaine = (emailInput.value.split("@")[1] || "").toLowerCase().split(".")[0];
+        indice.hidden = !(domaine && GRAND_PUBLIC.includes(domaine));
+      };
+      emailInput.addEventListener("input", jugerAdresse);
+      emailInput.addEventListener("blur", jugerAdresse);
+    }
+
+    document.querySelector<HTMLButtonElement>("#devis-redo")?.addEventListener("click", () => {
+      try { localStorage.removeItem(DEVIS_KEY); } catch { /* rien à nettoyer */ }
+      if (confirm) confirm.hidden = true;
+      devis.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
+    });
+
+    devis.addEventListener("submit", () => {
+      const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
+      if (hp && hp.value.trim()) return;
+      trackWithEmailHash("demande_devis", emailHash, { transport_type: "beacon" });
+      // §1/§2 : l'état visible et la mémorisation partent AVANT la navigation.
+      // Le bouton n'a pas d'attribut `name` : le désactiver ne retire aucune
+      // donnée de la soumission déjà déclenchée.
+      memoriser();
+      if (statut) statut.hidden = false;
+      if (bouton) {
+        bouton.disabled = true;
+        bouton.textContent = "Envoi en cours…";
+      }
+    });
+  }
 </script>
 
 <style>
@@ -257,4 +405,18 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .devis-field input, .devis-field select { padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 10px; font: inherit; background: #fff; }
   .devis-form .btn { justify-content: center; }
   .seg-tarifs-note { color: var(--text-muted); font-size: .85rem; margin: .75rem 0 0; }
+
+  /* LOT DEVIS-1 : confirmation, erreurs, indice et état d'envoi. */
+  .devis-confirm { max-width: 440px; margin-top: 1.5rem; background: #fff; border: 2px solid var(--brass); border-radius: 14px; padding: 1.1rem 1.25rem; }
+  .devis-confirm-title { font-weight: 800; color: var(--ink); margin: 0; }
+  .devis-confirm-text { color: var(--text-secondary); font-size: .92rem; margin: .4rem 0 .9rem; }
+  .devis-confirm .btn { display: inline-flex; }
+  .devis-confirm-redo { display: block; margin-top: .75rem; background: none; border: 0; padding: 0; font: inherit; font-size: .85rem; color: var(--text-muted); text-decoration: underline; cursor: pointer; }
+  .devis-erreur { max-width: 440px; margin-top: 1.5rem; background: #fff6f5; border: 1px solid #e4b7b1; border-radius: 12px; padding: .9rem 1.1rem; }
+  .devis-erreur-title { font-weight: 700; color: #8a2b1e; margin: 0 0 .35rem; font-size: .95rem; }
+  .devis-erreur-liste { margin: 0; padding-left: 1.1rem; color: #8a2b1e; font-size: .9rem; }
+  .devis-erreur-liste li + li { margin-top: .25rem; }
+  .devis-field input[aria-invalid="true"], .devis-field select[aria-invalid="true"] { border-color: #c2564a; }
+  .devis-hint { margin: -.5rem 0 0; font-size: .85rem; color: var(--text-muted); }
+  .devis-status { margin: 0; font-size: .85rem; color: var(--text-secondary); text-align: center; }
 </style>
