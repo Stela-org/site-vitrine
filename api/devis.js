@@ -5,9 +5,10 @@
 // Le rendez-vous prime : tout chemin (bot, rate limit, échec d'envoi) finit
 // sur le calendrier, seule une saisie invalide revient au formulaire.
 import { sendEmail, rateLimit, clientIp, SITE, EMAIL_RE } from "../lib/leads.js";
+import { CALENDAR_URL } from "../lib/booking.js";
 
 const PAGE = "/pour/multi-etablissements";
-const CALENDAR = "https://calendar.app.google/hchodXwU2y3PhpeW8";
+const CALENDAR = CALENDAR_URL;
 const NOTIFY_TO = "contact@mystela.fr";
 
 const esc = (s) =>
@@ -58,8 +59,19 @@ export default async function handler(req, res) {
 
   // Bot (honeypot rempli) : on redirige sans rien envoyer.
   if (honeypot) return redirect(CALENDAR);
-  if (!name || !/^\d{1,6}$/.test(establishments) || !sector || !EMAIL_RE.test(email)) {
-    return redirect(`${SITE}${PAGE}?erreur=1#devis`);
+
+  // LOT DEVIS-1 §3 : la validation disait seulement « erreur=1 », et la page
+  // n'affichait rien du tout. Le visiteur revenait sur un formulaire muet, sans
+  // savoir lequel des quatre champs posait problème. On renvoie donc la LISTE
+  // des champs invalides, que la page traduit en phrases. Les codes sont
+  // stables et lisibles : ils apparaissent dans l'URL du prospect.
+  const invalides = [];
+  if (!name) invalides.push("nom");
+  if (!EMAIL_RE.test(email)) invalides.push("email");
+  if (!/^\d{1,6}$/.test(establishments)) invalides.push("etablissements");
+  if (!sector) invalides.push("secteur");
+  if (invalides.length > 0) {
+    return redirect(`${SITE}${PAGE}?erreur=${invalides.join(",")}#devis`);
   }
 
   // Rate limit par IP : au-delà, on redirige quand même (pas d'indice) sans email.
