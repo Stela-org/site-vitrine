@@ -77,6 +77,30 @@ const base = await new Promise((r) => server.listen(0, () => r(`http://127.0.0.1
 const errors = [];
 const browser = await chromium.launch();
 
+/**
+ * Tranche la banniere de consentement de facon DETERMINISTE.
+ *
+ * `page.click("#cookie-accept")` seul rend ce gardien intermittent : le bouton
+ * existe toujours dans le markup, mais il est invisible tant que le script de la
+ * banniere n'a pas retire l'attribut `hidden`. Playwright attend alors
+ * l'actionnabilite et finit par lever un TimeoutError qui fait CRASHER le check
+ * au lieu de produire un diagnostic. Observe en pratique : un echec sur trois
+ * executions, sans aucun rapport avec le code du site.
+ *
+ * On attend donc explicitement que la banniere soit visible, et on transforme
+ * son absence en erreur lisible plutot qu'en exception.
+ */
+async function trancherConsentement(page, bouton, contexte) {
+  try {
+    await page.waitForSelector(`#${bouton}:visible`, { timeout: 15000 });
+  } catch {
+    errors.push(`${contexte} : la banniere de consentement n'est jamais apparue, impossible de cliquer « ${bouton} ».`);
+    return false;
+  }
+  await page.click(`#${bouton}`);
+  return true;
+}
+
 async function scenario(label, buttonId) {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 700 }, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
@@ -165,7 +189,7 @@ async function networkScenario() {
 
   // b) Refus : idem, sur toutes les pages, y compris apres navigation.
   await page.goto(base + "/", { waitUntil: "networkidle" });
-  await page.click("#cookie-deny");
+  await trancherConsentement(page, "cookie-deny", "scenario reseau");
   googleReqs.length = 0;
   for (const p of PAGES) await page.goto(base + p, { waitUntil: "networkidle" });
   if (googleReqs.length) {
@@ -185,7 +209,7 @@ async function networkScenario() {
   await page.evaluate(() => { try { localStorage.clear(); } catch { /* ignore */ } });
   await page.reload({ waitUntil: "networkidle" });
   googleReqs.length = 0;
-  await page.click("#cookie-accept");
+  await trancherConsentement(page, "cookie-accept", "scenario reseau");
   // Le hit de collecte part apres le chargement et l'execution de gtag.js :
   // on attend qu'il apparaisse, avec une limite de temps.
   // Les hits de collecte GA4 partent selon le compte vers google-analytics.com
@@ -323,7 +347,7 @@ async function enhancedConversionScenario() {
 
   // 2) Page de merci du meme onglet : la conversion doit partir AVEC l'empreinte.
   await page.goto(base + "/guide-google-commercant-local/merci", { waitUntil: "networkidle" });
-  await page.click("#cookie-accept");
+  await trancherConsentement(page, "cookie-accept", "scenario suivi avance");
   const COLLECT = /^https:\/\/([a-z0-9-]+\.)*(google-analytics\.com|analytics\.google\.com)\/g\/collect/;
   const conversion = () => googleReqs.find((h) => COLLECT.test(h.url) && /[?&]en=guide_telecharge/.test(h.url) && responses.has(h.url));
   const deadline = Date.now() + 20000;
@@ -423,7 +447,7 @@ async function devisScenario() {
     await ctx.close();
     return;
   }
-  await page.click("#cookie-accept");
+  await trancherConsentement(page, "cookie-accept", "scenario devis");
   await page.fill('.devis-form input[name="name"]', "Camille Dupont");
   // Saisie sale, comme un vrai visiteur : Google exige minuscules et espaces retires.
   await page.fill('.devis-form input[name="email"]', `  ${EMAIL.toUpperCase()} `);
@@ -466,7 +490,7 @@ async function stripeScenario(mode, chemin, statutAttendu, empreinteAttendue) {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await page.goto(base + chemin, { waitUntil: "domcontentloaded" });
-  await page.click("#cookie-accept").catch(() => { /* banniere deja tranchee */ });
+  await trancherConsentement(page, "cookie-accept", `scenario Stripe/${mode}`);
   // Le mode « lent » doit franchir le garde-fou de 4 s avant d'emettre.
   await page.waitForTimeout(mode === "lent" ? 7000 : 3000);
 
