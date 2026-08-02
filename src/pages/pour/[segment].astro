@@ -231,6 +231,7 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   // hachage à ce moment-là reviendrait soit à retarder l'envoi, soit à le rater.
   // Au submit, l'empreinte est donc déjà prête et se lit sans await.
   import { trackWithEmailHash, hashEmail } from "../../lib/track";
+  import { CALENDAR_URL } from "../../../lib/booking.js";
   const devis = document.querySelector<HTMLFormElement>(".devis-form");
   const emailInput = devis?.querySelector<HTMLInputElement>('input[name="email"]');
   let emailHash: string | null = null;
@@ -347,6 +348,12 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       devis.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
     });
 
+    // Delai au-dela duquel on considere que la navigation n'aura pas lieu.
+    // Assez long pour ne pas clignoter sur une connexion lente, assez court
+    // pour qu'un visiteur bloque ne reste pas devant un ecran mort.
+    const DELAI_SECOURS_MS = 6000;
+    const BOUTON_LIBELLE = bouton?.textContent?.trim() || "Demander un devis et choisir un creneau";
+
     devis.addEventListener("submit", () => {
       const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
       if (hp && hp.value.trim()) return;
@@ -360,6 +367,40 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
         bouton.disabled = true;
         bouton.textContent = "Envoi en cours…";
       }
+
+      // LOT DEVIS-2 : GARDE-FOU ANTI-ECRAN MORT.
+      //
+      // Cet etat n'est cense durer qu'un instant : la navigation vers le
+      // calendrier emporte la page. S'il dure, c'est que la navigation n'a PAS
+      // eu lieu, et le visiteur reste devant un bouton mort, sans explication,
+      // en croyant que sa demande n'est pas partie. C'est exactement ce qui
+      // s'est produit en production : la form-action de la CSP bloquait la
+      // redirection 303 vers le calendrier, en silence, sans erreur visible.
+      //
+      // La CSP est corrigee (vercel.json), mais on ne remet pas le sort du
+      // prospect le plus cher du site entre les mains d'une seule ligne de
+      // configuration : si rien ne s'est passe au bout de quelques secondes, on
+      // rend la main au visiteur.
+      //
+      // La demande, elle, est DEJA partie (le POST a eu lieu, la notification
+      // aussi) : le message ne doit donc pas laisser croire a un echec, mais
+      // proposer le rendez-vous par un autre chemin.
+      window.setTimeout(() => {
+        if (bouton) {
+          bouton.disabled = false;
+          bouton.textContent = BOUTON_LIBELLE;
+        }
+        if (statut) {
+          statut.hidden = false;
+          statut.textContent = "Votre demande est bien partie. L'ouverture du calendrier a echoue : ";
+          const lien = document.createElement("a");
+          lien.href = CALENDAR_URL;
+          lien.rel = "noopener";
+          lien.textContent = "choisir un creneau";
+          statut.appendChild(lien);
+          statut.append(".");
+        }
+      }, DELAI_SECOURS_MS);
     });
   }
 </script>
