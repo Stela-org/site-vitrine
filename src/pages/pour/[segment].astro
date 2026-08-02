@@ -94,6 +94,12 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
             <label class="devis-field">Votre nom
               <input type="text" name="name" required placeholder="Camille Dupont" autocomplete="name" maxlength="80" />
             </label>
+            {/* LOT GADS-2 : l'email manquait au formulaire. Il sert deux fois :
+                répondre au prospect sans dépendre du seul créneau pris, et
+                joindre son empreinte SHA-256 à la conversion `demande_devis`. */}
+            <label class="devis-field">Votre email professionnel
+              <input type="email" name="email" required placeholder="vous@etablissement.fr" autocomplete="email" maxlength="120" />
+            </label>
             <label class="devis-field">Nombre d'établissements
               <input type="number" name="establishments" required min="1" max="999999" inputmode="numeric" placeholder="4" />
             </label>
@@ -180,12 +186,33 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   // navigation, SANS preventDefault ni délai, donc sans retarder l'envoi.
   // Le submit natif n'est émis que si la validation HTML passe, et le honeypot
   // rempli (bot) est exclu.
-  import { track } from "../../lib/track";
+  //
+  // LOT GADS-2 : l'empreinte SHA-256 de l'email saisi accompagne la conversion.
+  // Elle est calculée À LA SAISIE et non au submit : crypto.subtle est
+  // asynchrone, or le submit natif quitte la page immédiatement, attendre le
+  // hachage à ce moment-là reviendrait soit à retarder l'envoi, soit à le rater.
+  // Au submit, l'empreinte est donc déjà prête et se lit sans await.
+  import { trackWithEmailHash, hashEmail } from "../../lib/track";
   const devis = document.querySelector<HTMLFormElement>(".devis-form");
+  const emailInput = devis?.querySelector<HTMLInputElement>('input[name="email"]');
+  let emailHash: string | null = null;
+  if (emailInput) {
+    let derniere = "";
+    const preparer = () => {
+      const saisie = emailInput.value;
+      if (saisie === derniere) return;
+      derniere = saisie;
+      // Saisie invalide ou incomplète : hashEmail rend null, et la conversion
+      // partira sans empreinte plutôt qu'avec une valeur approximative.
+      hashEmail(saisie).then((h) => { emailHash = h; });
+    };
+    emailInput.addEventListener("input", preparer);
+    emailInput.addEventListener("change", preparer);
+  }
   devis?.addEventListener("submit", () => {
     const hp = devis.querySelector<HTMLInputElement>('input[name="website"]');
     if (hp && hp.value.trim()) return;
-    track("demande_devis", { transport_type: "beacon" });
+    trackWithEmailHash("demande_devis", emailHash, { transport_type: "beacon" });
   });
 </script>
 

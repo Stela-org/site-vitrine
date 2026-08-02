@@ -1,4 +1,4 @@
-// check:analytics (LOT GADS-1) — verrou de conformité de la mesure d'audience.
+// check:analytics (LOT GADS-1), verrou de conformité de la mesure d'audience.
 // Règle : AUCUN script Google dans le HTML rendu. Le tag GA4 n'est jamais dans
 // le markup statique, il est injecté par JavaScript UNIQUEMENT après un clic
 // « Accepter ». Ce check lit le build (dist/) et échoue si :
@@ -7,6 +7,8 @@
 //   2. une page charge un <script src> ou un <link href> externe (préconnexion
 //      comprise) vers un tiers : tout doit être servi en 'self' ;
 //   3. les trois événements de conversion ne sont plus câblés dans le bundle ;
+//   3bis. (LOT GADS-2) le hachage SHA-256 de l'email disparaît du bundle, ou un
+//      email en clair se retrouve dans un appel de conversion ;
 //   4. la page /merci-essai manque, n'est pas en noindex, ou entre au sitemap.
 // À lancer APRÈS le build.
 import { readFileSync, existsSync, globSync } from "node:fs";
@@ -58,6 +60,52 @@ for (const token of ["consent", "default", "denied", "granted", "transport_type"
   if (!bundle.includes(token)) errors.push(`jeton de consentement absent du bundle : ${token}`);
 }
 
+// 3 bis) LOT GADS-2, le suivi avance doit rester cable ET rester pseudonymise.
+// Deux regressions possibles, toutes deux silencieuses :
+//   a. le hachage disparait (refactor, suppression d'un appel) -> plus aucun gain
+//      de conversions, et personne ne s'en apercoit puisque la mesure continue ;
+//   b. pire : un email en CLAIR se retrouve dans un appel de conversion -> fuite
+//      de donnee personnelle vers Google, et manquement RGPD.
+// Le gardien echoue dans les deux cas.
+for (const token of ["sha256_email_address", "SHA-256", "subtle", "user_data"]) {
+  if (!bundle.includes(token)) {
+    errors.push(`suivi avance (GADS-2) : jeton « ${token} » absent du bundle. Le hachage de l'email n'est plus cable : les conversions repartent sans donnee d'identification.`);
+  }
+}
+
+// Un email en clair ne doit apparaitre NULLE PART dans le bundle ni dans le HTML
+// rendu. On tolere les adresses du site lui-meme (contact@mystela.fr...), qui
+// sont du contenu affiche, pas de la donnee de conversion.
+const EMAIL_LITTERAL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const EMAILS_DU_SITE = /@(mystela\.fr|avistars\.fr|example\.(com|org)|etablissement\.fr|sentry\.io|w3\.org|schema\.org)$/i;
+// Les placeholders de formulaire (« vous@etablissement.fr ») sont du contenu.
+const suspects = new Map();
+for (const [file, contenu] of [
+  ...jsFiles.map((f) => [f, readFileSync(f, "utf8")]),
+  ...htmlFiles.map((f) => [f, readFileSync(f, "utf8")]),
+]) {
+  for (const m of contenu.matchAll(EMAIL_LITTERAL)) {
+    const adresse = m[0];
+    if (EMAILS_DU_SITE.test(adresse)) continue;
+    // Adresse reelle codee en dur : on regarde si elle traine a proximite du
+    // suivi de conversion (fenetre de 400 caracteres autour).
+    const autour = contenu.slice(Math.max(0, m.index - 400), m.index + 400);
+    if (/sha256_email_address|user_data|hashEmail|track\(|stelaSend|EMAIL_HASH/.test(autour)) {
+      suspects.set(`${file}:${adresse}`, `${file} : adresse email en clair (${adresse}) a proximite immediate du suivi de conversion. Seule l'empreinte SHA-256 doit circuler.`);
+    }
+  }
+}
+for (const msg of suspects.values()) errors.push(msg);
+
+// L'empreinte transmise a Google ne doit jamais etre alimentee par autre chose
+// qu'une valeur hexadecimale. Un `sha256_email_address` recevant directement une
+// saisie de formulaire (une valeur contenant « @ ») est une fuite.
+for (const m of bundle.matchAll(/sha256_email_address\s*:\s*([^,}\n]{0,120})/g)) {
+  if (m[1].includes("@")) {
+    errors.push(`suivi avance (GADS-2) : sha256_email_address recoit une valeur contenant « @ » (${m[1].trim().slice(0, 80)}). L'email doit etre hache AVANT, jamais transmis en clair.`);
+  }
+}
+
 // 4) /merci-essai : presente, noindex, hors sitemap.
 const merci = `${DIST}/merci-essai.html`;
 if (!existsSync(merci)) {
@@ -97,6 +145,12 @@ if (!csp) {
     "https://region1.google-analytics.com",
     "https://analytics.google.com",
     "https://region1.analytics.google.com",
+    // LOT GADS-2 : chemin de mesure inter-appareils (Google Signals). Observe
+    // bloque par la CSP lors du lot : la requete partait et le navigateur la
+    // refusait en silence. Or c'est precisement ce chemin qui permet de recoller
+    // un clic publicitaire et une conversion survenue plus tard sur un AUTRE
+    // appareil, c'est-a-dire l'objet meme du suivi avance.
+    "https://stats.g.doubleclick.net",
   ];
   for (const src of REQUIS_CONNECT) {
     if (!connect.includes(src)) {
@@ -113,4 +167,4 @@ if (errors.length) {
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4.`);
+console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4.`);

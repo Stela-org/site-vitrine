@@ -1,9 +1,10 @@
-// check:cookies — test de non-régression de la bannière de consentement, en
+// check:cookies, test de non-régression de la bannière de consentement, en
 // conditions MOBILE (source du bug iOS). Scénario exigé : tap « Refuser » → la
 // bannière disparaît → et ne revient PAS après un rechargement. On teste aussi
 // « Accepter ». Nécessite Playwright + chromium (comme check:overflow).
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { extname } from "node:path";
 import { chromium } from "playwright";
 
@@ -245,6 +246,117 @@ async function networkScenario() {
 }
 
 await networkScenario();
+
+// LOT GADS-2, suivi avance des conversions. Preuve de bout en bout, sous la
+// VRAIE CSP de production : l'empreinte SHA-256 de l'email saisi doit accompagner
+// la conversion, et l'email en clair ne doit JAMAIS partir vers Google.
+//
+// Repartition volontaire entre echec et avertissement :
+//   - ce que NOTRE code controle (hachage correct, report d'une page a l'autre,
+//     declaration a gtag, absence d'email en clair, hit abouti en 2xx) fait
+//     ECHOUER le check ;
+//   - la presence de l'empreinte SUR LE RESEAU depend d'un reglage cote Google
+//     (« collecte de donnees fournies par l'utilisateur » dans la propriete GA4).
+//     Tant qu'il est desactive, gtag.js ne charge meme pas son module de donnees
+//     utilisateur et ignore `user_data` en silence. On AVERTIT, sans bloquer un
+//     build que le code ne peut pas corriger.
+const EMAIL_SONDE = "sonde.gads2@exemple-test.fr";
+const EMPREINTE_ATTENDUE = createHash("sha256").update(EMAIL_SONDE).digest("hex");
+
+async function enhancedConversionScenario() {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const googleReqs = [];
+  const responses = new Map();
+  page.on("request", (r) => {
+    let host = "";
+    try { host = new URL(r.url()).hostname; } catch { /* url exotique */ }
+    if (GOOGLE_HOST.test(host) || /doubleclick/.test(host)) {
+      googleReqs.push({ url: r.url(), post: r.postData() || "" });
+    }
+  });
+  page.on("response", (r) => responses.set(r.url(), r.status()));
+
+  // 1) Page du formulaire : la saisie de l'email doit produire l'empreinte, et
+  // rien d'autre. On verifie la valeur EXACTE : une normalisation qui derive
+  // (majuscules non abaissees, espaces non retires) produirait une empreinte que
+  // Google ne pourrait recoller a aucun compte, sans que rien ne le signale.
+  await page.goto(base + "/guide-google-commercant-local", { waitUntil: "networkidle" });
+  // Saisie volontairement « sale » : Google exige minuscules et espaces retires.
+  await page.fill('input[name="email"]', `  ${EMAIL_SONDE.toUpperCase()} `);
+  await page.dispatchEvent('input[name="email"]', "change");
+  await page.waitForTimeout(500);
+  const empreinte = await page.evaluate(() => sessionStorage.getItem("stela-uid"));
+  if (empreinte !== EMPREINTE_ATTENDUE) {
+    errors.push(
+      `GADS-2 : l'empreinte preparee a la saisie vaut ${empreinte || "rien"}, attendu ${EMPREINTE_ATTENDUE}. ` +
+      "La normalisation (minuscules, espaces retires) ou le hachage SHA-256 a change : Google ne pourra plus recoller la conversion.",
+    );
+  }
+
+  // 2) Page de merci du meme onglet : la conversion doit partir AVEC l'empreinte.
+  await page.goto(base + "/guide-google-commercant-local/merci", { waitUntil: "networkidle" });
+  await page.click("#cookie-accept");
+  const COLLECT = /^https:\/\/([a-z0-9-]+\.)*(google-analytics\.com|analytics\.google\.com)\/g\/collect/;
+  const conversion = () => googleReqs.find((h) => COLLECT.test(h.url) && /[?&]en=guide_telecharge/.test(h.url) && responses.has(h.url));
+  const deadline = Date.now() + 20000;
+  while (Date.now() < deadline && !conversion()) await page.waitForTimeout(250);
+
+  // 3) L'empreinte a-t-elle bien ete declaree a gtag ? C'est la part que NOTRE
+  // code maitrise, et elle est verifiable quel que soit le reglage Google.
+  const declaree = await page.evaluate(() =>
+    (window.dataLayer || []).some((a) => {
+      const args = Array.prototype.slice.call(a);
+      return args[0] === "set" && args[1] === "user_data" && typeof args[2]?.sha256_email_address === "string";
+    }));
+  if (!declaree) {
+    errors.push("GADS-2 : aucune declaration `gtag(\"set\", \"user_data\", { sha256_email_address })` dans le dataLayer apres acceptation. Le suivi avance n'est plus cable.");
+  }
+
+  // 4) L'email en clair ne doit apparaitre dans AUCUNE requete Google, ni en URL
+  // ni dans le corps. C'est l'exigence RGPD non negociable du lot.
+  const enClair = googleReqs.filter((h) => {
+    const tout = `${h.url}\n${h.post}`;
+    return tout.includes(EMAIL_SONDE) || tout.includes(encodeURIComponent(EMAIL_SONDE)) ||
+      tout.toLowerCase().includes(EMAIL_SONDE.toLowerCase());
+  });
+  if (enClair.length) {
+    errors.push(`GADS-2 : EMAIL EN CLAIR dans ${enClair.length} requete(s) Google (ex. ${enClair[0].url.slice(0, 160)}). Seule l'empreinte SHA-256 doit circuler.`);
+  }
+
+  // 5) La conversion doit ABOUTIR sous la CSP de production, pas seulement partir.
+  const hit = conversion();
+  if (!hit) {
+    const tentes = googleReqs.filter((h) => COLLECT.test(h.url) && /[?&]en=guide_telecharge/.test(h.url));
+    errors.push(
+      tentes.length
+        ? `GADS-2 : la conversion guide_telecharge est partie vers ${new URL(tentes[0].url).hostname} mais n'a JAMAIS abouti. Cause la plus probable : connect-src ne couvre pas ce domaine (${CONNECT_SRC.join(" ")}).`
+        : "GADS-2 : aucune conversion guide_telecharge observee apres acceptation. Le report de l'empreinte d'une page a l'autre a peut-etre casse la conversion elle-meme.",
+    );
+  } else {
+    const status = responses.get(hit.url);
+    if (!(status >= 200 && status < 300)) {
+      errors.push(`GADS-2 : conversion guide_telecharge en statut ${status} (attendu 2xx/204).`);
+    }
+    // 6) L'empreinte est-elle reellement PARTIE ? Depend du reglage GA4.
+    const surLeReseau = googleReqs.some((h) => `${h.url}\n${h.post}`.includes(EMPREINTE_ATTENDUE));
+    if (!surLeReseau) {
+      console.warn(
+        "\ncheck:cookies AVERTISSEMENT (GADS-2) : l'empreinte est correctement calculee et declaree a gtag,\n" +
+        "  mais elle ne part PAS sur le reseau. gtag.js n'a pas charge son module de donnees utilisateur\n" +
+        "  (window.google_tag_data.upd absent) : il ignore `user_data` en silence.\n" +
+        "  A FAIRE, cote Google, une seule fois : GA4 > Admin > Parametres des donnees >\n" +
+        "  Collecte de donnees > activer « Collecte de donnees fournies par l'utilisateur ».\n" +
+        "  Tant que ce reglage est desactive, le suivi avance n'apporte aucun gain de conversions.\n",
+      );
+    } else {
+      console.log("check:cookies : empreinte SHA-256 observee sur le reseau, suivi avance pleinement actif.");
+    }
+  }
+  await ctx.close();
+}
+
+await enhancedConversionScenario();
 
 await browser.close();
 server.close();
