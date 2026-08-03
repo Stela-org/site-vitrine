@@ -529,6 +529,46 @@ for (const [code, attendu, selecteur] of CAS) {
   await sansJs.close();
 }
 
+// LOT DEVIS-6 §6 : le defilement vers la confirmation.
+// On ne teste PAS l'animation elle-meme — ce serait tester le navigateur. On
+// verifie que les regles sont bien dans le bundle SERVI, en lisant le style
+// calcule : plus solide qu'une recherche de chaine, puisque ca traverse toute
+// la cascade et attrape une regle ecrasee plus bas.
+{
+  const styles = await browser.newContext();
+  const pg = await styles.newPage();
+  await pg.goto(`${base}${PAGE}?devis=ok#devis-confirm`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const lu = await pg.evaluate(() => {
+    const el = document.querySelector("#devis-confirm");
+    return {
+      comportement: getComputedStyle(document.documentElement).scrollBehavior,
+      marge: el ? parseFloat(getComputedStyle(el).scrollMarginTop) : null,
+    };
+  }).catch(() => null);
+  if (!lu || lu.comportement !== "smooth") {
+    errors.push(`§6 : la racine ne porte pas scroll-behavior: smooth dans le bundle servi (lu : ${lu ? lu.comportement : "page illisible"}). Le saut d'ancre redeviendrait sec.`);
+  }
+  // Le nav est `position: sticky; top: 0` : sans marge, il recouvre le haut de
+  // la cible a l'arrivee. Mesure : 69 px de bandeau.
+  if (!lu || !(lu.marge >= 69)) {
+    errors.push(`§6 : #devis-confirm n'a pas de scroll-margin-top suffisante (lue : ${lu ? lu.marge : "?"} px, il faut au moins les 69 px du nav sticky). Le bandeau recouvrirait le haut de la confirmation.`);
+  }
+  await styles.close();
+
+  // La variante reduced-motion doit exister ET gagner : une animation de
+  // defilement imposee est un probleme d'accessibilite reel, pas un detail.
+  const sobre = await browser.newContext({ reducedMotion: "reduce" });
+  const pgSobre = await sobre.newPage();
+  await pgSobre.goto(`${base}${PAGE}?devis=ok#devis-confirm`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const comportementSobre = await pgSobre.evaluate(
+    () => getComputedStyle(document.documentElement).scrollBehavior
+  ).catch(() => null);
+  if (comportementSobre !== "auto") {
+    errors.push(`§6 ACCESSIBILITE : sous prefers-reduced-motion: reduce, la racine vaut « ${comportementSobre} » au lieu de « auto ». Le defilement anime resterait impose a qui demande explicitement moins de mouvement.`);
+  }
+  await sobre.close();
+}
+
 clearTimeout(garde);
 await browser.close();
 // `server.close()` ATTEND la fin des connexions en cours. Le scenario du filet
@@ -544,5 +584,6 @@ if (errors.length > 0) {
 }
 console.log(
   "check:devis OK : POST-redirect-GET 303 vers #devis-confirm en meme origine, confirmation visible SANS JavaScript, " +
-  "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant."
+  "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant, " +
+  "defilement doux + variante reduced-motion + marge sous le nav sticky."
 );
