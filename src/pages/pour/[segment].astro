@@ -519,8 +519,29 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
      navigateur se positionne sur l'ancre pendant le rendu, et tout ce qui
      changerait de hauteur APRÈS coup décalerait le point d'arrivée. C'est le
      mode d'échec classique de cette technique. */
-  .devis-confirm { display: none; max-width: 440px; margin-top: 1.5rem; background: #fff; border: 2px solid var(--brass); border-radius: 14px; padding: 1.1rem 1.25rem; }
+  /* LOT DEVIS-6 : le nav est `position: sticky; top: 0`. Sans cette marge, le
+     navigateur pose la cible pile sous le nav, qui en recouvre le haut. Mesuré :
+     `elementFromPoint` au sommet de l'encart renvoyait le nav, pas l'encart. La
+     marge dégage le bandeau (sa hauteur plus sa bordure) et laisse respirer. */
+  .devis-confirm { display: none; scroll-margin-top: calc(var(--nav-h) + 1px + 1.25rem); max-width: 440px; margin-top: 1.5rem; background: #fff; border: 2px solid var(--brass); border-radius: 14px; padding: 1.1rem 1.25rem; }
   .devis-confirm:target, .devis-confirm.est-visible { display: block; }
+  /* La page atterrit sec (voir global.css) ; c'est l'encart qui se pose, sur une
+     courte translation. Règle VIT-6 : le `transform` seulement, JAMAIS l'opacité,
+     pour qu'un échec d'animation laisse la confirmation lisible, au pire décalée
+     de quelques pixels. Coupé sous prefers-reduced-motion.
+     Le `forwards` et le court délai ne sont pas décoratifs : le navigateur ancre
+     sur le rectangle TRANSFORMÉ. Avec un remplissage `both`, la translation de
+     départ s'appliquait dès le chargement, l'ancrage se faisait 12 px plus bas,
+     et l'encart finissait à 77 px du haut au lieu des 89 px de marge voulus.
+     Sans remplissage arrière, l'ancrage lit la vraie position, puis l'animation
+     part. */
+  @media (prefers-reduced-motion: no-preference) {
+    .devis-confirm:target, .devis-confirm.est-visible { animation: devis-confirm-in .34s cubic-bezier(.22, .61, .36, 1) 60ms forwards; }
+  }
+  @keyframes devis-confirm-in {
+    from { transform: translateY(12px); }
+    to { transform: none; }
+  }
   .devis-confirm.est-masque { display: none; }
   .devis-confirm-title { font-weight: 800; color: var(--ink); margin: 0; }
   .devis-confirm-text { color: var(--text-secondary); font-size: .92rem; margin: .4rem 0 .9rem; }

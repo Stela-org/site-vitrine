@@ -529,6 +529,86 @@ for (const [code, attendu, selecteur] of CAS) {
   await sansJs.close();
 }
 
+// LOT DEVIS-6 §6 : le defilement vers la confirmation.
+// On ne teste PAS l'animation elle-meme — ce serait tester le navigateur. On
+// verifie que les regles sont bien dans le bundle SERVI, en lisant le style
+// calcule : plus solide qu'une recherche de chaine, puisque ca traverse toute
+// la cascade et attrape une regle ecrasee plus bas.
+{
+  const styles = await browser.newContext();
+  const pg = await styles.newPage();
+  await pg.goto(`${base}${PAGE}?devis=ok#devis-confirm`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const lu = await pg.evaluate(() => {
+    const el = document.querySelector("#devis-confirm");
+    // Les keyframes de l'encart : VIT-6 interdit d'animer l'opacite d'un bloc
+    // de contenu, un echec d'animation ne doit jamais laisser un encart blanc.
+    let keyframes = null;
+    for (const f of document.styleSheets) {
+      let regles; try { regles = f.cssRules; } catch { continue; }
+      for (const r of regles || []) {
+        if (r.type === CSSRule.KEYFRAMES_RULE && r.name === "devis-confirm-in") keyframes = r.cssText;
+      }
+    }
+    return {
+      comportement: getComputedStyle(document.documentElement).scrollBehavior,
+      marge: el ? parseFloat(getComputedStyle(el).scrollMarginTop) : null,
+      animation: el ? getComputedStyle(el).animationName : null,
+      keyframes,
+    };
+  }).catch(() => null);
+  // Sur CE parcours, la cible est a plus de 2 000 px du haut : un defilement
+  // anime ferait defiler toute la page sous les yeux du visiteur. On atterrit
+  // sec ici, et c'est l'encart qui se pose.
+  if (!lu || lu.comportement !== "auto") {
+    errors.push(`§6 : a l'arrivee sur la confirmation, la racine vaut « ${lu ? lu.comportement : "page illisible"} » au lieu de « auto ». La page traverserait ses 2 000 a 3 200 px de contenu en defilant, ce que la regle html:has(#devis-confirm:target) doit empecher.`);
+  }
+  if (!lu || lu.animation !== "devis-confirm-in") {
+    errors.push(`§6 : l'encart ne joue plus sa translation d'arrivee (animation lue : ${lu ? lu.animation : "?"}). L'atterrissage sec sans cette pose redevient brutal.`);
+  }
+  if (!lu || !lu.keyframes) {
+    errors.push("§6 : les keyframes devis-confirm-in sont absentes du bundle servi.");
+  } else if (/opacity/.test(lu.keyframes)) {
+    errors.push("§6 VIT-6 : la translation d'arrivee touche a l'opacite. Un echec d'animation laisserait la confirmation invisible ; seul le transform est autorise sur un bloc de contenu.");
+  }
+  // Le nav est `position: sticky; top: 0` : sans marge, il recouvre le haut de
+  // la cible a l'arrivee. Mesure : 69 px de bandeau.
+  if (!lu || !(lu.marge >= 69)) {
+    errors.push(`§6 : #devis-confirm n'a pas de scroll-margin-top suffisante (lue : ${lu ? lu.marge : "?"} px, il faut au moins les 69 px du nav sticky). Le bandeau recouvrirait le haut de la confirmation.`);
+  }
+  // L'atterrissage sec est une exception CIBLEE, pas la mort du defilement doux
+  // partout : sans le fragment, les ancres internes doivent rester douces.
+  await pg.goto(`${base}${PAGE}`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const horsParcours = await pg.evaluate(
+    () => getComputedStyle(document.documentElement).scrollBehavior
+  ).catch(() => null);
+  if (horsParcours !== "smooth") {
+    errors.push(`§6 : hors du parcours de devis, la racine vaut « ${horsParcours} » au lieu de « smooth ». L'exception d'atterrissage a debordé sur toutes les ancres du site.`);
+  }
+  await styles.close();
+
+  // La variante reduced-motion doit exister ET gagner : un mouvement impose a
+  // qui demande explicitement moins de mouvement est un probleme reel. On la
+  // verifie SANS le fragment, sinon la regle d'atterrissage mettrait deja
+  // « auto » et l'assertion passerait sans rien prouver.
+  const sobre = await browser.newContext({ reducedMotion: "reduce" });
+  const pgSobre = await sobre.newPage();
+  await pgSobre.goto(`${base}${PAGE}`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const comportementSobre = await pgSobre.evaluate(
+    () => getComputedStyle(document.documentElement).scrollBehavior
+  ).catch(() => null);
+  if (comportementSobre !== "auto") {
+    errors.push(`§6 ACCESSIBILITE : sous prefers-reduced-motion: reduce, la racine vaut « ${comportementSobre} » au lieu de « auto ». Le defilement anime resterait impose a qui demande explicitement moins de mouvement.`);
+  }
+  await pgSobre.goto(`${base}${PAGE}?devis=ok#devis-confirm`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  const animSobre = await pgSobre.evaluate(
+    () => getComputedStyle(document.querySelector("#devis-confirm")).animationName
+  ).catch(() => null);
+  if (animSobre !== "none") {
+    errors.push(`§6 ACCESSIBILITE : sous prefers-reduced-motion: reduce, l'encart joue quand meme « ${animSobre} ». La translation d'arrivee doit etre coupee.`);
+  }
+  await sobre.close();
+}
+
 clearTimeout(garde);
 await browser.close();
 // `server.close()` ATTEND la fin des connexions en cours. Le scenario du filet
@@ -544,5 +624,6 @@ if (errors.length > 0) {
 }
 console.log(
   "check:devis OK : POST-redirect-GET 303 vers #devis-confirm en meme origine, confirmation visible SANS JavaScript, " +
-  "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant."
+  "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant, " +
+  "defilement doux + variante reduced-motion + marge sous le nav sticky."
 );
