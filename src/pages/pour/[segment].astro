@@ -88,20 +88,6 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
             qui vous êtes, puis choisissez un créneau de rendez-vous.
           </p>
 
-          {/* LOT DEVIS-1 §2 : le visiteur revenu sur la page sans avoir pris de
-              créneau retrouve son chemin vers le calendrier, sans re-remplir
-              quoi que ce soit. Masqué par défaut, révélé par le script quand la
-              demande a bien été envoyée depuis ce navigateur. */}
-          <div id="devis-confirm" class="devis-confirm" hidden>
-            <p class="devis-confirm-title">Votre demande est enregistrée.</p>
-            <p class="devis-confirm-text">
-              Il reste l'essentiel : choisir le moment où on en parle. Une offre de
-              groupe se construit pendant l'échange, pas par email.
-            </p>
-            <a class="btn btn-primary" id="devis-calendrier" href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
-            <button type="button" class="devis-confirm-redo" id="devis-redo">Envoyer une autre demande</button>
-          </div>
-
           {/* LOT DEVIS-1 §3 : la validation serveur redirigeait avec `?erreur=`
               et le HTML n'en disait rien. Rempli par le script à partir de la
               liste des champs refusés. */}
@@ -131,9 +117,26 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
             <p class="devis-hint" id="devis-email-hint" hidden>
               Une adresse professionnelle nous aide à préparer votre devis.
             </p>
-            <label class="devis-field">Nombre d'établissements
-              <input type="number" name="establishments" required min="1" max="999999" inputmode="numeric" placeholder="4" />
-            </label>
+            {/* LOT DEVIS-4 §3 : le stepper natif disparaît. Ses flèches font 12 px
+                de haut, se ratent au pouce, et n'existent tout simplement pas sur
+                plusieurs navigateurs mobiles.
+                Choix : DEUX BOUTONS ET UNE VALEUR AU CENTRE, pas une rangée de
+                choix rapides. Un seul contrôle plutôt que deux qui se
+                concurrencent, et surtout aucune valeur « 20+ » : le serveur
+                attend un nombre, un raccourci non numérique aurait obligé à
+                garder un champ libre à côté, donc à afficher deux fois la même
+                information. La valeur reste un vrai champ de saisie : 47
+                s'écrit directement, sans 47 clics. */}
+            <div class="devis-field">
+              <label class="devis-field-label" for="devis-etab">Nombre d'établissements</label>
+              <div class="devis-stepper">
+                <button type="button" class="devis-step" id="devis-moins" aria-label="Un établissement de moins">&minus;</button>
+                <input id="devis-etab" type="text" name="establishments" required inputmode="numeric"
+                  pattern="[0-9]{1,6}" autocomplete="off" placeholder="4" aria-describedby="devis-etab-aide" />
+                <button type="button" class="devis-step" id="devis-plus" aria-label="Un établissement de plus">+</button>
+              </div>
+              <p class="devis-hint" id="devis-etab-aide">Flèches haut et bas au clavier, ou saisissez le nombre exact.</p>
+            </div>
             <label class="devis-field">Votre secteur
               <select name="sector" required>
                 <option value="" disabled selected>Choisissez votre secteur</option>
@@ -151,18 +154,34 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
                 calendrier tardait à charger, rien ne disait que la demande
                 partait. */}
             <p class="devis-status" id="devis-status" role="status" hidden>Envoi en cours, ne fermez pas cette page.</p>
-            {/* CORRECTIF DEVIS-1b : filet de sécurité. Si rien ne s'est passé au
-                bout de quelques secondes, le visiteur reprend la main plutôt que
-                de rester devant un écran mort. */}
+            {/* Filet de sécurité (DEVIS-1b, reformulé en DEVIS-4). Il ne parle
+                plus du calendrier, qui ne s'ouvre plus tout seul : il couvre
+                désormais la soumission elle-même, seule étape qui puisse encore
+                laisser le visiteur devant un écran figé. */}
             <p class="devis-secours" id="devis-secours" role="alert" hidden>
-              L'ouverture du calendrier n'a pas abouti. Votre demande, elle, est bien partie.
-              <a href={CALENDAR_URL} rel="noopener">Choisir un créneau</a>
+              L'envoi n'a pas abouti. Réessayez, ou prenez directement un créneau :
+              <a href={CALENDAR_URL} rel="noopener">choisir un créneau</a>
             </p>
           </form>
           {/* LOT DEVIS-1 §2 : cette offre se close en appel, jamais par email.
               L'ancienne note (« Réponse sous 24 h ouvrées ») laissait croire
               qu'attendre suffirait, et sabordait la prise de créneau. */}
-          <p class="seg-tarifs-note">Vous choisissez votre créneau juste après l'envoi. 20 minutes, sans engagement.</p>
+          <p class="seg-tarifs-note">Vous choisissez votre créneau juste après l'envoi. 15 minutes, sans engagement.</p>
+
+          {/* LOT DEVIS-4 §1 : la confirmation passe SOUS le formulaire. Au-dessus,
+              elle repoussait le formulaire hors de l'écran et donnait à croire
+              que la page s'était réinitialisée. Ici, elle se lit comme la suite
+              naturelle du geste qu'on vient de faire. Le script y amène par un
+              défilement doux, sans jamais déplacer le visiteur de force. */}
+          <div id="devis-confirm" class="devis-confirm" hidden>
+            <p class="devis-confirm-title">Votre demande est enregistrée.</p>
+            <p class="devis-confirm-text">
+              Il reste l'essentiel : choisir le moment où on en parle. Une offre de
+              groupe se construit pendant l'échange, pas par email.
+            </p>
+            <a class="btn btn-primary" id="devis-calendrier" href={CALENDAR_URL} rel="noopener">Choisir un créneau, 15 minutes</a>
+            <button type="button" class="devis-confirm-redo" id="devis-redo">Envoyer une autre demande</button>
+          </div>
         </>
       ) : (
         <>
@@ -343,14 +362,18 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       // au créneau.
       if (confirm) confirm.hidden = false;
       if (envoye) {
-        // CORRECTIF DEVIS-1b : c'est ICI que le visiteur part au calendrier, et
-        // plus depuis la redirection serveur, que la CSP bloquait.
-        // `location.assign` est une navigation ordinaire, hors du champ de
-        // `form-action` : elle aboutit là où la soumission échouait.
-        // `assign` et non `replace` : le bouton « précédent » doit ramener sur
-        // la confirmation, pas relancer une soumission.
         memoriser();
-        setTimeout(() => { location.assign(CALENDRIER); }, 400);
+        // LOT DEVIS-4 §1 : PLUS AUCUN SAUT AUTOMATIQUE.
+        //
+        // La page partait toute seule vers le calendrier après 400 ms. Vu du
+        // visiteur, ce n'était pas une transition mais une page qui décroche :
+        // il vient de cliquer, le site lui répond en l'expédiant ailleurs, sans
+        // qu'il ait rien demandé. On le mène désormais à la confirmation par un
+        // défilement doux, et c'est lui qui décide de cliquer.
+        //
+        // `behavior: "smooth"` respecte « réduire les animations » du système :
+        // les navigateurs y substituent d'eux-mêmes un saut instantané.
+        confirm?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 
@@ -362,6 +385,34 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
       };
       emailInput.addEventListener("input", jugerAdresse);
       emailInput.addEventListener("blur", jugerAdresse);
+    }
+
+    // LOT DEVIS-4 §3 : le pas du compteur. La saisie libre reste maitresse,
+    // les boutons ne font que l'incrementer. Bornes 1 et 999999, les memes que
+    // celles que le serveur accepte : on n'affiche jamais une valeur qu'il
+    // refuserait ensuite.
+    const champEtab = document.querySelector<HTMLInputElement>("#devis-etab");
+    if (champEtab) {
+      const pas = (delta: number) => {
+        const actuel = parseInt(champEtab.value, 10);
+        const depart = Number.isFinite(actuel) ? actuel : 0;
+        champEtab.value = String(Math.min(999999, Math.max(1, depart + delta)));
+        champEtab.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      document.querySelector<HTMLButtonElement>("#devis-moins")?.addEventListener("click", () => pas(-1));
+      document.querySelector<HTMLButtonElement>("#devis-plus")?.addEventListener("click", () => pas(1));
+      // Les fleches haut/bas existaient sur le champ `number` natif : on ne
+      // retire pas un geste au clavier en changeant l'apparence du controle.
+      champEtab.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+        e.preventDefault();
+        pas(e.key === "ArrowUp" ? 1 : -1);
+      });
+      // Un collage ou une saisie parasite ne laisse pas de non-chiffres.
+      champEtab.addEventListener("input", () => {
+        const propre = champEtab.value.replace(/\D/g, "").slice(0, 6);
+        if (propre !== champEtab.value) champEtab.value = propre;
+      });
     }
 
     document.querySelector<HTMLButtonElement>("#devis-redo")?.addEventListener("click", () => {
@@ -462,6 +513,15 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .devis-erreur-liste li + li { margin-top: .25rem; }
   .devis-field input[aria-invalid="true"], .devis-field select[aria-invalid="true"] { border-color: #c2564a; }
   .devis-hint { margin: -.5rem 0 0; font-size: .85rem; color: var(--text-muted); }
+  /* LOT DEVIS-4 §3 : compteur d'etablissements. Zones tactiles de 48 px, la
+     valeur au centre, couleurs prises dans les tokens de la charte. */
+  .devis-field-label { font-weight: 700; font-size: .9rem; color: var(--ink); }
+  .devis-stepper { display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; max-width: 220px; }
+  .devis-step { width: 48px; min-height: 48px; flex: 0 0 48px; border: 0; background: var(--cream); color: var(--ink); font: inherit; font-size: 1.35rem; line-height: 1; cursor: pointer; }
+  .devis-step:hover { background: var(--border); }
+  .devis-step:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
+  .devis-stepper input { flex: 1 1 auto; min-width: 0; width: 100%; border: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: .7rem .4rem; font: inherit; font-weight: 700; text-align: center; color: var(--ink); background: #fff; }
+  .devis-stepper input:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
   .devis-status { margin: 0; font-size: .85rem; color: var(--text-secondary); text-align: center; }
   .devis-secours { margin: 0; font-size: .85rem; color: #8a2b1e; text-align: center; }
   .devis-secours a { color: #8a2b1e; font-weight: 700; text-decoration: underline; margin-left: .25rem; }
