@@ -29,7 +29,7 @@
 | 3 | `supprimer-mauvais-avis-google-restaurant` | oui | guide (réécriture forte : titre et angle à recadrer, l'original suggère la suppression) |
 | 4 | `e-reputation-restaurant-guide-complet` | oui | guide |
 | 5 | `qr-code-avis-google-restaurant` | oui | guide |
-| 6-14 | `avis-google-restaurant-{ville}` (paris, lyon, marseille, bordeaux, nice, nantes, brest, rouen, nancy) | oui | ville |
+| 6-14 | `avis-google-restaurant-{ville}` (paris, lyon, marseille, bordeaux, nice, nantes, brest, rouen, nancy) | oui | ville (migration close au VIT-4 : consolidés en 301 vers `/restaurants-{ville}`) |
 
 ## Planning 12 semaines
 | Semaine | Titre | Cluster | Statut |
@@ -44,9 +44,16 @@
 | S7 | E-réputation d'un commerce local : guide complet (migration) | guide | Livré |
 | S8 | Un avis peut-il être supprimé de Google ? (migration recadrée) | guide | Livré |
 | S9 | Nouveautés Google Business Profile du mois | google-business-profile | En relecture (PR) |
-| S10 | Avis Google restaurant à Paris et Lyon (villes, migration) | ville | À faire |
+| S10 | Avis Google : Paris et Lyon, deux marchés (ville) | ville | En relecture (PR) |
 | S11 | Avis Google restaurant : Marseille, Bordeaux, Nice (villes) | ville | À faire |
 | S12 | Nantes, Brest, Rouen, Nancy + bilan trimestriel GEO | ville | À faire |
+
+> Note sur les semaines villes (S10 à S12) : les 9 anciens articles de blog de
+> ville ont déjà été consolidés au VIT-4 et redirigent en 301 vers les landing
+> pages `/restaurants-{ville}`. Republier un article `avis-google-restaurant-{ville}`
+> recréerait la cannibalisation que le VIT-16 a supprimée. Ces semaines produisent
+> donc des articles éditoriaux complémentaires, avec un angle et un mot-clé propres,
+> qui maillent vers les pages villes au lieu de les concurrencer.
 
 ## Règles de rédaction (rappel)
 - Marque « Stela » (un seul L), jamais de tiret cadratin.
