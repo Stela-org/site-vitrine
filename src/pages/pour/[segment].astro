@@ -101,6 +101,11 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
             <div class="hp" aria-hidden="true">
               <label>Ne pas remplir<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
             </div>
+            {/* LOT DEVIS-5 : la page est paramétrée, la fonction serveur doit
+                savoir vers quelle landing renvoyer. Le slug voyage avec la
+                soumission plutôt que d'être codé en dur côté serveur ; il y est
+                strictement filtré avant d'entrer dans l'URL de redirection. */}
+            <input type="hidden" name="segment" value={s.slug} />
             <label class="devis-field">Votre nom
               <input type="text" name="name" required placeholder="Camille Dupont" autocomplete="name" maxlength="80" />
             </label>
@@ -173,7 +178,14 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
               que la page s'était réinitialisée. Ici, elle se lit comme la suite
               naturelle du geste qu'on vient de faire. Le script y amène par un
               défilement doux, sans jamais déplacer le visiteur de force. */}
-          <div id="devis-confirm" class="devis-confirm" hidden>
+          {/* LOT DEVIS-5 : l'encart n'est plus masqué par l'attribut `hidden`
+              mais par du CSS, et il se révèle SEUL quand l'URL pointe sur lui
+              (`:target`). Deux conséquences voulues : il s'affiche sans une
+              ligne de JavaScript, et le navigateur peut s'y positionner
+              nativement au chargement, ce que `hidden` interdisait. La classe
+              `est-visible` couvre le second cas, celui du visiteur qui revient
+              plus tard sans ancre dans l'URL. */}
+          <div id="devis-confirm" class="devis-confirm">
             <p class="devis-confirm-title">Votre demande est enregistrée.</p>
             <p class="devis-confirm-text">
               Il reste l'essentiel : choisir le moment où on en parle. Une offre de
@@ -339,7 +351,9 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
     // §3 : erreurs renvoyées par le serveur. `erreur=1` reste compris : c'est ce
     // que produit un corps de requête illisible, et d'anciens liens en circulent.
     const params = new URLSearchParams(location.search);
-    const envoye = params.get("envoye") === "1";
+    // LOT DEVIS-5 : l'affichage de l'encart dépend du paramètre d'URL, plus de
+    // l'état du POST, qui ne survivait pas à la navigation.
+    const envoye = params.get("devis") === "ok";
     const codes = (params.get("erreur") || "")
       .split(",").map((c) => c.trim()).filter(Boolean);
     if (codes.length > 0 && bloc && liste) {
@@ -360,21 +374,14 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
     } else if (envoye || (confirm && demandeEnvoyee())) {
       // §2 : retour sur la page après un envoi, on ne redemande rien, on ramène
       // au créneau.
-      if (confirm) confirm.hidden = false;
-      if (envoye) {
-        memoriser();
-        // LOT DEVIS-4 §1 : PLUS AUCUN SAUT AUTOMATIQUE.
-        //
-        // La page partait toute seule vers le calendrier après 400 ms. Vu du
-        // visiteur, ce n'était pas une transition mais une page qui décroche :
-        // il vient de cliquer, le site lui répond en l'expédiant ailleurs, sans
-        // qu'il ait rien demandé. On le mène désormais à la confirmation par un
-        // défilement doux, et c'est lui qui décide de cliquer.
-        //
-        // `behavior: "smooth"` respecte « réduire les animations » du système :
-        // les navigateurs y substituent d'eux-mêmes un saut instantané.
-        confirm?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      // LOT DEVIS-5 : le `scrollIntoView` de DEVIS-4 est SUPPRIMÉ. Il entrait
+      // en concurrence avec le positionnement natif sur l'ancre, et il perdait
+      // de toute façon : la page était repositionnée en haut par le
+      // chargement. C'est désormais le navigateur seul qui se place, à partir
+      // du fragment `#devis-confirm` porté par la redirection. On ne garde pas
+      // les deux mécanismes.
+      confirm?.classList.add("est-visible");
+      if (envoye) memoriser();
     }
 
     // §4 : conseil sur l'adresse, sans jamais empêcher l'envoi.
@@ -417,7 +424,11 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
 
     document.querySelector<HTMLButtonElement>("#devis-redo")?.addEventListener("click", () => {
       try { localStorage.removeItem(DEVIS_KEY); } catch { /* rien à nettoyer */ }
-      if (confirm) confirm.hidden = true;
+      // `hidden` ne suffit plus : tant que l'URL porte le fragment, `:target`
+      // rendrait l'encart de nouveau visible. On le masque donc par une classe
+      // qui l'emporte sur les deux règles d'affichage.
+      confirm?.classList.remove("est-visible");
+      confirm?.classList.add("est-masque");
       devis.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
     });
 
@@ -502,7 +513,15 @@ const otherSecteurs = secteurs().filter((x) => x.slug !== s.slug);
   .seg-tarifs-note { color: var(--text-muted); font-size: .85rem; margin: .75rem 0 0; }
 
   /* LOT DEVIS-1 : confirmation, erreurs, indice et état d'envoi. */
-  .devis-confirm { max-width: 440px; margin-top: 1.5rem; background: #fff; border: 2px solid var(--brass); border-radius: 14px; padding: 1.1rem 1.25rem; }
+  /* LOT DEVIS-5 : révélation SANS JavaScript. `:target` s'applique dès que
+     l'URL pointe sur l'encart, c'est-à-dire exactement au retour de la
+     redirection 303. Aucune animation ni transition ici, volontairement : le
+     navigateur se positionne sur l'ancre pendant le rendu, et tout ce qui
+     changerait de hauteur APRÈS coup décalerait le point d'arrivée. C'est le
+     mode d'échec classique de cette technique. */
+  .devis-confirm { display: none; max-width: 440px; margin-top: 1.5rem; background: #fff; border: 2px solid var(--brass); border-radius: 14px; padding: 1.1rem 1.25rem; }
+  .devis-confirm:target, .devis-confirm.est-visible { display: block; }
+  .devis-confirm.est-masque { display: none; }
   .devis-confirm-title { font-weight: 800; color: var(--ink); margin: 0; }
   .devis-confirm-text { color: var(--text-secondary); font-size: .92rem; margin: .4rem 0 .9rem; }
   .devis-confirm .btn { display: inline-flex; }
