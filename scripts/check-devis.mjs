@@ -66,7 +66,15 @@ const server = createServer((req, res) => {
     // dans la condition ou l'etat sert a quelque chose.
     return setTimeout(() => {
       res.statusCode = 303;
-      res.setHeader("Location", redirectionMode === "calendrier" ? CALENDAR_URL : `${PAGE}?envoye=1#devis`);
+      if (redirectionMode === "muet") {
+        // 204 No Content : le navigateur RESTE sur la page, rien ne se passe.
+        // Une absence totale de reponse produirait le meme effet visible, mais
+        // laisserait une navigation en vol qui fige toutes les commandes
+        // Playwright suivantes, gardien compris.
+        res.statusCode = 204;
+        return res.end();
+      }
+      res.setHeader("Location", `${PAGE}?envoye=1#devis`);
       res.end();
     }, 1200);
   }
@@ -111,7 +119,7 @@ async function ouvrir(page, query = "") {
       if (!t.startsWith(MARQUEUR)) return;
       // Le scenario du filet de securite PROVOQUE volontairement une violation
       // (il rejoue la panne de production) : elle ne compte pas comme un defaut.
-      if (redirectionMode === "calendrier") return;
+      if (redirectionMode === "muet") return;
       try { violationsParcours.push(JSON.parse(t.slice(MARQUEUR.length))); } catch { /* illisible */ }
     });
   }
@@ -302,11 +310,14 @@ for (const [code, attendu, selecteur] of CAS) {
     window.__v = [];
     document.addEventListener("securitypolicyviolation", (e) => window.__v.push(e.violatedDirective));
   });
-  // On intercepte le depart vers le calendrier : le gardien ne doit jamais
-  // dependre de Google, ni le solliciter.
-  let versCalendrier = false;
-  await page.route(`${CALENDAR_URL}*`, (route) => {
-    versCalendrier = true;
+  // LOT DEVIS-4 §1 : plus AUCUN depart automatique vers le calendrier. Une
+  // interception qui l'attendait validerait un comportement qu'on vient de
+  // retirer volontairement ; pire, elle passerait au vert le jour ou il
+  // reviendrait par accident. On verifie donc l'inverse : la page NE DOIT PAS
+  // bouger d'elle-meme.
+  let departAutomatique = false;
+  await page.route("https://calendar.app.google/**", (route) => {
+    departAutomatique = true;
     route.fulfill({ status: 200, contentType: "text/html", body: "<html><body>calendrier simule</body></html>" });
   });
 
@@ -321,8 +332,28 @@ for (const [code, attendu, selecteur] of CAS) {
     errors.push(`CSP : la soumission n'a pas abouti a la page de confirmation (URL = ${page.url()}). C'est la panne du 02/08.`);
   }
   await page.waitForTimeout(2500);
-  if (!versCalendrier) {
-    errors.push("§1b : apres confirmation, le visiteur n'est jamais emmene au calendrier. Le rendez-vous etant L'etape du parcours, personne ne reserve.");
+
+  // LOT DEVIS-4 §1, le nouveau contrat : soumission, confirmation meme origine,
+  // encart VISIBLE et bouton qui mene au calendrier. Le visiteur clique
+  // lui-meme, quand il est pret.
+  if (departAutomatique) {
+    errors.push("§1b : la page part TOUTE SEULE vers le calendrier. Ce saut automatique a ete retire, il donne l'impression que le site decroche.");
+  }
+  if (!(await estVisible(page, "#devis-confirm"))) {
+    errors.push("§1b : apres la soumission, l'encart de confirmation n'apparait pas. Le visiteur ne sait ni que sa demande est partie, ni ou prendre son creneau.");
+  } else {
+    const lien = await page.locator("#devis-calendrier").getAttribute("href");
+    if (!lien || !lien.includes("calendar.app.google")) {
+      errors.push(`§1b : le bouton de la confirmation ne mene pas au calendrier (href = ${lien}).`);
+    }
+    // La confirmation doit se trouver SOUS le formulaire : au-dessus, elle
+    // repoussait le formulaire hors de l'ecran.
+    const ordre = await page.evaluate(() => {
+      const f = document.querySelector(".devis-form");
+      const c = document.querySelector("#devis-confirm");
+      return f && c ? (f.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 : false;
+    });
+    if (!ordre) errors.push("§1b : l'encart de confirmation est AU-DESSUS du formulaire, il devait passer dessous.");
   }
   violations.push(...await page.evaluate(() => window.__v || []).catch(() => []));
   if (violations.includes("form-action")) {
@@ -331,11 +362,13 @@ for (const [code, attendu, selecteur] of CAS) {
   await page.close();
 }
 
-// Le filet de securite : meme si la navigation est bloquee, l'ecran ne reste
-// JAMAIS mort. On rejoue litteralement la panne (303 vers le calendrier) et on
-// exige que le visiteur reprenne la main.
+// Le filet de securite. LOT DEVIS-4 : il change de DECLENCHEUR, pas d'objet.
+// Rien ne part plus tout seul vers le calendrier, donc la panne a rejouer n'est
+// plus une redirection refusee : c'est la SOUMISSION elle-meme qui n'aboutit
+// pas, seule etape qui puisse encore figer l'ecran. Le serveur reste donc muet,
+// et on exige que le visiteur reprenne la main.
 {
-  redirectionMode = "calendrier";
+  redirectionMode = "muet";
   const page = await ctx.newPage();
   await ouvrir(page);
   await page.fill('input[name="name"]', "Camille Dupont");
@@ -349,7 +382,7 @@ for (const [code, attendu, selecteur] of CAS) {
     errors.push("§2b : le bouton reste bloque sur « Envoi en cours… » indefiniment. Un ecran mort est pire que pas d'etat du tout.");
   }
   if (!(await estVisible(page, "#devis-secours"))) {
-    errors.push("§2b : aucun message ni lien manuel quand l'ouverture du calendrier echoue.");
+    errors.push("§2b : aucun message ni lien manuel quand la soumission n'aboutit pas.");
   } else {
     const lien = await page.locator("#devis-secours a").getAttribute("href");
     if (!lien || !lien.includes("calendar.app.google")) {
@@ -398,6 +431,10 @@ for (const [code, attendu, selecteur] of CAS) {
 }
 
 await browser.close();
+// `server.close()` ATTEND la fin des connexions en cours. Le scenario du filet
+// laisse volontairement une requete sans reponse : sans cette coupure franche, le
+// gardien ne rendait jamais la main et paraissait bloque au lieu de conclure.
+server.closeAllConnections?.();
 server.close();
 
 if (errors.length > 0) {
@@ -406,6 +443,6 @@ if (errors.length > 0) {
   process.exit(1);
 }
 console.log(
-  "check:devis OK : soumission autorisee par form-action, arrivee au calendrier verifiee sous la vraie CSP, " +
-  "filet de securite si la navigation echoue, etat d'envoi, confirmation orientee creneau, 4 erreurs serveur affichees, conseil email non bloquant."
+  "check:devis OK : soumission autorisee par form-action, confirmation SOUS le formulaire sans depart automatique, " +
+  "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant."
 );
