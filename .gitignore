@@ -3,7 +3,11 @@ dist/
 .astro/
 
 # deps
-node_modules/
+# Sans slash final : `node_modules/` ne couvre QUE le répertoire. Un worktree
+# Git qui pointe vers les dépendances de l'arbre principal crée un LIEN
+# SYMBOLIQUE du même nom, que ce motif laissait passer, et qu'un `git add -A`
+# embarquait dans un commit (chemin absolu d'un poste, inutilisable ailleurs).
+node_modules
 
 # env
 .env
