@@ -106,10 +106,11 @@ export default async function handler(req, res) {
     /* échec d'envoi : on ne divulgue rien, on affiche merci */
   }
 
-  // 3) Pousser le lead au CRM : best effort, non bloquant. (L'id de la relance
-  //    n'est PAS transmis au CRM : il revient via le jeton signé du lien de
-  //    désinscription, seul endroit qui en a besoin pour l'annulation.)
-  await pushLeadToCrm({ email, firstName, consentedAt }).catch(() => {});
+  // 3) Pousser le lead au CRM : best effort, non bloquant. L'id de la relance
+  //    part avec (LOT VIT-17 §1) : ce n'est PAS pour la désinscription — celle-ci
+  //    récupère l'id par le jeton signé — mais pour le VERSEMENT EN PROSPECTION,
+  //    qui doit couper le nurturing vitrine et n'a aucun jeton à sa disposition.
+  await pushLeadToCrm({ email, firstName, consentedAt, scheduledId }).catch(() => {});
 
   return redirect(`${PAGE}/merci`);
 }

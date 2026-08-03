@@ -18,7 +18,11 @@
      (email 1) dont le lien de désinscription **porte cet id** (signé HMAC) ;
    - **pousse le lead vers le CRM** : `POST https://app.mystela.fr/api/leads`,
      `Authorization: Bearer ${LEADS_INGEST_SECRET}` (env, jamais en dur),
-     payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at }`,
+     payload `{ email, first_name, source:"guide-google", marketing_consent:true, consented_at }`
+     **+ `nurturing_scheduled_email_id`** quand la relance J+3 a bien été planifiée (VIT-17 §1) :
+     le CRM en a besoin pour **couper le nurturing vitrine au versement en prospection**
+     (`lib/admin/leadsToProspects.ts`), seul endroit qui ne dispose d'aucun jeton signé ;
+     sans lui, une même personne recevrait deux séquences en parallèle.
      **fire-and-forget + 1 retry** : un échec CRM ne bloque JAMAIS l'envoi du guide ;
    - redirige vers `/guide-google-commercant-local/merci` (noindex, hors sitemap).
 3. **Console admin (app.mystela.fr)** : le lead apparaît dans le CRM, où il alimente les
