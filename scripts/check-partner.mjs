@@ -19,7 +19,7 @@ try {
   console.error("  (Node >= 22.6 requis pour lire le TypeScript sans transpilation.)");
   process.exit(1);
 }
-const { normalizePartnerCode, partnerCodeFromSearch, decorateStripeUrl, parseStoredPartner, PARTNER_TTL_MS } = lib;
+const { normalizePartnerCode, partnerCodeFromSearch, decorateStripeUrl, parseStoredPartner, PARTNER_TTL_MS, PARTNER_PARAM } = lib;
 
 const errors = [];
 const eq = (label, actual, expected) => {
@@ -107,9 +107,52 @@ for (const file of htmlFiles) {
 }
 if (htmlFiles.length && stripeLinks === 0) errors.push("aucun lien Stripe trouve dans le build : le tunnel d'achat a disparu ?");
 
+// 5) LOT VIT-17 §2 — saisie MANUELLE du code sur /tarifs.
+// Ce qu'on verrouille : le champ existe, il s'envoie SANS JavaScript (formulaire
+// GET natif vers une origine interne), il porte le meme nom de parametre que les
+// liens partenaires, et son `pattern` HTML ne diverge pas de PARTNER_RE. Une
+// derive silencieuse de ce pattern rejetterait des codes pourtant valides, sans
+// que rien ne le signale.
+const tarifs = htmlFiles.find((f) => /(^|\/)tarifs\.html$/.test(f));
+if (htmlFiles.length && !tarifs) {
+  errors.push("build : page tarifs introuvable dans dist/.");
+} else if (tarifs) {
+  const html = readFileSync(tarifs, "utf8");
+  const form = html.match(/<form[^>]*class="pc-form"[^>]*>[\s\S]*?<\/form>/)?.[0];
+  if (!form) {
+    errors.push("tarifs : formulaire de saisie du code partenaire absent (.pc-form).");
+  } else {
+    if (!/method="get"/i.test(form)) errors.push("tarifs : le formulaire du code n'est pas en method=get (il ne marcherait plus sans JS).");
+    const action = form.match(/action="([^"]*)"/)?.[1] ?? "";
+    if (!action.startsWith("/")) errors.push(`tarifs : action du formulaire non interne (CSP form-action 'self') -> ${action}`);
+    if (!new RegExp(`name="${PARTNER_PARAM}"`).test(form)) {
+      errors.push(`tarifs : le champ ne porte pas name="${PARTNER_PARAM}" : le code saisi ne produirait pas la meme URL qu'un lien partenaire.`);
+    }
+    if (/\son[a-z]+=/i.test(form)) errors.push("tarifs : gestionnaire inline dans le formulaire (interdit par la CSP, et dependance JS).");
+    const pattern = form.match(/pattern="([^"]*)"/)?.[1];
+    if (!pattern) {
+      errors.push("tarifs : le champ n'a pas de pattern HTML (validation de format perdue sans JS).");
+    } else {
+      // Le pattern HTML est ancre implicitement et insensible a rien : on le
+      // compare a PARTNER_RE sur les memes cas que la table de verite ci-dessus.
+      const htmlRe = new RegExp(`^(?:${pattern})$`);
+      for (const [input] of VALID) {
+        const trimmed = String(input).trim();
+        if (!htmlRe.test(trimmed)) errors.push(`tarifs : le pattern HTML rejette un code VALIDE ${JSON.stringify(trimmed)} (derive avec PARTNER_RE).`);
+      }
+      for (const input of INVALID) {
+        if (typeof input !== "string") continue;
+        const trimmed = input.trim();
+        if (trimmed && htmlRe.test(trimmed)) errors.push(`tarifs : le pattern HTML accepte un code INVALIDE ${JSON.stringify(trimmed)} (derive avec PARTNER_RE).`);
+      }
+    }
+  }
+}
+
 if (errors.length) {
   console.error(`check:partner ECHEC : ${errors.length} probleme(s) :`);
   errors.forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:partner OK : format du code verrouille (${VALID.length} valides, ${INVALID.length} rejetes), decoration Stripe correcte, peremption 90 jours, ${stripeLinks} liens Stripe nus dans le HTML.`);
+const saisie = tarifs ? "saisie manuelle sur /tarifs en formulaire GET natif (meme parametre, pattern aligne)" : "saisie manuelle non verifiee (pas de build)";
+console.log(`check:partner OK : format du code verrouille (${VALID.length} valides, ${INVALID.length} rejetes), decoration Stripe correcte, peremption 90 jours, ${stripeLinks} liens Stripe nus dans le HTML, ${saisie}.`);

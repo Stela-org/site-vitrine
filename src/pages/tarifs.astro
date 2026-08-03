@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { SITE, PLANS, stripeLink } from "../config/site";
 import TripleZero from "../components/TripleZero.astro";
+import PartnerCodeField from "../components/PartnerCodeField.astro";
 
 const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
 
@@ -96,6 +97,9 @@ const faqLd = {
       <p class="compare-link"><a href="/comparatif">Comparez-nous aux autres solutions &rarr;</a></p>
       <div class="tarifs-tz"><TripleZero /></div>
       <p class="tarifs-foot">Paiement sécurisé via Stripe. Essai gratuit de 7 jours, sans engagement, annulable en un clic.</p>
+      {/* VIT-17 §2 : sous les prix et replié par défaut. Un code partenaire est
+          une entrée secondaire, il ne doit pas concurrencer les boutons d'essai. */}
+      <PartnerCodeField />
     </div>
   </section>
 
