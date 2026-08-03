@@ -19,6 +19,30 @@ import { extname } from "node:path";
 import { chromium } from "playwright";
 import { CALENDAR_URL } from "../lib/booking.js";
 
+// LOT DEVIS-5 : GARDE-TEMPS GLOBAL.
+//
+// Ce script s'est fige TROIS fois plutot que de rapporter : une attente de
+// navigation qui n'arrivait jamais, un `server.close()` suspendu a une
+// connexion ouverte, un `evaluate` sans contexte ou revenir. A chaque fois il
+// paraissait lent, alors qu'il etait mort. Un gardien qui pend masque
+// exactement ce qu'il devrait reveler, et bloque la CI sans rien dire.
+//
+// Desormais il ECHOUE BRUYAMMENT au bout du temps imparti. `unref()` pour que
+// ce minuteur n'empeche jamais, a lui seul, le processus de se terminer
+// normalement.
+const BUDGET_MS = 180000;
+const garde = setTimeout(() => {
+  console.error(
+    `\ncheck:devis ECHEC : depassement du garde-temps de ${BUDGET_MS / 1000} s.\n` +
+    "Le gardien s'est fige au lieu de conclure. Causes deja vues : une navigation\n" +
+    "attendue qui n'arrive jamais, une connexion HTTP laissee ouverte, un\n" +
+    "`evaluate` lance juste avant une navigation. Ne pas relancer en esperant\n" +
+    "mieux : chercher l'attente sans borne.",
+  );
+  process.exit(1);
+}, BUDGET_MS);
+garde.unref();
+
 const isFile = (p) => existsSync(p) && statSync(p).isFile();
 const DIST = "dist";
 const PAGE = "/pour/multi-etablissements";
@@ -74,7 +98,10 @@ const server = createServer((req, res) => {
         res.statusCode = 204;
         return res.end();
       }
-      res.setHeader("Location", `${PAGE}?envoye=1#devis`);
+      // LOT DEVIS-5 : la vraie reponse est un 303 vers la confirmation, ancre
+      // comprise. Sans le fragment, ce stub validerait un parcours ou le
+      // navigateur n'a nulle part ou se poser.
+      res.setHeader("Location", `${PAGE}?devis=ok#devis-confirm`);
       res.end();
     }, 1200);
   }
@@ -327,8 +354,8 @@ for (const [code, attendu, selecteur] of CAS) {
   await page.selectOption('select[name="sector"]', { label: "Restauration" });
   await page.evaluate(() => document.querySelector(".devis-form").requestSubmit());
 
-  await page.waitForURL(/envoye=1/, { timeout: 8000 }).catch(() => {});
-  if (!/envoye=1/.test(page.url())) {
+  await page.waitForURL(/devis=ok/, { timeout: 8000 }).catch(() => {});
+  if (!/devis=ok/.test(page.url())) {
     errors.push(`CSP : la soumission n'a pas abouti a la page de confirmation (URL = ${page.url()}). C'est la panne du 02/08.`);
   }
   await page.waitForTimeout(2500);
@@ -430,6 +457,79 @@ for (const [code, attendu, selecteur] of CAS) {
   }
 }
 
+// ── LOT DEVIS-5 : POST-REDIRECT-GET, ET LA CONFIRMATION SANS JAVASCRIPT ─────
+// Le defaut corrige : la page defilait vers la confirmation, puis le
+// rechargement la remontait en haut. Le positionnement doit venir de la
+// REPONSE, pas d'un script qu'une navigation efface.
+{
+  // (1) La soumission repond bien par une 303 vers la MEME ORIGINE, ancre
+  //     comprise. On lit la reponse brute plutot que l'etat du navigateur :
+  //     c'est le contrat HTTP qu'on verrouille ici.
+  const reponse = await fetch(`${base}/api/devis`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "name=Camille&email=c%40exemple.fr&establishments=4&sector=Restauration",
+    redirect: "manual",
+  }).catch((e) => ({ status: 0, headers: new Headers(), erreur: String(e) }));
+
+  if (reponse.status !== 303) {
+    errors.push(`§5 : la soumission repond ${reponse.status} au lieu de 303. Un 302 rejouerait le POST au rechargement et redemanderait « voulez-vous renvoyer le formulaire ? ».`);
+  }
+  const location = reponse.headers.get("location") || "";
+  const cible = new URL(location, base);
+  if (cible.origin !== new URL(base).origin) {
+    errors.push(`§5 : la redirection sort de l'origine (${cible.origin}). La CSP stricte l'interdit, et rien ne doit s'ajouter a form-action.`);
+  }
+  if (cible.hash !== "#devis-confirm") {
+    errors.push(`§5 : l'URL d'arrivee ne porte pas le fragment #devis-confirm (hash = « ${cible.hash} »). Sans lui, le navigateur n'a nulle part ou se poser et la page reste en haut.`);
+  }
+
+  // (1 bis) Le controle ci-dessus porte sur le STUB, donc sur du code de test :
+  //         il verrouille le contrat que la page attend, pas ce que la vraie
+  //         fonction produit. Celle-ci n'existe pas dans un build statique, on
+  //         l'inspecte donc a la source. Sans ce complement, le gardien
+  //         validerait sa propre simulation.
+  {
+    const src = readFileSync("api/devis.js", "utf8");
+    if (!src.includes("?devis=ok#devis-confirm")) {
+      errors.push("§5 : api/devis.js ne redirige pas vers `?devis=ok#devis-confirm`. La page ne saura ni afficher la confirmation, ni ou se positionner.");
+    }
+    if (!/res\.statusCode\s*=\s*303/.test(src)) {
+      errors.push("§5 : api/devis.js ne repond pas 303. Un 302 laisse le navigateur rejouer le POST au rechargement.");
+    }
+    // La destination de la redirection ne doit jamais dependre d'une valeur
+    // postee non filtree : ce serait une redirection ouverte.
+    if (!/SEGMENT_RE/.test(src)) {
+      errors.push("§5 SECURITE : le segment recu du formulaire entre dans l'URL de redirection sans filtre. Un POST forge choisirait la destination.");
+    }
+  }
+
+  // (2) Et surtout : l'encart est visible SANS JavaScript. C'est tout
+  //     l'interet de la technique ; un encart revele par script serait a la
+  //     merci du prochain rechargement, exactement comme le defaut d'origine.
+  const sansJs = await browser.newContext({ javaScriptEnabled: false });
+  const pg = await sansJs.newPage();
+  await pg.goto(`${base}${PAGE}?devis=ok#devis-confirm`, { waitUntil: "domcontentloaded", timeout: 15000 }).catch(() => {});
+  if (!(await pg.locator("#devis-confirm").isVisible().catch(() => false))) {
+    errors.push("§5 SANS JAVASCRIPT : l'encart de confirmation reste invisible. Le visiteur ne saurait pas que sa demande est partie, et le navigateur ne peut pas se positionner sur une ancre masquee.");
+  }
+  const lienSansJs = await pg.locator("#devis-calendrier").getAttribute("href").catch(() => null);
+  if (!lienSansJs || !lienSansJs.includes("calendar.app.google")) {
+    errors.push(`§5 SANS JAVASCRIPT : le bouton de prise de creneau ne mene nulle part (href = ${lienSansJs}).`);
+  }
+  // Le formulaire reste au-dessus, l'encart en dessous : la disposition de
+  // DEVIS-4 ne doit pas avoir bouge.
+  const dispo = await pg.evaluate(() => {
+    const f = document.querySelector(".devis-form");
+    const c = document.querySelector("#devis-confirm");
+    return f && c ? { formulaireVisible: f.offsetParent !== null, ordre: (f.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 } : null;
+  }).catch(() => null);
+  if (!dispo || !dispo.formulaireVisible) errors.push("§5 : le formulaire n'est plus visible au-dessus de la confirmation.");
+  if (!dispo || !dispo.ordre) errors.push("§5 : l'encart n'est plus SOUS le formulaire.");
+  await sansJs.close();
+}
+
+clearTimeout(garde);
 await browser.close();
 // `server.close()` ATTEND la fin des connexions en cours. Le scenario du filet
 // laisse volontairement une requete sans reponse : sans cette coupure franche, le
@@ -443,6 +543,6 @@ if (errors.length > 0) {
   process.exit(1);
 }
 console.log(
-  "check:devis OK : soumission autorisee par form-action, confirmation SOUS le formulaire sans depart automatique, " +
+  "check:devis OK : POST-redirect-GET 303 vers #devis-confirm en meme origine, confirmation visible SANS JavaScript, " +
   "filet de securite si la soumission n'aboutit pas, etat d'envoi, 4 erreurs serveur affichees, conseil email non bloquant."
 );

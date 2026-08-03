@@ -31,7 +31,34 @@ const NOTIFY_TO = "contact@mystela.fr";
 // autorisée par `'self'`. C'est la page qui emmène ensuite le visiteur au
 // calendrier, par une navigation ordinaire que `form-action` ne régit pas, et
 // qui affiche de toute façon un bouton manuel si ce saut échoue.
-const CONFIRMATION = `${SITE}${PAGE}?envoye=1#devis`;
+// LOT DEVIS-5 : POST-REDIRECT-GET AVEC ANCRE.
+//
+// DEVIS-4 avait retire la redirection automatique vers le calendrier et l'avait
+// remplacee par un defilement doux. Sauf que le formulaire fait un POST NATIF,
+// qui NAVIGUE : le `scrollIntoView` s'executait sur une page que le
+// rechargement repositionnait aussitot en haut. Le visiteur voyait la page
+// descendre vers la confirmation, puis remonter sur le formulaire, sans savoir
+// si son envoi avait abouti.
+//
+// La reponse porte donc le positionnement elle-meme, dans l'URL : le navigateur
+// se pose sur `#devis-confirm` au chargement. C'est natif, ca survit au
+// rechargement et au retour arriere, et ca fonctionne sans JavaScript.
+//
+// 303 See Other, jamais 302 : 303 impose au navigateur de refaire un GET. Sans
+// quoi un rechargement rejouerait le POST et redemanderait « voulez-vous
+// renvoyer le formulaire ? ».
+//
+// Le segment vient du formulaire, il n'est pas code en dur : la page est
+// parametree, et une seconde landing sur devis renverrait sinon tout le monde
+// sur multi-etablissements. La valeur est strictement filtree avant d'entrer
+// dans une URL : sans ce filtre, un POST forge choisirait la destination de la
+// redirection.
+const SEGMENT_RE = /^[a-z0-9-]{2,40}$/;
+const SEGMENT_DEFAUT = "multi-etablissements";
+const confirmationPour = (segment) => {
+  const slug = SEGMENT_RE.test(segment) ? segment : SEGMENT_DEFAUT;
+  return `${SITE}/pour/${slug}?devis=ok#devis-confirm`;
+};
 
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -67,7 +94,7 @@ export default async function handler(req, res) {
   try {
     body = await readBody(req);
   } catch {
-    return redirect(`${SITE}${PAGE}?erreur=1#devis`);
+    return redirect(`${SITE}${PAGE}?erreur=1#devis`); // corps illisible : le segment l'est aussi
   }
 
   const name = String(body.name || "").trim().slice(0, 80);
@@ -78,6 +105,9 @@ export default async function handler(req, res) {
   // l'ignore.
   const email = String(body.email || "").trim().slice(0, 120).toLowerCase();
   const honeypot = String(body.website || "").trim();
+  // LOT DEVIS-5 : d'ou vient la demande, pour y renvoyer le visiteur.
+  const segment = String(body.segment || "").trim().slice(0, 40);
+  const CONFIRMATION = confirmationPour(segment);
 
   // Bot (honeypot rempli) : on redirige sans rien envoyer.
   if (honeypot) return redirect(CONFIRMATION);
@@ -93,7 +123,10 @@ export default async function handler(req, res) {
   if (!/^\d{1,6}$/.test(establishments)) invalides.push("etablissements");
   if (!sector) invalides.push("secteur");
   if (invalides.length > 0) {
-    return redirect(`${SITE}${PAGE}?erreur=${invalides.join(",")}#devis`);
+    // Echec de validation : on ne redirige JAMAIS vers ?devis=ok. Le visiteur
+    // doit lire ce qui ne va pas, pas une confirmation mensongere.
+    const slug = SEGMENT_RE.test(segment) ? segment : SEGMENT_DEFAUT;
+    return redirect(`${SITE}/pour/${slug}?erreur=${invalides.join(",")}#devis`);
   }
 
   // Rate limit par IP : au-delà, on redirige quand même (pas d'indice) sans email.
