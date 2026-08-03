@@ -14,6 +14,11 @@ const REQUIRED = {
   SoftwareApplication: ["name", "offers"],
   FAQPage: ["mainEntity"],
   BreadcrumbList: ["itemListElement"],
+  // LOT VIT-16 : `license` est le champ que Search Console a signalé absent le
+  // 03/08/2026. Il est ici pour que l'oubli ne puisse pas revenir en silence :
+  // une page-données sans licence lisible par machine n'est pas citable
+  // proprement, et Google prévient qu'il peut durcir ce signal.
+  Dataset: ["name", "description", "license", "creator"],
 };
 
 const errors = [];

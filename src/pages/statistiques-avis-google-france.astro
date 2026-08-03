@@ -4,6 +4,16 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
 
 // Page-données pensée comme aimant à backlinks et citations IA. 100 % sourcée.
+
+// Licence des données (LOT VIT-16). Search Console signalait « Champ license
+// manquant » sur le Dataset. La page invite explicitement à la citation avec
+// attribution : CC BY 4.0 dit exactement cela, et Google sait l'interpréter
+// (contrairement à une page maison ou aux CGV, qui ne sont pas des licences
+// lisibles par machine). La même URL sert au balisage ET au lien visible sous
+// le tableau : déclarer une licence absente de la page serait une incohérence
+// que Google peut relever ensuite.
+const LICENCE_URL = "https://creativecommons.org/licenses/by/4.0/";
+
 const stats = [
   { chiffre: "94 %", fait: "des consommateurs déclarent qu'un avis négatif les a déjà dissuadés de se rendre dans un commerce.", source: "BrightLocal, Local Consumer Review Survey" },
   { chiffre: "81 %", fait: "utilisent Google pour évaluer un commerce local, loin devant les autres plateformes.", source: "BrightLocal, Local Consumer Review Survey" },
@@ -20,7 +30,16 @@ const datasetLd = {
   description: "Chiffres clés sourcés sur l'importance des avis Google pour les commerces locaux en France : lecture des avis, poids de la note, impact sur le chiffre d'affaires.",
   url: new URL("/statistiques-avis-google-france", SITE.url).href,
   inLanguage: "fr-FR",
-  creator: { "@type": "Organization", name: SITE.brand, url: SITE.url },
+  license: LICENCE_URL,
+  // Gratuit et public : champ recommandé par Google pour l'éligibilité au rich
+  // result Dataset. On n'ajoute PAS `distribution` : il exige l'URL d'un fichier
+  // téléchargeable (CSV/JSON) que nous n'avons pas, et déclarer une distribution
+  // inexistante serait pire que son absence.
+  isAccessibleForFree: true,
+  creator: { "@type": "Organization", name: SITE.brand, url: SITE.url, sameAs: SITE.sameAs },
+  // Date des DONNÉES, pas du balisage. VIT-16 n'a touché aucun chiffre : elle ne
+  // bouge pas. Ne jamais faire passer un changement de métadonnée pour une mise
+  // à jour de données.
   dateModified: "2026-07-24",
   keywords: ["avis Google", "statistiques avis", "réputation locale", "commerce local", "France"],
 };
@@ -67,7 +86,12 @@ const faqLd = {
           </tbody>
         </table>
       </div>
-      <p class="st-note">Vous pouvez citer ce tableau en mentionnant « Stela, d'après les sources indiquées ». Les études originales font foi.</p>
+      <p class="st-note">
+        Vous pouvez citer ce tableau en mentionnant « Stela, d'après les sources indiquées ». Les
+        études originales font foi. Données publiées sous licence{" "}
+        <a href={LICENCE_URL} rel="license noopener">CC BY 4.0</a> : réutilisation libre, y compris
+        commerciale, sous réserve d'attribution.
+      </p>
     </div>
   </section>
 
