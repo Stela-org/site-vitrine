@@ -1,0 +1,97 @@
+name: Gardiens du site vitrine
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: gardiens-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bloquant:
+    name: Gardiens bloquants
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: check copy (tirets cadratins)
+        run: npm run lint:copy
+
+      - name: check brand (aucune occurrence Avistars)
+        run: npm run check:brand
+
+      - name: Construire le site
+        run: npx astro build
+
+      - name: check animations (les revelations survivent a la minification)
+        run: npm run check:animations
+
+      - name: check links
+        run: npm run check:links
+
+      - name: check schema (JSON-LD)
+        run: npm run check:schema
+
+      - name: check stripe (Payment Links LIVE)
+        run: npm run check:stripe
+
+      - name: check alt
+        run: npm run check:alt
+
+      - name: check channels
+        run: npm run check:channels
+
+      - name: check analytics
+        run: npm run check:analytics
+
+      - name: check partner
+        run: npm run check:partner
+
+      - name: Installer chromium (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      - name: check cookies (banniere de consentement + CSP de production)
+        run: npm run check:cookies
+
+      - name: check devis (parcours de devis, sans JavaScript)
+        run: npm run check:devis
+
+      - name: check overflow (aucun scroll horizontal)
+        run: npm run check:overflow
+
+  alerte:
+    name: Alertes (non bloquant)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: npm audit (vulnerabilites high)
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
+      - name: Construire le site
+        run: npx astro build
+
+      - name: check cities (seuils de contenu des pages villes)
+        continue-on-error: true
+        run: npm run check:cities
