@@ -44,13 +44,21 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
    contenu (défaut Dokaa interdit). Désactivé sous prefers-reduced-motion. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
+    /* Longhands OBLIGATOIRES ici : le raccourci `animation` replié par le
+       minifieur avale `view()` et produit `animation:linear both reveal-in view()`,
+       valeur illégale qui fait jeter la règle entière au navigateur (gardien
+       scripts/check-animations.mjs). */
     .reveal {
-      animation: reveal-in linear both;
+      animation-name: reveal-in;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
       animation-timeline: view();
       animation-range: entry 0% cover 22%;
     }
     .reveal-stagger > * {
-      animation: reveal-in linear both;
+      animation-name: reveal-in;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
       animation-timeline: view();
       animation-range: entry 0% cover 25%;
     }
