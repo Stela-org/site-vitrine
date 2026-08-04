@@ -67,7 +67,11 @@ const {
     background: linear-gradient(180deg, var(--brass), var(--gold)); }
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      .rep-spark span { transform: scaleY(0); transform-origin: bottom; animation: rep-rise .7s ease forwards; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+      /* Longhands : le raccourci `animation` + `animation-timeline` est replié
+         par le minifieur en une valeur illégale et la règle est jetée. */
+      .rep-spark span { transform: scaleY(0); transform-origin: bottom;
+        animation-name: rep-rise; animation-duration: .7s; animation-timing-function: ease;
+        animation-fill-mode: forwards; animation-timeline: view(); animation-range: entry 0% cover 25%; }
     }
   }
   @keyframes rep-rise { to { transform: scaleY(1); } }
