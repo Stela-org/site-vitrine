@@ -1,25 +1,9 @@
 name: Gardiens du site vitrine
 
-# Les onze gardiens du depot ne s'executaient jusqu'ici QUE si quelqu'un pensait
-# a lancer `npm run check` a la main. Vercel ne lance que `astro build` : un push
-# qui casse un lien interne, malforme un JSON-LD, reintroduit « Avistars » ou
-# supprime un Payment Link Stripe partait en production sans la moindre alerte.
-# Ce workflow ferme ce trou : chaque push et chaque pull request les executent.
-#
-# DEUX NIVEAUX, volontairement :
-#   - « bloquant »    : gardiens deterministes. Ils ne dependent que du contenu
-#                       du depot. S'ils echouent, le depot est casse, point.
-#   - « non bloquant » : `npm audit` et `check:cities`. Ils peuvent virer au
-#                       rouge sans qu'une seule ligne du site ait bouge (une CVE
-#                       publiee dans une dependance transitive, un seuil de mots
-#                       frole). Ils alertent, ils ne barrent pas la route.
-# Le detail du raisonnement est dans docs/GARDIENS.md.
-
 on:
   push:
   pull_request:
 
-# Un push qui en chasse un autre sur la meme branche annule le run precedent.
 concurrency:
   group: gardiens-${{ github.ref }}
   cancel-in-progress: true
@@ -40,25 +24,16 @@ jobs:
       - name: Installer les dependances
         run: npm ci
 
-      # Gardiens qui n'ont pas besoin du build : ils lisent les sources.
       - name: check copy (tirets cadratins)
         run: npm run lint:copy
 
-      - name: check brand (aucune occurrence « Avistars »)
+      - name: check brand (aucune occurrence Avistars)
         run: npm run check:brand
 
-      # Tous les gardiens suivants lisent le HTML RENDU dans dist/.
-      # `astro build` seul, sans le ping IndexNow du script `build` : on ne
-      # notifie pas les moteurs depuis la CI, seul le deploiement Vercel le fait.
       - name: Construire le site
         run: npx astro build
 
-      # Ajoute a la resolution du merge : `check:animations` est arrive sur main
-      # avec VIT-18, apres l'ecriture de ce workflow. Sans cette etape, la CI
-      # aurait surveille treize gardiens sur quatorze, et personne ne l'aurait
-      # su. Deterministe et sans navigateur (il lit le CSS BUILDE dans dist/),
-      # donc bloquant, a la meme place que dans la chaine `npm run check`.
-      - name: check animations (longhands survivant a la minification)
+      - name: check animations (les revelations survivent a la minification)
         run: npm run check:animations
 
       - name: check links
@@ -82,11 +57,6 @@ jobs:
       - name: check partner
         run: npm run check:partner
 
-      # Gardiens navigateur. Ils exigent Playwright + un chromium, d'ou
-      # l'installation dediee, et ils passent en dernier car ce sont les plus
-      # lents. Ils sont BLOQUANTS : check:cookies est le test ecrit apres
-      # l'incident CSP/GA4 qui a coute deux jours de donnees. Le laisser en
-      # simple avertissement reviendrait a ne pas l'avoir ecrit.
       - name: Installer chromium (Playwright)
         run: npx playwright install --with-deps chromium
 
@@ -103,7 +73,6 @@ jobs:
     name: Alertes (non bloquant)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Ce job ne doit JAMAIS faire echouer le workflow : il rapporte, c'est tout.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -116,18 +85,13 @@ jobs:
       - name: Installer les dependances
         run: npm ci
 
-      # Une CVE publiee ce matin dans une dependance transitive n'a rien a voir
-      # avec le changement pousse. Elle merite une alerte, pas un deploiement
-      # bloque.
-      - name: npm audit (vulnerabilites >= high)
+      - name: npm audit (vulnerabilites high)
         continue-on-error: true
         run: npm audit --audit-level=high
 
       - name: Construire le site
         run: npx astro build
 
-      # check:cities impose des SEUILS de contenu (>= 1100 mots, >= 40 % unique).
-      # Un seuil frole est un signal editorial, pas une regression de code.
       - name: check cities (seuils de contenu des pages villes)
         continue-on-error: true
         run: npm run check:cities
