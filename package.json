@@ -8,7 +8,7 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/indexnow-ping.mjs",
     "preview": "astro preview",
-    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities && npm run check:devis",
+    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities && npm run check:devis && npm run check:cookies && npm run check:overflow",
     "lint:copy": "node scripts/check-copy.mjs",
     "check:brand": "node scripts/check-brand.mjs",
     "check:links": "node scripts/check-links.mjs",
