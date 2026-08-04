@@ -2,6 +2,21 @@
 import Base from "../layouts/Base.astro";
 import { SITE, PLANS, stripeLink } from "../config/site";
 import TripleZero from "../components/TripleZero.astro";
+import Glyph from "../components/Glyph.astro";
+
+// Gel saisonnier (VIT-17) : positions des étoiles décoratives du ciel, en
+// pourcentage du bloc. Le délai d'endormissement est échelonné de 150 à 600 ms
+// pour que le ciel s'éteigne étoile par étoile, jamais d'un bloc.
+const skyStars = [
+  { top: 16, left: 9, size: "1.5rem", delay: 150 },
+  { top: 61, left: 19, size: "1rem", delay: 300 },
+  { top: 28, left: 31, size: ".85rem", delay: 450 },
+  { top: 74, left: 44, size: "1.2rem", delay: 600 },
+  { top: 12, left: 58, size: "1rem", delay: 225 },
+  { top: 52, left: 71, size: "1.6rem", delay: 375 },
+  { top: 22, left: 84, size: ".9rem", delay: 525 },
+  { top: 78, left: 91, size: "1.1rem", delay: 300 },
+];
 
 const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
 
@@ -11,6 +26,7 @@ const faq = [
   { q: "Et si je ne suis pas satisfait ?", a: "Vous êtes couvert deux fois : 7 jours d'essai gratuit pour tester sans payer, puis 30 jours satisfait ou remboursé une fois abonné. Remboursement intégral sur simple demande." },
   { q: "Puis-je changer d'offre ?", a: "Oui, vous passez d'Étoile à Constellation à tout moment depuis votre espace client." },
   { q: "Où se fait le paiement ?", a: "Directement ici, en toute sécurité via Stripe. Après le paiement, vous recevez votre email de première connexion pour brancher votre fiche Google." },
+  { q: "Je ferme l'hiver, que se passe-t-il ?", a: "Vous ne payez pas les mois où votre établissement est fermé. Le jour de la réouverture, vous retrouvez vos avis, votre page et vos clients exactement comme vous les aviez laissés. Écrivez-nous avant votre fermeture et nous nous occupons du reste." },
 ];
 const faqLd = {
   "@context": "https://schema.org", "@type": "FAQPage",
@@ -100,7 +116,27 @@ const faqLd = {
   </section>
 
 
-  <section class="faq">
+  {/* Gel saisonnier (VIT-17) : la métaphore EST l'animation. Au scroll, le ciel
+      décoratif s'endort (étoiles + fond qui s'assombrit) puis se rallume, comme
+      un établissement qui ferme l'hiver et rouvre au printemps. */}
+  <section class="freeze">
+    <div class="freeze-sky" aria-hidden="true">
+      {skyStars.map((s) => (
+        <span
+          class="freeze-star"
+          style={`top:${s.top}%;left:${s.left}%;--sleep-delay:${s.delay}ms;`}
+        ><Glyph size={s.size} /></span>
+      ))}
+    </div>
+    <div class="freeze-grain" aria-hidden="true"></div>
+    <div class="container freeze-inner">
+      <h2 class="freeze-title">Vous fermez l'hiver ? Stela aussi.</h2>
+      <p class="freeze-text">Vous rouvrez en avril, tout est là : vos avis, votre page, vos clients. Vous ne payez pas les mois où vous êtes fermé.</p>
+      <p class="freeze-more"><a href="/tarifs#faq-gel">Comment ça se passe concrètement</a></p>
+    </div>
+  </section>
+
+  <section class="faq" id="faq-gel">
     <div class="container">
       <h2 style="text-align:center;">Questions sur les tarifs</h2>
       <div class="faq-list">
@@ -173,6 +209,115 @@ const faqLd = {
   .plan-cta { margin-top: 1rem; justify-content: center; }
   .tarifs-tz { display: flex; justify-content: center; margin-top: 1.25rem; }
   .tarifs-foot { text-align: center; color: var(--text-muted); font-size: .9rem; margin-top: .6rem; }
+  /* ------------------------------------------------------------------------
+     GEL SAISONNIER (VIT-17)
+
+     Conciliation avec la RÈGLE STRICTE VIT-6 (voir global.css) :
+     VIT-6 interdit les révélations au scroll qui touchent l'OPACITÉ D'UN BLOC
+     DE CONTENU, parce qu'une animation qui échoue laisserait alors du texte
+     invisible. Ici l'opacité est animée UNIQUEMENT sur `.freeze-star`, des
+     glyphes purement DÉCORATIFS, dans un conteneur `aria-hidden` qui ne porte
+     aucun texte et aucun lien. Le titre, le paragraphe et le lien vivent dans
+     `.freeze-inner`, qui n'est JAMAIS animé : ni opacité, ni transform, ni
+     visibility. Si l'animation ne joue pas (moteur sans view(), scroll qui
+     saute, feuille de style partiellement chargée), le ciel reste simplement
+     allumé et le texte reste lisible, à pleine opacité, sur un fond qui garde
+     son contraste de départ. L'esprit de VIT-6 (le contenu reste peint quoi
+     qu'il arrive) est donc respecté : rien de lisible ne dépend de l'animation.
+
+     Le contraste du texte est calculé sur le fond LE PLUS CLAIR de l'animation
+     (--ink-deep #1D3158), donc il ne peut que s'améliorer quand le fond
+     s'assombrit vers #0B1426. Aucune image de la séquence ne dégrade la
+     lisibilité.
+     ------------------------------------------------------------------------ */
+  .freeze { position: relative; overflow: hidden; background: var(--ink-deep); isolation: isolate; }
+
+  /* Ciel décoratif : les étoiles et le fond. aria-hidden côté markup. */
+  .freeze-sky { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .freeze-star { position: absolute; color: var(--brass); opacity: .85; line-height: 0; }
+
+  /* Grain : feTurbulence fractalNoise en data URI (zéro requête réseau). Le
+     grain SAUTE d'une image à l'autre (steps), il ne glisse pas : c'est une
+     texture de pellicule, pas un mouvement. */
+  .freeze-grain {
+    position: absolute; inset: -50%; width: 200%; height: 200%;
+    pointer-events: none; z-index: 1; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Contenu : au-dessus du ciel et du grain, jamais animé (cf. VIT-6 ci-dessus). */
+  .freeze-inner { position: relative; z-index: 2; text-align: center; max-width: 46ch; margin-inline: auto; }
+  .freeze-title { color: #fff; }
+  .freeze-text { color: #cdd5e4; font-size: clamp(1.02rem, 1.9vw, 1.18rem); margin-bottom: .9rem; }
+  .freeze-more a { color: var(--brass); font-weight: 700; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Le grain vit toujours : c'est une texture, pas un déplacement. Longhands
+       également, par cohérence et pour rester hors de portée du minifieur. */
+    .freeze-grain {
+      animation-name: freeze-grain;
+      animation-duration: 8s;
+      animation-timing-function: steps(10);
+      animation-iteration-count: infinite;
+    }
+
+    @supports (animation-timeline: view()) {
+      /* PIÈGE DU MINIFIEUR (constaté au VIT-17) : écrite en raccourci
+         `animation: <nom> linear both` PUIS `animation-timeline: view()`, la
+         déclaration est repliée par le minifieur du build en
+         `animation: linear both <nom> view()`. Ce raccourci est INVALIDE (la
+         timeline n'appartient pas à `animation`) et le navigateur jette toute
+         la règle : l'animation ne joue jamais en production. On écrit donc
+         chaque longhand séparément, sans jamais utiliser le raccourci
+         `animation`, ce qui ne donne rien à replier au minifieur. */
+      .freeze {
+        animation-name: freeze-night;
+        animation-duration: 1ms; /* remplacée par la timeline de scroll */
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 60%;
+      }
+      /* Les étoiles s'endorment une à une (délai porté par --sleep-delay) puis
+         se rallument. `animation-delay` décale la phase sur une timeline de
+         scroll : chaque étoile atteint donc son minimum à un moment différent. */
+      .freeze-star {
+        animation-name: freeze-sleep;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 60%;
+        animation-delay: var(--sleep-delay, 0ms);
+      }
+    }
+  }
+
+  /* Le grain saute image par image, sans jamais découvrir de bord. */
+  @keyframes freeze-grain {
+    0%   { transform: translate(0, 0); }
+    10%  { transform: translate(-5%, -10%); }
+    20%  { transform: translate(-15%, 5%); }
+    30%  { transform: translate(7%, -25%); }
+    40%  { transform: translate(-5%, 25%); }
+    50%  { transform: translate(-15%, 10%); }
+    60%  { transform: translate(15%, 0); }
+    70%  { transform: translate(0, 15%); }
+    80%  { transform: translate(3%, 35%); }
+    90%  { transform: translate(-10%, 10%); }
+    100% { transform: translate(0, 0); }
+  }
+  @keyframes freeze-night {
+    0%   { background-color: var(--ink-deep); }
+    50%  { background-color: #0B1426; }
+    100% { background-color: var(--ink-deep); }
+  }
+  @keyframes freeze-sleep {
+    0%   { opacity: .85; }
+    50%  { opacity: .18; }
+    100% { opacity: .85; }
+  }
+
   .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1.25rem; }
   @media (max-width: 760px) { .faq-list { grid-template-columns: 1fr; } }
   .faq-item h3 { margin-bottom: .35rem; }

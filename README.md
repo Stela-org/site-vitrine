@@ -9,18 +9,23 @@ npm install
 npm run dev        # serveur local
 npm run build      # build statique -> dist/
 npm run preview    # prévisualise dist/
-npm run check      # GATE : lint:copy + check:brand + build
+npm run check      # GATE : les onze gardiens, du plus rapide au plus lent
 ```
 
 ## Garde-fous (GATE)
-- `npm run lint:copy` : 0 tiret cadratin (—) dans src/public/docs.
-- `npm run check:brand` : 0 « Avistars » / codename à double L en surface.
-- Contrôle manuel : aucun discours de review gating (filtrage des avis par la
-  note, interception d'insatisfaits). La conformité Google est le positionnement.
-- Contenu vérifié lisible sans JavaScript ; Lighthouse >= 95.
-- `npm run check:overflow` : garde-fou anti-scroll horizontal (Playwright, 7 pages
-  x 4 largeurs 320/375/768/1280, `scrollWidth <= innerWidth`). À lancer avant merge.
-  Nécessite le navigateur : `npx playwright install chromium` (une fois).
+Les onze gardiens s'exécutent **automatiquement à chaque push et chaque pull
+request** via `.github/workflows/gardiens.yml`. Le tableau « quel gardien couvre
+quoi », le partage bloquant / alerte et la marche à suivre quand l'un échoue sont
+dans **[`docs/GARDIENS.md`](docs/GARDIENS.md)**.
+
+En local, `npm run check` lance la chaîne complète. Les trois gardiens navigateur
+(`check:cookies`, `check:devis`, `check:overflow`) exigent le navigateur :
+`npx playwright install chromium`, une fois.
+
+Contrôles qui restent manuels :
+- aucun discours de review gating (filtrage des avis par la note, interception
+  d'insatisfaits). La conformité Google est le positionnement ;
+- contenu lisible sans JavaScript ; Lighthouse >= 95.
 
 ## Architecture
 - `src/config/site.ts` : source unique (marque, couleurs, URLs, prix, analytics).
