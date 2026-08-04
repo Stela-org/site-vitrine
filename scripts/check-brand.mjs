@@ -2,7 +2,10 @@
 //  - « Stella » (double L) = codename interne interdit en surface.
 //  - « Avistars » / « avistars.fr » = ancienne marque à ne jamais réintroduire.
 //  - review gating (interception d'insatisfaits, filtrage des avis par la note).
-// Le legacy/ (ancien site) est exclu : purgé au VIT-4.
+// Ce gardien scanne par LISTE BLANCHE (voir PATTERNS) : src/ et public/.
+// Le dossier legacy/ n'en faisait donc pas partie, et c'est ainsi que ses 67
+// fichiers Avistars ont survécu à un gardien à baseline 0. Il est supprimé au
+// LOT VIT-MENAGE ; sa mémoire utile est dans docs/URL-MAP-LEGACY.md.
 import { readFileSync, globSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 

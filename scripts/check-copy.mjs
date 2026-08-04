@@ -1,5 +1,5 @@
 // lint:copy — baseline 0 : aucun tiret cadratin (—, U+2014) dans les sources du
-// site (src/, public/, docs/). Le legacy/ (ancien site Avistars) est exclu : il
+// site (src/, public/, docs/). Le legacy/ (ancien site Avistars) est supprimé au LOT VIT-MENAGE ; il
 // sera supprimé au VIT-4, on ne le corrige pas.
 import { readFileSync, globSync } from "node:fs";
 
