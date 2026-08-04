@@ -99,10 +99,16 @@ const faqLd = {
   })),
 };
 
+// LOT SEO-LOGO : `name` + `alternateName` portent le NOM DE SITE affiche en
+// gris au-dessus du titre dans les resultats Google. Sans eux, Google se rabat
+// sur le domaine (« mystela.fr »). Ce balisage doit vivre sur la page D'ACCUEIL
+// et nulle part ailleurs : Google ne lit le nom de site que la. L'adoption
+// prend plusieurs semaines apres reindexation, ce n'est jamais immediat.
 const websiteLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: SITE.brand,
+  alternateName: `${SITE.brand} - avis Google pour les commerces locaux`,
   url: SITE.url,
   inLanguage: "fr-FR",
   publisher: { "@type": "Organization", name: SITE.brand },

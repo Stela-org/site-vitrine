@@ -33,7 +33,10 @@ const orgLd = {
   url: SITE.url,
   slogan: SITE.tagline,
   email: SITE.email,
-  logo: new URL("/images/logo-stela.svg", SITE.url).href,
+  // LOT SEO-LOGO : PNG et non SVG. Google IGNORE les logos vectoriels pour la
+  // vignette des resultats de recherche : il exige un format matriciel. Le SVG
+  // reste le logo du SITE ; celui-ci n'existe que pour le balisage.
+  logo: new URL("/images/logo-monogramme-512.png", SITE.url).href,
   sameAs: SITE.sameAs,
   founder: { "@type": "Person", name: "Nicolas Anquetin", jobTitle: "Cofondateur", url: new URL("/notre-histoire", SITE.url).href },
 };

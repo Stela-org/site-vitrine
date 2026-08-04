@@ -33,7 +33,8 @@ const articleLd = {
     url: new URL("/notre-histoire", SITE.url).href,
     sameAs: SITE.sameAs,
   },
-  publisher: { "@type": "Organization", name: SITE.brand, logo: { "@type": "ImageObject", url: new URL("/images/logo-stela.svg", SITE.url).href } },
+  // LOT SEO-LOGO : PNG et non SVG (Google ignore le vectoriel, cf. Base.astro).
+  publisher: { "@type": "Organization", name: SITE.brand, logo: { "@type": "ImageObject", url: new URL("/images/logo-monogramme-512.png", SITE.url).href } },
   mainEntityOfPage: url,
 };
 const dateStr = (d.updatedDate ?? d.pubDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
