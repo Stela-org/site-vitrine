@@ -138,6 +138,21 @@ const websiteLd = {
     </div>
   </section>
 
+  {/* DÉFINITION EXTRACTIBLE (LOT SEO-GEO-1 §A1)
+      Le site n'avait, nulle part dans son HTML, de phrase « Stela est un… ».
+      Elle ne vivait que dans llms.txt, que les moteurs de réponse ne lisent pas
+      tous : un modèle qui citait cette page n'avait aucune définition à
+      reprendre et devait en fabriquer une. Elle est désormais en HTML réel,
+      lisible par un humain, juste sous le hero, et rendue depuis
+      `SITE.definition`, la même chaîne que le JSON-LD et llms.txt.
+      Volontairement sobre : ce bloc ne vend rien, le hero au-dessus s'en
+      charge. Une phrase écrite pour vendre ne se cite pas. */}
+  <section class="definition">
+    <div class="container">
+      <p class="definition-text">{SITE.definition}</p>
+    </div>
+  </section>
+
   {/* AIGUILLAGE MÉTIER (VIT-15 §2) : juste sous le hero. La home est générique,
       chacun clique SUR SA page métier. Cartes visuelles vers /pour/[slug]. */}
   <section class="segments">
@@ -448,6 +463,13 @@ const websiteLd = {
     padding: .2rem .6rem; margin-bottom: .35rem; }
   .feature-more { margin-top: auto; padding-top: .75rem; color: var(--brass); font-weight: 700; font-size: .9rem; }
   .feature-more::after { content: " \2192"; }
+
+  /* Définition extractible (SEO-GEO-1 §A1) : une ligne, filet laiton à gauche,
+     sur le crème du hero pour qu'elle se lise comme une note et non comme un
+     argument. Aucune décoration : c'est du texte destiné à être recopié. */
+  .definition { background: var(--cream); padding-block: clamp(18px, 2.4vw, 30px); }
+  .definition-text { margin: 0; max-width: 78ch; font-size: clamp(1rem, 1.6vw, 1.12rem);
+    line-height: 1.6; color: var(--text-secondary); border-left: 2px solid var(--brass); padding-left: 1rem; }
 
   /* Aiguillage métier (VIT-15 §2) : cartes visuelles vers /pour/[slug], sous le
      hero. Grille souple qui tient de 320px au desktop, sans débordement. */

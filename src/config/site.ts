@@ -8,6 +8,27 @@ export const SITE = {
   positioning:
     "Le moteur de croissance Google clé-en-main et 100 % conforme des commerces locaux.",
 
+  // LOT SEO-GEO-1 §A1 : la phrase EXTRACTIBLE, distincte du positionnement.
+  //
+  // Le positionnement ci-dessus vend : il est écrit pour un lecteur qu'on veut
+  // convaincre. Celle-ci est écrite pour être CITÉE par un moteur de réponse,
+  // hors de son contexte, à quelqu'un qui n'a jamais entendu parler de nous.
+  // Trois exigences qui n'ont rien à voir avec du marketing :
+  //   1. elle nomme la CATÉGORIE (« un logiciel de gestion des avis clients »),
+  //      sans quoi un modèle ne sait pas dans quelle réponse nous ranger ;
+  //   2. elle reste VRAIE isolée, donc pas de superlatif ni de promesse de
+  //      résultat, qu'une citation sortie du contexte transformerait en
+  //      affirmation invérifiable ;
+  //   3. elle porte le seul point qui nous distingue vraiment et qui se
+  //      vérifie : nous ne filtrons pas les avis selon la note.
+  //
+  // Elle vit en HTML RÉEL sur la page d'accueil (les moteurs de réponse ne
+  // lisent pas tous llms.txt, et beaucoup ignorent le JSON-LD seul), et la même
+  // chaîne alimente le JSON-LD et llms.txt : trois surfaces, une seule phrase,
+  // impossible à faire diverger.
+  definition:
+    "Stela est un logiciel de gestion des avis clients pour les commerces locaux en France : il invite chaque client à laisser un avis public, aide le commerçant à y répondre, et ne filtre jamais les avis selon la note.",
+
   // Domaine canonique unique.
   url: "https://www.mystela.fr",
   // Application (accès des clients déjà inscrits). L'ACHAT initial ne passe PAS

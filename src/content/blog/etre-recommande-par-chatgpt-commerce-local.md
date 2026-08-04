@@ -8,7 +8,7 @@ keyword: "être recommandé par ChatGPT commerce local"
 cluster: "geo"
 ---
 
-De plus en plus de clients ne tapent plus « meilleur restaurant près de moi » dans un moteur de recherche. Ils le demandent à ChatGPT, à Gemini ou à Perplexity, et suivent la réponse. Pour un commerce local, une nouvelle question se pose : comment devenir la réponse que l'intelligence artificielle recommande ? C'est tout l'objet du GEO, l'optimisation pour les moteurs génératifs. Ce guide explique ce que c'est, d'où les IA tirent leurs recommandations, et une méthode concrète pour progresser, avec des exemples par secteur.
+[De plus en plus de clients](/statistiques-avis-google-france) ne tapent plus « meilleur restaurant près de moi » dans un moteur de recherche. Ils le demandent à ChatGPT, à Gemini ou à Perplexity, et suivent la réponse. Pour un commerce local, une nouvelle question se pose : comment devenir la réponse que l'intelligence artificielle recommande ? C'est tout l'objet du GEO, l'optimisation pour les moteurs génératifs. Ce guide explique ce que c'est, d'où les IA tirent leurs recommandations, et une méthode concrète pour progresser, avec des exemples par secteur.
 
 ## Ce qu'est le GEO, en une phrase
 

@@ -13,7 +13,7 @@ Un avis négatif n'est pas une fatalité. Bien traité, il rassure les futurs cl
 
 ## Pourquoi répondre aux avis négatifs
 
-La plupart des clients lisent les réponses du gérant avant de choisir. Une réponse calme et utile à un avis négatif en dit souvent plus qu'une série d'avis cinq étoiles. Répondre montre que vous êtes présent, que vous écoutez, et que le problème signalé est pris au sérieux.
+La plupart des clients [lisent les réponses du gérant](/statistiques-avis-google-france) avant de choisir. Une réponse calme et utile à un avis négatif en dit souvent plus qu'une série d'avis cinq étoiles. Répondre montre que vous êtes présent, que vous écoutez, et que le problème signalé est pris au sérieux.
 
 Répondre n'a rien à voir avec le fait de cacher ou de filtrer un avis. Sur Google, tous les avis sont publics, et c'est une bonne chose : votre réponse fait partie de votre image.
 

@@ -1,6 +1,6 @@
 # Stela
 
-> Stela est le moteur de croissance Google clé-en-main et 100 % conforme des commerces locaux. Stela aide restaurants, coiffeurs, instituts, garages, hôtels et professionnels de santé à collecter plus d'avis Google, à y répondre automatiquement, à centraliser leurs réservations et à fidéliser leurs clients, sans jamais filtrer les avis selon la note.
+> Stela est un logiciel de gestion des avis clients pour les commerces locaux en France : il invite chaque client à laisser un avis public, aide le commerçant à y répondre, et ne filtre jamais les avis selon la note. Stela s'adresse aux restaurants, coiffeurs, instituts, garages, hôtels et professionnels de santé, et couvre la collecte des avis, les réponses assistées par IA, la récupération des clients insatisfaits, la réservation et la fidélisation.
 
 ## Positionnement
 

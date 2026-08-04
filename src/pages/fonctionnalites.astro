@@ -29,7 +29,11 @@ const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
   <section class="hub-band">
     <div class="container">
       <p class="hub-band-num"><span data-count={CHANNELS_COUNT}>{CHANNELS_COUNT}</span></p>
-      <p class="hub-band-label">canaux et plateformes couverts par Stela, de Google Maps à ChatGPT.</p>
+      {/* LOT SEO-GEO-1 §A3 : cette bande annonçait le nombre de canaux couverts
+          sans jamais mener à la page qui les liste. C'est l'ancre la plus
+          justifiée du site pour /presence-plateformes, qui n'avait aucun lien
+          entrant en dehors du composant Integrations. */}
+      <p class="hub-band-label"><a class="hub-band-link" href="/presence-plateformes">canaux et plateformes couverts par Stela</a>, de Google Maps à ChatGPT.</p>
     </div>
   </section>
 
@@ -86,6 +90,9 @@ const secteurs = SEGMENTS.filter((s) => s.kind === "secteur");
   .hub-band { background: var(--ink); color: #fff; text-align: center; padding-block: 2.5rem; }
   .hub-band-num { font-size: clamp(3rem, 10vw, 5rem); font-weight: 800; color: var(--brass); line-height: 1; margin: 0; }
   .hub-band-label { color: #cdd5e4; max-width: 44ch; margin: .6rem auto 0; font-weight: 600; }
+  /* SEO-GEO-1 §A3 : lien sur fond encre, souligné pour rester identifiable
+     sans la couleur seule (le texte de la bande est déjà clair sur sombre). */
+  .hub-band-link { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
   .hub-features { padding-block: 3rem; }
   .hub-features h2, .hub-segments h2 { text-align: center; margin-bottom: 1.75rem; }
   .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }

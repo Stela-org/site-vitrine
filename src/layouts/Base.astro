@@ -43,7 +43,13 @@ const appLd = {
   name: SITE.brand,
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
-  description: SITE.positioning,
+  // LOT SEO-GEO-1 §A1 : ce champ portait le POSITIONNEMENT, une phrase écrite
+  // pour convaincre. Il porte maintenant la DÉFINITION, écrite pour être citée.
+  // C'est la nature du champ qui commande : un `description` de JSON-LD est lu
+  // par des machines qui en reprennent le contenu tel quel, pas par un
+  // prospect à séduire. Le positionnement n'est pas retiré du site pour autant,
+  // il reste la ligne du pied de page, à sa place, sur une surface humaine.
+  description: SITE.definition,
   offers: [
     { "@type": "Offer", name: "Étoile", price: "49", priceCurrency: "EUR", category: "mensuel" },
     { "@type": "Offer", name: "Constellation", price: "89", priceCurrency: "EUR", category: "mensuel" },
