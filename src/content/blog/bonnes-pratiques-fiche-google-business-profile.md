@@ -11,7 +11,7 @@ Une fiche Google Business Profile n'est jamais vraiment terminée. Google fait �
 
 ## Des informations exactes, partout identiques
 
-Le nom de l'établissement, l'adresse et le téléphone doivent être strictement identiques sur la fiche Google, le site web et les annuaires où le commerce apparaît (Pages Jaunes, TripAdvisor, réseaux sociaux). Cette cohérence, souvent appelée NAP (Name, Address, Phone), reste un signal de confiance basique pour Google : une adresse orthographiée différemment d'un site à l'autre sème le doute sur la fiabilité de la fiche.
+Le nom de l'établissement, l'adresse et le téléphone doivent être strictement identiques sur la fiche Google, le site web et les [annuaires et plateformes d'avis où le commerce apparaît](/presence-plateformes) (Pages Jaunes, TripAdvisor, réseaux sociaux). Cette cohérence, souvent appelée NAP (Name, Address, Phone), reste un signal de confiance basique pour Google : une adresse orthographiée différemment d'un site à l'autre sème le doute sur la fiabilité de la fiche.
 
 Les horaires méritent une vérification à chaque changement de saison ou jour férié. Une fiche qui indique « ouvert » alors que le rideau est baissé est l'une des premières causes d'avis négatifs évitables, bien avant la qualité du service.
 
@@ -35,7 +35,7 @@ La fonction « Posts » (nouveautés, offres, événements) permet de faire vivr
 
 ## Les attributs et la section produits ou menus
 
-Les attributs (accessibilité, terrasse, paiement sans contact, réservation en ligne) et la section menu ou produits sont souvent laissés vides alors qu'ils répondent directement aux questions que se posent les clients avant de venir. Les compléter prend quelques minutes et réduit les questions redondantes.
+Les attributs (accessibilité, terrasse, paiement sans contact, réservation en ligne) et la section menu ou produits sont souvent laissés vides alors qu'ils répondent directement aux questions que se posent les clients avant de venir. Les compléter prend quelques minutes et réduit les questions redondantes. Le [guide Google du commerçant local](/guide-google-commercant-local) reprend ces réglages point par point, en PDF.
 
 ## Le tableau de performance
 

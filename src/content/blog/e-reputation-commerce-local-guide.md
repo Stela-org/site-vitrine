@@ -16,11 +16,11 @@ L'e-réputation, c'est l'image de votre commerce sur internet : ce que les gens 
 - **Votre fiche Google Business Profile** : c'est souvent le premier contact. Nom, note, photos, horaires, avis.
 - **Vos avis** : leur nombre, leur note moyenne, leur fraîcheur et leur contenu.
 - **Vos réponses aux avis** : elles montrent que vous êtes présent et à l'écoute.
-- **Votre présence ailleurs** : plateformes du secteur, réseaux sociaux, et désormais réponses des IA comme ChatGPT ou Gemini.
+- **Votre présence ailleurs** : [plateformes du secteur](/presence-plateformes), réseaux sociaux, et désormais réponses des IA comme ChatGPT ou Gemini.
 
 ## Pourquoi elle compte autant
 
-Une bonne e-réputation influence directement le choix des clients. Une note solide et des avis récents rassurent, remontent votre fiche dans les recherches locales, et donnent aux intelligences artificielles de quoi vous recommander. À l'inverse, une fiche à l'abandon fait douter, même si votre établissement est excellent.
+Une bonne e-réputation [influence directement le choix des clients](/statistiques-avis-google-france). Une note solide et des avis récents rassurent, remontent votre fiche dans les recherches locales, et donnent aux intelligences artificielles de quoi vous recommander. À l'inverse, une fiche à l'abandon fait douter, même si votre établissement est excellent.
 
 ## Mesurer votre point de départ
 
