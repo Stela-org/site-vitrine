@@ -12,6 +12,7 @@ import ROICard from "../components/ROICard.astro";
 import LogoWall from "../components/LogoWall.astro";
 import TripleZero from "../components/TripleZero.astro";
 import Integrations from "../components/Integrations.astro";
+import Glyph from "../components/Glyph.astro";
 
 // VIT-12 §3 : bandeau « Ils nous font confiance » (partenaires). Plateformes
 // de visibilité + caisses partenaires (Square, Zelty). Libellés courts pour le
@@ -205,9 +206,18 @@ const websiteLd = {
       <p class="eyebrow">Ce que fait Stela</p>
       <h2>Tout pour votre réputation locale, au même endroit</h2>
       <p class="section-lead">De la première recherche d'un client jusqu'à son retour : Stela vous accompagne à chaque étape.</p>
-      <div class="grid-3 reveal-stagger">
+      <div class="grid-3 reveal-stagger feature-grid">
         {features.map((f) => (
           <a class="card feature-card" href={`/${f.slug}`}>
+            {/* VIT-18 : étoile laiton en tête de carte. SVG inline via Glyph
+                (JAMAIS le caractère U+2733, rendu emoji vert sur iOS).
+                Décoratif : le contenu de la carte est inchangé. */}
+            <span class="feature-glyph"><Glyph size="1em" /></span>
+            {/* VIT-18 : liseré laiton qui se trace au survol (desktop seul).
+                Purement décoratif, aria-hidden, aucune requête ajoutée. */}
+            <svg class="feature-rule" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <line x1="0" y1="1" x2="100" y2="1" />
+            </svg>
             <FeatureVisual slug={f.slug} />
             <span class="feature-stage">{f.stage}</span>
             <h3>{f.t}</h3>
@@ -451,6 +461,64 @@ const websiteLd = {
     padding: .2rem .6rem; margin-bottom: .35rem; }
   .feature-more { margin-top: auto; padding-top: .75rem; color: var(--brass); font-weight: 700; font-size: .9rem; }
   .feature-more::after { content: " \2192"; }
+
+  /* ------------------------------------------------------------------ *
+   * VIT-18 : habillage de la section « Ce que fait Stela ».
+   * Trois gestes, aucun contenu touché : étoile en tête de carte, cascade
+   * plus marquée à la révélation, liseré laiton tracé au survol.
+   * Aucune requête ajoutée : le glyphe et le liseré sont des SVG inline.
+   * ------------------------------------------------------------------ */
+
+  /* 1. Étoile laiton en tête de carte. La couleur vient de `currentColor`
+        dans Glyph.astro, on la teinte ici. Décorative : elle ne remplace
+        aucun titre et ne modifie pas la structure Hn de la carte. */
+  .feature-glyph { color: var(--brass); font-size: 1rem; line-height: 1;
+    display: block; margin-bottom: .55rem; }
+
+  /* 3. Liseré laiton sous l'étoile, tracé de gauche à droite au survol.
+        `vector-effect` garde l'épaisseur constante malgré le viewBox étiré
+        par preserveAspectRatio="none". Au repos le trait est entièrement
+        rétracté ; il n'y a donc rien à voir tant qu'on ne survole pas. */
+  .feature-rule { display: block; width: 100%; height: 2px; margin: -.35rem 0 .6rem; overflow: visible; }
+  .feature-rule line { stroke: var(--brass); stroke-width: 2; vector-effect: non-scaling-stroke;
+    stroke-dasharray: 100; stroke-dashoffset: 100; }
+
+  @media (hover: hover) {
+    /* Le survol n'existe pas au doigt : sous (hover: none) le liseré reste
+       rétracté et rien ne se déclenche au tap. Le trait se trace en 600 ms
+       et RESTE tracé ensuite (`:focus-within` couvre la navigation clavier,
+       la carte étant un lien). */
+    .feature-rule line { transition: stroke-dashoffset .6s cubic-bezier(.22,1,.36,1); }
+    .feature-card:hover .feature-rule line,
+    .feature-card:focus-within .feature-rule line { stroke-dashoffset: 0; }
+  }
+
+  /* 2. Cascade plus marquée sur les six cartes.
+        `animation-timeline: view()` rend la timeline PILOTÉE PAR LE SCROLL :
+        `animation-delay` (temporel) n'y a aucun effet. Le décalage se fait
+        donc en repoussant `animation-range` carte par carte. Les 60 ms
+        demandées sont converties à la vitesse de défilement de référence
+        retenue ici (~1 000 px/s) : 60 ms ≈ 60 px ≈ 6 % de `cover` sur une
+        fenêtre de 1 000 px. D'où le pas de 6 points par carte.
+        Longhands OBLIGATOIRES : le raccourci `animation` suivi de
+        `animation-timeline` est replié par le minifieur en une valeur
+        illégale, et la règle entière est alors jetée par le navigateur. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .feature-grid > * {
+        animation-name: reveal-in;
+        animation-timing-function: cubic-bezier(.22,1,.36,1);
+        animation-fill-mode: both;
+        animation-timeline: view();
+      }
+      .feature-grid > :nth-child(1) { animation-range: entry 0% cover 25%; }
+      .feature-grid > :nth-child(2) { animation-range: entry 0% cover 31%; }
+      .feature-grid > :nth-child(3) { animation-range: entry 0% cover 37%; }
+      .feature-grid > :nth-child(4) { animation-range: entry 0% cover 43%; }
+      .feature-grid > :nth-child(5) { animation-range: entry 0% cover 49%; }
+      .feature-grid > :nth-child(6) { animation-range: entry 0% cover 55%; }
+    }
+  }
 
   /* Aiguillage métier (VIT-15 §2) : cartes visuelles vers /pour/[slug], sous le
      hero. Grille souple qui tient de 320px au desktop, sans débordement. */
