@@ -45,7 +45,7 @@
 | S8 | Un avis peut-il être supprimé de Google ? (migration recadrée) | guide | Livré |
 | S9 | Nouveautés Google Business Profile du mois | google-business-profile | En relecture (PR) |
 | S10 | Avis Google : Paris et Lyon, deux marchés (ville) | ville | En relecture (PR) |
-| S11 | Avis Google restaurant : Marseille, Bordeaux, Nice (villes) | ville | À faire |
+| S11 | Avis Google restaurant : Marseille, Bordeaux, Nice (villes) | ville | En relecture (PR) |
 | S12 | Nantes, Brest, Rouen, Nancy + bilan trimestriel GEO | ville | À faire |
 
 > Note sur les semaines villes (S10 à S12) : les 9 anciens articles de blog de
