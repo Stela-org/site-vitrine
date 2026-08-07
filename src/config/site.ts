@@ -93,6 +93,14 @@ export function stripeLink(plan: PlanId, billing: Billing, campaign = "site"): s
 // plan direct (le choix du plan EST l'entrée de l'essai).
 export const TARIFS_URL = "/tarifs";
 
+// Porte d'entrée du client DÉJÀ inscrit (lien « Se connecter » de la nav).
+// Dérivée de SITE.appUrl : la vitrine ne connaît qu'un seul domaine d'app.
+// La route est bien /login (groupe Next `app/(auth)/login`, dont les
+// parenthèses ne paraissent pas dans l'URL), et surtout PAS /signup : l'achat
+// se fait sur la vitrine via les Payment Links, et check:stripe fait tomber le
+// build si une page pointe vers app.mystela.fr/signup.
+export const LOGIN_URL = `${SITE.appUrl}/login`;
+
 // Tracking (VIT-0 décision 4) : PostHog + GA4 (nouvelle propriété), avec Google
 // Consent Mode v2 (défaut « denied ») et bannière minimale. L'ancien GA
 // G-WK8JTW04WF est SUPPRIMÉ. Les identifiants ci-dessous sont à renseigner quand

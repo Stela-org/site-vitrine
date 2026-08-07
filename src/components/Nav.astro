@@ -1,8 +1,12 @@
 ---
-import { SITE, NAV_LINKS, TARIFS_URL } from "../config/site";
+import { SITE, NAV_LINKS, TARIFS_URL, LOGIN_URL } from "../config/site";
 import Logo from "./Logo.astro";
 // Navbar sticky sur toutes les pages (via Base). Parcours court et évident
-// (Nielsen/Norman) : 4 liens + 1 CTA laiton. Menu mobile 100 % CSS via une case
+// (Nielsen/Norman) : 4 liens + 1 CTA laiton, plus un lien « Se connecter »
+// discret pour le client déjà inscrit (LOT VIT-CONNEXION). Ce dernier est posé
+// HORS de `.nav-links` volontairement : les liens de section disparaissent
+// derrière le burger en mobile, la porte d'entrée d'un client, non.
+// Menu mobile 100 % CSS via une case
 // à cocher masquée (accessible et fonctionnel SANS JavaScript, compatible CSP).
 // NB : on n'utilise PAS <details> ici (les Chromium récents n'en peignent plus le
 // contenu fermé, ce qui rendait les liens desktop invisibles).
@@ -10,6 +14,7 @@ import Logo from "./Logo.astro";
 <header class="nav">
   <div class="container nav-inner">
     <a href="/" class="nav-logo" aria-label={`${SITE.brand}, accueil`}><Logo /></a>
+    <a class="nav-login" href={LOGIN_URL}>Se connecter</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Ouvrir ou fermer le menu" />
     <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
     <nav class="nav-links" aria-label="Navigation principale">
@@ -22,7 +27,23 @@ import Logo from "./Logo.astro";
   .nav { position: sticky; top: 0; z-index: 50; background: rgba(247, 244, 239, .9);
     backdrop-filter: saturate(150%) blur(8px); border-bottom: 1px solid var(--border); }
   .nav-inner { display: flex; align-items: center; justify-content: space-between; min-height: var(--nav-h); position: relative; }
+  /* `margin-right: auto` colle le groupe de droite (connexion + liens + CTA) au
+     bord : avec trois enfants, `space-between` seul les écarterait un à un. */
+  .nav-logo { margin-right: auto; }
   .nav-logo:hover { text-decoration: none; }
+
+  /* « Se connecter » n'est pas un appel à l'action : c'est un service rendu à
+     quelqu'un qui est DÉJÀ client. Il se tient donc un cran en dessous des
+     liens de section (500 au lieu de 600, un peu plus petit), et deux crans
+     sous le CTA laiton, dont il ne partage ni le fond ni le contraste. Il vit
+     hors de `.nav-links` pour rester dans la barre en mobile, quand les liens
+     de section passent derrière le burger. L'écart qui le SUIT est plus large
+     que le pas de 1.6rem des liens entre eux : sans ça, il se lisait comme une
+     cinquième rubrique du site. */
+  .nav-login { font-weight: 500; font-size: .92rem; color: var(--text-secondary);
+    margin-right: 2.6rem; transition: color .15s ease; }
+  .nav-login:hover { color: var(--ink); }
+
   .nav-links { display: flex; align-items: center; gap: 1.6rem; }
   .nav-links > a { font-weight: 600; color: var(--text-secondary); transition: color .15s ease; }
   .nav-links > a:hover { color: var(--ink); text-decoration: none; }
@@ -34,6 +55,10 @@ import Logo from "./Logo.astro";
   .nav-burger { display: none; }
 
   @media (max-width: 860px) {
+    /* La barre mobile ne porte que le logo et le burger : il y reste de la
+       place. On resserre la marge pour ne pas pousser le burger. */
+    .nav-login { margin-right: .8rem; font-size: .88rem; }
+
     .nav-burger { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
     .nav-burger span, .nav-burger span::before, .nav-burger span::after { display: block; width: 18px; height: 2px; background: var(--ink); position: relative; border-radius: 2px; }
