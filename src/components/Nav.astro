@@ -14,11 +14,19 @@ import Logo from "./Logo.astro";
 <header class="nav">
   <div class="container nav-inner">
     <a href="/" class="nav-logo" aria-label={`${SITE.brand}, accueil`}><Logo /></a>
-    <a class="nav-login" href={LOGIN_URL}>Se connecter</a>
+    {/* Version MOBILE du lien de connexion : dans la barre, à côté du burger,
+        parce que les liens de section passent derrière lui et que la porte
+        d'entrée d'un client ne doit jamais y disparaître. Masquée en desktop. */}
+    <a class="nav-login nav-login-mobile" href={LOGIN_URL}>Se connecter</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Ouvrir ou fermer le menu" />
     <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
     <nav class="nav-links" aria-label="Navigation principale">
       {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      {/* Version DESKTOP : à sa place conventionnelle, juste avant le CTA,
+          séparée des rubriques par un filet vertical. Posé entre le logo et
+          les rubriques (première version), il flottait comme un élément
+          oublié (constat de Nicolas sur le rendu réel, 07/08). */}
+      <a class="nav-login nav-login-desktop" href={LOGIN_URL}>Se connecter</a>
       <a class="btn btn-primary nav-cta" href={TARIFS_URL}>Essai gratuit 7 jours</a>
     </nav>
   </div>
@@ -27,22 +35,22 @@ import Logo from "./Logo.astro";
   .nav { position: sticky; top: 0; z-index: 50; background: rgba(247, 244, 239, .9);
     backdrop-filter: saturate(150%) blur(8px); border-bottom: 1px solid var(--border); }
   .nav-inner { display: flex; align-items: center; justify-content: space-between; min-height: var(--nav-h); position: relative; }
-  /* `margin-right: auto` colle le groupe de droite (connexion + liens + CTA) au
-     bord : avec trois enfants, `space-between` seul les écarterait un à un. */
+  /* `margin-right: auto` colle le groupe de droite au bord : avec plusieurs
+     enfants, `space-between` seul les écarterait un à un. */
   .nav-logo { margin-right: auto; }
   .nav-logo:hover { text-decoration: none; }
 
   /* « Se connecter » n'est pas un appel à l'action : c'est un service rendu à
-     quelqu'un qui est DÉJÀ client. Il se tient donc un cran en dessous des
-     liens de section (500 au lieu de 600, un peu plus petit), et deux crans
-     sous le CTA laiton, dont il ne partage ni le fond ni le contraste. Il vit
-     hors de `.nav-links` pour rester dans la barre en mobile, quand les liens
-     de section passent derrière le burger. L'écart qui le SUIT est plus large
-     que le pas de 1.6rem des liens entre eux : sans ça, il se lisait comme une
-     cinquième rubrique du site. */
+     quelqu'un qui est DÉJÀ client. Un cran sous les liens de section (500 au
+     lieu de 600, un peu plus petit), deux crans sous le CTA laiton. En
+     desktop il vit DANS le groupe de droite, à sa place conventionnelle :
+     juste avant le CTA, séparé des rubriques par un filet vertical (le trait
+     fait le travail de distinction que l'espacement seul ne faisait pas). */
   .nav-login { font-weight: 500; font-size: .92rem; color: var(--text-secondary);
-    margin-right: 2.6rem; transition: color .15s ease; }
+    transition: color .15s ease; }
   .nav-login:hover { color: var(--ink); }
+  .nav-login-desktop { border-left: 1px solid var(--border); padding-left: 1.6rem; }
+  .nav-login-mobile { display: none; }
 
   .nav-links { display: flex; align-items: center; gap: 1.6rem; }
   .nav-links > a { font-weight: 600; color: var(--text-secondary); transition: color .15s ease; }
@@ -55,9 +63,12 @@ import Logo from "./Logo.astro";
   .nav-burger { display: none; }
 
   @media (max-width: 860px) {
-    /* La barre mobile ne porte que le logo et le burger : il y reste de la
-       place. On resserre la marge pour ne pas pousser le burger. */
-    .nav-login { margin-right: .8rem; font-size: .88rem; }
+    /* En mobile les deux versions permutent : celle du panneau burger
+       disparaît (le filet vertical n'a pas de sens empilé), celle de la barre
+       apparaît à côté du burger : la porte d'entrée d'un client reste visible
+       sans ouvrir le menu. */
+    .nav-login-desktop { display: none; }
+    .nav-login-mobile { display: inline; margin-right: .8rem; font-size: .88rem; }
 
     .nav-burger { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
