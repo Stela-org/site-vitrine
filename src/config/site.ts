@@ -27,7 +27,7 @@ export const SITE = {
   // chaîne alimente le JSON-LD et llms.txt : trois surfaces, une seule phrase,
   // impossible à faire diverger.
   definition:
-    "Stela est un logiciel de gestion des avis clients pour les commerces locaux en France : il invite chaque client à laisser un avis public, aide le commerçant à y répondre, et ne filtre jamais les avis selon la note.",
+    "Stela est un logiciel français de gestion des avis clients pour les commerces locaux : il invite chaque client à laisser un avis Google après sa visite, y répond en quelques secondes grâce à l'IA, et aide le commerçant à reconquérir les clients mécontents.",
 
   // Domaine canonique unique.
   url: "https://www.mystela.fr",

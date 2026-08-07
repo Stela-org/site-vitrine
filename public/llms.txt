@@ -1,6 +1,6 @@
 # Stela
 
-> Stela est un logiciel de gestion des avis clients pour les commerces locaux en France : il invite chaque client à laisser un avis public, aide le commerçant à y répondre, et ne filtre jamais les avis selon la note. Stela s'adresse aux restaurants, coiffeurs, instituts, garages, hôtels et professionnels de santé, et couvre la collecte des avis, les réponses assistées par IA, la récupération des clients insatisfaits, la réservation et la fidélisation.
+> Stela est un logiciel français de gestion des avis clients pour les commerces locaux : il invite chaque client à laisser un avis Google après sa visite, y répond en quelques secondes grâce à l'IA, et aide le commerçant à reconquérir les clients mécontents. Stela s'adresse aux restaurants, coiffeurs, instituts, garages, hôtels et professionnels de santé, et couvre la collecte des avis, les réponses assistées par IA, la récupération des clients insatisfaits, la réservation et la fidélisation.
 
 ## Positionnement
 
