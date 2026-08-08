@@ -160,6 +160,31 @@ const websiteLd = {
     </div>
   </section>
 
+  {/* TRIPTYQUE (validé Nicolas 07/08, inspiration structure Malou sans le
+      jargon) : trois verbes en -er, le parcours complet du client. Le thème
+      céleste est porté par le glyphe SVG, jamais par le caractère ✳ (règle
+      VIT-15). Section ADDITIVE : aucun titre, aucune meta, aucun JSON-LD
+      touchés. */}
+  <section class="pillars" aria-label="Ce que Stela fait, en trois gestes">
+    <div class="container pillars-grid">
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Attirer</p>
+        <p class="pillar-sub">Des avis récents et nombreux : votre fiche Google donne envie de pousser la porte.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Répondre</p>
+        <p class="pillar-sub">Nova rédige une réponse personnalisée à chaque avis. Vous gardez la main.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Fidéliser</p>
+        <p class="pillar-sub">Les clients déçus sont rattrapés en privé, les satisfaits reviennent.</p>
+      </div>
+    </div>
+  </section>
+
   {/* AIGUILLAGE MÉTIER (VIT-15 §2) : juste sous le hero. La home est générique,
       chacun clique SUR SA page métier. Cartes visuelles vers /pour/[slug]. */}
   <section class="segments">
@@ -544,6 +569,18 @@ const websiteLd = {
   /* Définition extractible (SEO-GEO-1 §A1) : une ligne, filet laiton à gauche,
      sur le crème du hero pour qu'elle se lise comme une note et non comme un
      argument. Aucune décoration : c'est du texte destiné à être recopié. */
+  /* TRIPTYQUE : trois gestes, un glyphe SVG chacun. Sobre (papeterie) : filet
+     haut, pas de cartes, pas d'ombres. Le mot porte, le sous-texte precise. */
+  .pillars { padding-block: clamp(26px, 4vw, 44px); border-top: 1px solid var(--border); }
+  .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3.5vw, 44px); }
+  .pillar-glyph { display: block; margin-bottom: 8px; }
+  .pillar-word { margin: 0 0 4px; font-weight: 800; font-size: 1.18rem; letter-spacing: .01em; color: var(--ink); }
+  .pillar-sub { margin: 0; font-size: .95rem; color: var(--text-secondary); line-height: 1.55; max-width: 34ch; }
+  @media (max-width: 720px) {
+    .pillars-grid { grid-template-columns: 1fr; gap: 18px; }
+    .pillar-sub { max-width: none; }
+  }
+
   .definition { background: var(--cream); padding-block: clamp(18px, 2.4vw, 30px); }
   .definition-text { margin: 0; max-width: 78ch; font-size: clamp(1rem, 1.6vw, 1.12rem);
     line-height: 1.6; color: var(--text-secondary); border-left: 2px solid var(--brass); padding-left: 1rem; }
