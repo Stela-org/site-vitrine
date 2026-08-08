@@ -16,6 +16,7 @@ import {
   mesurerFiche,
   diagnostiquer,
   verdict,
+  ceQueStelaChange,
   plafondOk,
   cacheLire,
   cacheEcrire,
@@ -98,10 +99,21 @@ export default async function handler(req, res) {
 
     const { score, constats } = diagnostiquer(metriques);
     return json(res, 200, {
-      etablissement: { nom: metriques.nom, adresse: metriques.adresse },
+      // LOT DIAG-2 : l'identite diagnostiquee part avec les CHIFFRES BRUTS
+      // mesures. Le cas reel : deux « Cosy » differents, l'un analyse ici,
+      // l'autre ouvert sur Google a cote, et rien a l'ecran ne permettait de
+      // voir qu'il ne s'agissait pas du meme. La note et le nombre d'avis sont
+      // ce qui distingue deux fiches homonymes en un coup d'oeil.
+      etablissement: {
+        nom: metriques.nom,
+        adresse: metriques.adresse,
+        note: metriques.note,
+        nbAvis: metriques.nbAvis,
+      },
       score,
-      verdict: verdict(score),
+      verdict: verdict(score, metriques),
       constats,
+      stela: ceQueStelaChange(constats, metriques),
     });
   }
 

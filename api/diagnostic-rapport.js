@@ -12,7 +12,7 @@
 //   • le consentement est EXPLICITE et jamais precoche : sans `consentement`
 //     strictement egal a true, on refuse, meme si l'email est valide.
 import { sendEmail, shell, unsubUrlFor, isConfigured, pushLeadToCrm, EMAIL_RE, SITE } from "../lib/leads.js";
-import { mesurerFiche, diagnostiquer, verdict, cacheLire, cacheEcrire, plafondOk, kvPret, ipClient, cleJour } from "../lib/diagnostic.js";
+import { mesurerFiche, diagnostiquer, verdict, ceQueStelaChange, cacheLire, cacheEcrire, plafondOk, kvPret, ipClient, cleJour } from "../lib/diagnostic.js";
 
 const PAR_IP = { max: 5, windowSec: 3600 };
 const PAR_EMAIL = { max: 3, windowSec: 86400 };
@@ -79,13 +79,25 @@ export default async function handler(req, res) {
   }
 
   const { score, constats } = diagnostiquer(metriques);
-  const v = verdict(score);
+  const v = verdict(score, metriques);
   const lignes = constats.map((c) => `<li style="margin:0 0 8px;">${esc(c.texte)}</li>`).join("");
+
+  // LOT DIAG-2 : la section « ce que Stela y changerait », RECALCULEE ICI comme
+  // tout le reste du rapport. Rien de ce bloc ne vient du navigateur : sinon
+  // n'importe qui ferait partir de notre domaine les arguments de son choix.
+  const b = ceQueStelaChange(constats, metriques);
+  const blocStela =
+    b.mode === "entretien"
+      ? P(`<strong>${esc(b.titre)}.</strong> ${esc(b.entretien)}`)
+      : P(`<strong>${esc(b.titre)}</strong>`) +
+        `<ul style="margin:0 0 14px;padding-left:20px;">${b.lignes.map((l) => `<li style="margin:0 0 8px;">${esc(l.texte)}</li>`).join("")}</ul>` +
+        (b.arithmetique ? P(`${esc(b.arithmetique.calcul)} ${esc(b.arithmetique.suite)}`) : "");
 
   const body =
     P(`Voici le diagnostic de la fiche Google de <strong>${esc(metriques.nom || "votre etablissement")}</strong>.`) +
     P(`<strong>Score : ${score} sur 100.</strong> ${esc(v.titre)}. ${esc(v.texte)}`) +
     `<ul style="margin:0 0 14px;padding-left:20px;">${lignes}</ul>` +
+    blocStela +
     P("Ce diagnostic ne mesure que ce que Google publie sur votre fiche. Il ne regarde ni vos reponses aux avis, ni vos statistiques de visites, qui ne sont lisibles que depuis votre compte.") +
     P(`Si vous voulez que tout cela se fasse tout seul, c'est le role de Stela, avec un essai gratuit de 7 jours : <a href="${SITE}/tarifs" style="color:#15233F;">voir les tarifs</a>.`) +
     P("Corentin, cofondateur de Stela");

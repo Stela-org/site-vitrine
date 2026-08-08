@@ -162,6 +162,29 @@ const faqLd = {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 1.4rem; box-shadow: var(--shadow); }
   #dg-out .dg-etab { font-size: .9rem; color: var(--text-muted); margin: 0 0 .2rem; }
+
+  /* LOT DIAG-2 : l'identite diagnostiquee, encadree et posee AVANT le score.
+     L'ancienne ligne `.dg-etab` (grise, discrete) est conservee pour ne rien
+     casser ailleurs, mais le resultat utilise desormais ce bloc. */
+  #dg-out .dg-identite { border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: .8rem .9rem; margin: 0 0 1rem; background: var(--surface-2, var(--surface)); }
+  #dg-out .dg-identite-nom { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 0; }
+  #dg-out .dg-identite-adr { font-size: .9rem; color: var(--text-secondary); margin: .15rem 0 0; }
+  #dg-out .dg-identite-chiffres { font-size: .92rem; font-weight: 600; color: var(--ink); margin: .45rem 0 0; }
+  #dg-out .dg-relance { margin: .5rem 0 0; }
+  #dg-out .dg-relance-lien { background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; font-size: .85rem; color: var(--text-secondary); text-decoration: underline; text-align: left; }
+  #dg-out .dg-relance-lien:hover { color: var(--ink); }
+
+  /* « Ce que Stela y changerait » : lisible comme une reponse aux constats,
+     jamais comme un encart publicitaire pose a cote. */
+  #dg-out .dg-stela { border-top: 1px solid var(--border); margin: 1.2rem 0 0; padding: 1.1rem 0 0; }
+  #dg-out .dg-stela-titre { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 0 0 .6rem; }
+  #dg-out .dg-stela-liste { margin: 0; padding-left: 1.1rem; display: grid; gap: .5rem; }
+  #dg-out .dg-stela-liste li { font-size: .95rem; color: var(--text-secondary); }
+  #dg-out .dg-stela-entretien { font-size: .95rem; color: var(--text-secondary); margin: 0; }
+  #dg-out .dg-stela-calcul { font-size: .98rem; font-weight: 700; color: var(--ink); margin: .9rem 0 .3rem; }
+  #dg-out .dg-stela-suite { font-size: .93rem; color: var(--text-secondary); margin: 0; }
   #dg-out .dg-verdict { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin: 0 0 .3rem; }
   #dg-out .dg-verdict-txt { color: var(--text-secondary); margin: 0 0 1.1rem; font-size: .95rem; }
 
@@ -253,9 +276,14 @@ const faqLd = {
       if (candidats.length === 0) {
         return message("Aucun établissement trouvé sous ce nom. Essayez en ajoutant la ville.");
       }
-      // Une seule correspondance : inutile de faire choisir entre une option.
-      if (candidats.length === 1) return lancerDiagnostic(candidats[0].placeId);
-      afficherChoix(candidats);
+      // LOT DIAG-2 : ON NE CHOISIT PLUS A LA PLACE DU VISITEUR, MEME SEUL.
+      // Le cas reel : « le cosy » rend UN seul candidat (Cesson-Sevigne), et le
+      // diagnostic partait dessus en silence pendant que Nicolas regardait un
+      // autre Cosy sur Google. Pire, le candidat unique n'est pas stable : « le
+      // cosy France » rend Paris 12e et « restaurant le cosy » rend
+      // Attenschwiller. Un resultat unique n'est donc PAS une certitude, c'est
+      // le meilleur match d'un moteur sur une requete vague. Il se confirme.
+      afficherChoix(candidats, q);
     } catch {
       erreur("reseau");
     } finally {
@@ -263,12 +291,14 @@ const faqLd = {
     }
   });
 
-  function afficherChoix(candidats) {
+  function afficherChoix(candidats, q) {
     vide();
     const bloc = document.createElement("div");
     const titre = document.createElement("p");
     titre.className = "dg-choix-titre";
-    titre.textContent = "Plusieurs établissements portent ce nom. Lequel est le vôtre ?";
+    titre.textContent = candidats.length === 1
+      ? "Un seul établissement correspond. Est-ce bien le vôtre ?"
+      : "Plusieurs établissements portent ce nom. Lequel est le vôtre ?";
     bloc.appendChild(titre);
 
     const liste = document.createElement("div");
@@ -287,36 +317,84 @@ const faqLd = {
         adr.textContent = c.adresse;
         b.appendChild(adr);
       }
-      b.addEventListener("click", () => lancerDiagnostic(c.placeId));
+      b.addEventListener("click", () => lancerDiagnostic(c.placeId, q));
       liste.appendChild(b);
     }
     bloc.appendChild(liste);
+    bloc.appendChild(relancer(q, candidats.length === 1
+      ? "Ce n'est pas le vôtre ? Réessayez en précisant la ville."
+      : "Aucun de ces établissements n'est le vôtre ? Réessayez en précisant la ville."));
     out.appendChild(bloc);
   }
 
-  async function lancerDiagnostic(placeId) {
+  // Ramene au champ, pre-rempli, curseur en fin de ligne : la ville se tape
+  // dans la foulee. C'est la sortie de secours de tout ce lot.
+  function relancer(q, libelle) {
+    const p = document.createElement("p");
+    p.className = "dg-relance";
+    const a = document.createElement("button");
+    a.type = "button";
+    a.className = "dg-relance-lien";
+    a.textContent = libelle;
+    a.addEventListener("click", () => {
+      champ.value = q ? `${q} ` : "";
+      champ.focus();
+      champ.setSelectionRange(champ.value.length, champ.value.length);
+      champ.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    p.appendChild(a);
+    return p;
+  }
+
+  async function lancerDiagnostic(placeId, q) {
     message("Analyse de votre fiche...");
     try {
       const { corps } = await poste("/api/diagnostic", { action: "diagnostic", placeId, site_web: hp.value });
       if (corps.erreur) return erreur(corps.erreur);
-      afficherResultat(corps, placeId);
+      afficherResultat(corps, placeId, q);
     } catch {
       erreur("reseau");
     }
   }
 
-  function afficherResultat(d, placeId) {
+  function afficherResultat(d, placeId, q) {
     vide();
     const carte = document.createElement("div");
     carte.className = "dg-carte";
 
+    // LOT DIAG-2 : L'IDENTITE DIAGNOSTIQUEE, AVANT LE SCORE ET IMPOSSIBLE A
+    // RATER. Elle portait deja le nom et l'adresse, en une ligne grise sous le
+    // titre : Nicolas ne l'a pas vue et a compare notre verdict avec un AUTRE
+    // Cosy ouvert a cote. On y ajoute donc les CHIFFRES BRUTS mesures, ce sont
+    // eux qui font dire « ce n'est pas ma fiche » en un coup d'oeil, bien avant
+    // une adresse qu'on ne lit pas.
     if (d.etablissement?.nom) {
-      const e = document.createElement("p");
-      e.className = "dg-etab";
-      e.textContent = d.etablissement.adresse
-        ? `${d.etablissement.nom}, ${d.etablissement.adresse}`
-        : d.etablissement.nom;
-      carte.appendChild(e);
+      const bloc = document.createElement("div");
+      bloc.className = "dg-identite";
+
+      const nom = document.createElement("p");
+      nom.className = "dg-identite-nom";
+      nom.textContent = d.etablissement.nom;
+      bloc.appendChild(nom);
+
+      if (d.etablissement.adresse) {
+        const adr = document.createElement("p");
+        adr.className = "dg-identite-adr";
+        adr.textContent = d.etablissement.adresse;
+        bloc.appendChild(adr);
+      }
+
+      const chiffres = document.createElement("p");
+      chiffres.className = "dg-identite-chiffres";
+      const note = Number.isFinite(d.etablissement.note)
+        ? `${d.etablissement.note.toFixed(1).replace(".", ",")} sur 5`
+        : "aucune note";
+      const nb = Number(d.etablissement.nbAvis) || 0;
+      chiffres.textContent = `${note} · ${nb.toLocaleString("fr-FR")} avis`;
+      bloc.appendChild(chiffres);
+
+      bloc.appendChild(relancer(q, "Ce n'est pas votre établissement ? Réessayez en précisant la ville."));
+      carte.appendChild(bloc);
     }
 
     const vt = document.createElement("p");
@@ -363,9 +441,57 @@ const faqLd = {
       ul.appendChild(li);
     }
     carte.appendChild(ul);
+    if (d.stela) carte.appendChild(blocStela(d.stela));
     carte.appendChild(suites(placeId));
     out.appendChild(carte);
     carte.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  /**
+   * LOT DIAG-2 : « Ce que Stela y changerait ».
+   *
+   * Le contenu vient du SERVEUR (lib/diagnostic.js), pas d'ici : le rapport
+   * email doit dire exactement la meme chose, et deux redactions paralleles
+   * finiraient par diverger. Cette fonction ne fait que le mettre en page.
+   *
+   * Une fiche saine recoit le mode « entretien » : une ligne et le meme appel a
+   * l'essai. On ne fabrique jamais un defaut pour avoir quelque chose a vendre.
+   */
+  function blocStela(b) {
+    const bloc = document.createElement("div");
+    bloc.className = "dg-stela";
+
+    const h = document.createElement("h3");
+    h.className = "dg-stela-titre";
+    h.textContent = b.titre;
+    bloc.appendChild(h);
+
+    if (b.mode === "entretien") {
+      const p = document.createElement("p");
+      p.className = "dg-stela-entretien";
+      p.textContent = b.entretien;
+      bloc.appendChild(p);
+    } else {
+      const ul = document.createElement("ul");
+      ul.className = "dg-stela-liste";
+      for (const l of b.lignes) {
+        const li = document.createElement("li");
+        li.textContent = l.texte;
+        ul.appendChild(li);
+      }
+      bloc.appendChild(ul);
+
+      if (b.arithmetique) {
+        const calcul = document.createElement("p");
+        calcul.className = "dg-stela-calcul";
+        calcul.textContent = b.arithmetique.calcul;
+        const suite = document.createElement("p");
+        suite.className = "dg-stela-suite";
+        suite.textContent = b.arithmetique.suite;
+        bloc.append(calcul, suite);
+      }
+    }
+    return bloc;
   }
 
   // Les deux suites. Le diagnostic est DEJA lu au-dessus : rien n'est retenu.
