@@ -10,7 +10,7 @@ export type Segment = {
   slug: string;
   kind: "profil" | "secteur";
   navLabel: string;
-  icon: string; // pictogramme de la carte métier sur la home (aiguillage)
+  icon: string; // clé du pictogramme de la carte métier sur la home (aiguillage) : voir src/components/SegmentIcon.astro
   tagline: string; // phrase courte pour la carte métier
   title: string;
   metaDescription: string;
@@ -28,7 +28,7 @@ export const SEGMENTS: Segment[] = [
     slug: "independants",
     kind: "profil",
     navLabel: "Indépendants",
-    icon: "🏪",
+    icon: "boutique",
     tagline: "Un commerce, tout depuis votre téléphone.",
     title: "Stela pour les commerces indépendants",
     metaDescription:
@@ -58,7 +58,7 @@ export const SEGMENTS: Segment[] = [
     slug: "multi-etablissements",
     kind: "profil",
     navLabel: "Multi-établissements",
-    icon: "🏢",
+    icon: "immeubles",
     tagline: "Plusieurs points de vente, un seul pilotage.",
     title: "Stela pour les groupes et multi-établissements",
     metaDescription:
@@ -89,7 +89,7 @@ export const SEGMENTS: Segment[] = [
     slug: "restaurant",
     kind: "secteur",
     navLabel: "Restaurant",
-    icon: "🍽️",
+    icon: "couverts",
     tagline: "Plus d'avis en salle et après le repas.",
     title: "Stela pour les restaurants",
     metaDescription:
@@ -119,7 +119,7 @@ export const SEGMENTS: Segment[] = [
     slug: "coiffeur",
     kind: "secteur",
     navLabel: "Coiffeur",
-    icon: "✂️",
+    icon: "ciseaux",
     tagline: "Un avis après chaque coupe, sans effort.",
     title: "Stela pour les salons de coiffure",
     metaDescription:
@@ -149,7 +149,7 @@ export const SEGMENTS: Segment[] = [
     slug: "institut",
     kind: "secteur",
     navLabel: "Institut",
-    icon: "💅",
+    icon: "goutte",
     tagline: "Un avis après le soin, une image soignée.",
     title: "Stela pour les instituts de beauté",
     metaDescription:
@@ -179,7 +179,7 @@ export const SEGMENTS: Segment[] = [
     slug: "garage",
     kind: "secteur",
     navLabel: "Garage",
-    icon: "🔧",
+    icon: "cle-plate",
     tagline: "La confiance se gagne sur les avis.",
     title: "Stela pour les garages et l'automobile",
     metaDescription:
@@ -209,7 +209,7 @@ export const SEGMENTS: Segment[] = [
     slug: "hotel",
     kind: "secteur",
     navLabel: "Hôtel",
-    icon: "🏨",
+    icon: "lit",
     tagline: "Un avis après le séjour, Google et TripAdvisor.",
     title: "Stela pour les hôtels",
     metaDescription:
