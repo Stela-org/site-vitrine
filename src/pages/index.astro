@@ -13,6 +13,7 @@ import LogoWall from "../components/LogoWall.astro";
 import TripleZero from "../components/TripleZero.astro";
 import Integrations from "../components/Integrations.astro";
 import Glyph from "../components/Glyph.astro";
+import SegmentIcon from "../components/SegmentIcon.astro";
 
 // VIT-12 §3 : bandeau « Ils nous font confiance » (partenaires). Plateformes
 // de visibilité + caisses partenaires (Square, Zelty). Libellés courts pour le
@@ -194,7 +195,7 @@ const websiteLd = {
       <div class="segments-grid">
         {segmentLinks.map((s) => (
           <a class="segment-card" href={`/pour/${s.slug}`}>
-            <span class="segment-ic" aria-hidden="true">{s.icon}</span>
+            <span class="segment-ic" aria-hidden="true"><SegmentIcon name={s.icon} /></span>
             <span class="segment-body">
               <span class="segment-label">{s.label}</span>
               <span class="segment-tag">{s.tagline}</span>
@@ -593,8 +594,9 @@ const websiteLd = {
     background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: .85rem 1rem;
     color: var(--ink); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
   .segment-card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 8px 22px rgba(21,35,63,.1); }
+  /* VIT-19 : `color` teinte le trait du SVG, qui est en currentColor. */
   .segment-ic { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
-    font-size: 1.25rem; background: rgba(176,138,62,.12); }
+    color: var(--brass); background: rgba(176,138,62,.12); }
   .segment-body { display: flex; flex-direction: column; min-width: 0; }
   .segment-label { font-weight: 800; font-size: .98rem; }
   .segment-tag { color: var(--text-secondary); font-size: .82rem; line-height: 1.35; overflow-wrap: break-word; }
