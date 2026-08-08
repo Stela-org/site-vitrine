@@ -136,6 +136,11 @@ const websiteLd = {
         <div class="hero-cta">
           <a class="btn btn-primary" href="#tarifs">Essai gratuit 7 jours</a>
         </div>
+        {/* LOT DIAG-1 : entree basse friction, volontairement en retrait des deux
+            CTA ci-dessus. Elle s'adresse a qui n'est pas encore pret a essayer. */}
+        <p class="hero-diag">
+          Pas encore décidé ? <a href="/diagnostic">Diagnostiquez gratuitement votre fiche Google</a>.
+        </p>
         <div class="hero-trust"><TripleZero /></div>
       </div>
       <div class="hero-visual">
@@ -447,6 +452,7 @@ const websiteLd = {
   .hero { background: linear-gradient(180deg, #fff 0%, var(--cream) 100%); padding-block: clamp(44px, 7vw, 92px); }
   .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; }
   .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.75rem 0 1rem; }
+  .hero-diag { font-size: .92rem; color: var(--text-muted); margin: .9rem 0 1.1rem; }
   .hero-trust { font-size: .9rem; color: var(--text-muted); margin: 0; }
   /* Cluster visuel du hero : téléphone + carte d'avis flottante. */
   .hero-visual { position: relative; min-height: 520px; display: flex; align-items: center; justify-content: center; }

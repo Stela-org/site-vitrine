@@ -19,9 +19,16 @@ interface Props {
   /** Bloc de closing commun en bas de page (essai 7 j + garantie + rendez-vous).
    *  Actif par défaut ; désactivé sur les pages légales / de service. */
   closing?: boolean;
+  /** Bandeau CTA collant en bas d'ecran (mobile). Actif par defaut.
+   *
+   *  LOT DIAG-1 : desactivable pour une page dont le bas d'ecran porte quelque
+   *  chose qu'on ne doit JAMAIS recouvrir. Le composant applique deja cette
+   *  regle a la banniere de consentement, qu'il refuse de chevaucher ; la
+   *  meme raison vaut pour une case de consentement posee dans le contenu. */
+  stickyCta?: boolean;
 }
 
-const { title, description, path = "/", ogImage = "/images/og-default.png", noindex = false, closing = true } = Astro.props;
+const { title, description, path = "/", ogImage = "/images/og-default.png", noindex = false, closing = true, stickyCta = true } = Astro.props;
 const canonical = new URL(path, SITE.url).href;
 const ogImageAbs = new URL(ogImage, SITE.url).href;
 
@@ -102,7 +109,7 @@ const appLd = {
     </main>
     <Footer />
     {analyticsEnabled() && <CookieBanner />}
-    <StickyCta />
+    {stickyCta && <StickyCta />}
     <PartnerCode />
 
     <script>
