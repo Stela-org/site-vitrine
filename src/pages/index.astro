@@ -13,6 +13,7 @@ import LogoWall from "../components/LogoWall.astro";
 import TripleZero from "../components/TripleZero.astro";
 import Integrations from "../components/Integrations.astro";
 import Glyph from "../components/Glyph.astro";
+import SegmentIcon from "../components/SegmentIcon.astro";
 
 // VIT-12 §3 : bandeau « Ils nous font confiance » (partenaires). Plateformes
 // de visibilité + caisses partenaires (Square, Zelty). Libellés courts pour le
@@ -77,7 +78,7 @@ const faq = [
   },
   {
     q: "Combien coûte Stela ?",
-    a: "Deux offres transparentes : Étoile à 49 € par mois et Constellation à 89 € par mois. En annuel, 468 € et 948 € par an, soit 120 € d'économie. Essai gratuit de 7 jours, sans engagement, annulable en un clic.",
+    a: "Deux offres transparentes. Constellation, la plus complète et la plus choisie : 79 € par mois en annuel (948 € par an, soit 120 € d'économie), ou 89 € par mois sans engagement de durée. Étoile, pour commencer : 39 € par mois en annuel (468 € par an), ou 49 € par mois. Dans tous les cas : essai gratuit de 7 jours, sans engagement, annulable en un clic.",
   },
   {
     q: "Pour quels commerces ?",
@@ -128,13 +129,12 @@ const websiteLd = {
     <div class="container hero-grid">
       <div>
         <p class="eyebrow">Votre réputation locale, en pilote automatique</p>
-        <h1>Plus d'avis Google, des réponses toutes prêtes, des clients qui reviennent.</h1>
+        <h1>Vos clients satisfaits laissent enfin leur avis Google. Stela le demande au bon moment.</h1>
         <p class="lead">
           Stela collecte vos avis, y répond avec Nova en 10 secondes et fait revenir vos clients. Vous gardez la main, et vous êtes prêt en 10 minutes.
         </p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#tarifs">Essai gratuit 7 jours</a>
-          <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
         {/* LOT DIAG-1 : entree basse friction, volontairement en retrait des deux
             CTA ci-dessus. Elle s'adresse a qui n'est pas encore pret a essayer. */}
@@ -165,6 +165,31 @@ const websiteLd = {
     </div>
   </section>
 
+  {/* TRIPTYQUE (validé Nicolas 07/08, inspiration structure Malou sans le
+      jargon) : trois verbes en -er, le parcours complet du client. Le thème
+      céleste est porté par le glyphe SVG, jamais par le caractère ✳ (règle
+      VIT-15). Section ADDITIVE : aucun titre, aucune meta, aucun JSON-LD
+      touchés. */}
+  <section class="pillars" aria-label="Ce que Stela fait, en trois gestes">
+    <div class="container pillars-grid">
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Attirer</p>
+        <p class="pillar-sub">Des avis récents et nombreux : votre fiche Google donne envie de pousser la porte.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Répondre</p>
+        <p class="pillar-sub">Nova rédige une réponse personnalisée à chaque avis. Vous gardez la main.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-glyph" aria-hidden="true"><Glyph size="1.05rem" /></span>
+        <p class="pillar-word">Fidéliser</p>
+        <p class="pillar-sub">Les clients déçus sont rattrapés en privé, les satisfaits reviennent.</p>
+      </div>
+    </div>
+  </section>
+
   {/* AIGUILLAGE MÉTIER (VIT-15 §2) : juste sous le hero. La home est générique,
       chacun clique SUR SA page métier. Cartes visuelles vers /pour/[slug]. */}
   <section class="segments">
@@ -175,7 +200,7 @@ const websiteLd = {
       <div class="segments-grid">
         {segmentLinks.map((s) => (
           <a class="segment-card" href={`/pour/${s.slug}`}>
-            <span class="segment-ic" aria-hidden="true">{s.icon}</span>
+            <span class="segment-ic" aria-hidden="true"><SegmentIcon name={s.icon} /></span>
             <span class="segment-body">
               <span class="segment-label">{s.label}</span>
               <span class="segment-tag">{s.tagline}</span>
@@ -370,7 +395,8 @@ const websiteLd = {
       <h2>Un prix affiché, un essai gratuit, sans engagement</h2>
 
       <div class="billing-toggle">
-        <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
+        {/* Annuel coché par défaut : on ancre le prix annuel (79 €), le mensuel reste à un clic. */}
+        <input type="checkbox" id="billing" class="billing-input" checked aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
         <label for="billing" class="billing-switch">
           <span class="opt opt-m">Mensuel</span>
           <span class="opt opt-y">Annuel <span class="save">-120 € par an</span></span>
@@ -380,7 +406,7 @@ const websiteLd = {
       <div class="grid-plans reveal-stagger">
         {PLANS.map((p) => (
           <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
-            {p.highlight && <span class="plan-badge">Le plus complet</span>}
+            {p.highlight && <span class="plan-badge">Recommandée</span>}
             <h3 class="plan-name">{p.name}</h3>
             <p class="plan-tag">{p.tagline}</p>
             <p class="plan-price">
@@ -389,7 +415,7 @@ const websiteLd = {
               <span class="per">/ mois</span>
             </p>
             <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
-            {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
+            {p.highlight && <p class="plan-wheel">Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
             <ul class="check-list">
               {p.features.map((f) => <li>{f}</li>)}
             </ul>
@@ -550,6 +576,18 @@ const websiteLd = {
   /* Définition extractible (SEO-GEO-1 §A1) : une ligne, filet laiton à gauche,
      sur le crème du hero pour qu'elle se lise comme une note et non comme un
      argument. Aucune décoration : c'est du texte destiné à être recopié. */
+  /* TRIPTYQUE : trois gestes, un glyphe SVG chacun. Sobre (papeterie) : filet
+     haut, pas de cartes, pas d'ombres. Le mot porte, le sous-texte precise. */
+  .pillars { padding-block: clamp(26px, 4vw, 44px); border-top: 1px solid var(--border); }
+  .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3.5vw, 44px); }
+  .pillar-glyph { display: block; margin-bottom: 8px; }
+  .pillar-word { margin: 0 0 4px; font-weight: 800; font-size: 1.18rem; letter-spacing: .01em; color: var(--ink); }
+  .pillar-sub { margin: 0; font-size: .95rem; color: var(--text-secondary); line-height: 1.55; max-width: 34ch; }
+  @media (max-width: 720px) {
+    .pillars-grid { grid-template-columns: 1fr; gap: 18px; }
+    .pillar-sub { max-width: none; }
+  }
+
   .definition { background: var(--cream); padding-block: clamp(18px, 2.4vw, 30px); }
   .definition-text { margin: 0; max-width: 78ch; font-size: clamp(1rem, 1.6vw, 1.12rem);
     line-height: 1.6; color: var(--text-secondary); border-left: 2px solid var(--brass); padding-left: 1rem; }
@@ -562,8 +600,9 @@ const websiteLd = {
     background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: .85rem 1rem;
     color: var(--ink); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
   .segment-card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 8px 22px rgba(21,35,63,.1); }
+  /* VIT-19 : `color` teinte le trait du SVG, qui est en currentColor. */
   .segment-ic { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
-    font-size: 1.25rem; background: rgba(176,138,62,.12); }
+    color: var(--brass); background: rgba(176,138,62,.12); }
   .segment-body { display: flex; flex-direction: column; min-width: 0; }
   .segment-label { font-weight: 800; font-size: .98rem; }
   .segment-tag { color: var(--text-secondary); font-size: .82rem; line-height: 1.35; overflow-wrap: break-word; }
