@@ -70,7 +70,8 @@ const faqLd = {
     <div class="container" style="text-align:center;">
       <div id="tarifs" class="billing-wrap">
         <div class="billing-toggle">
-          <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
+          {/* Annuel coché par défaut : on ancre le prix annuel (79 €), le mensuel reste à un clic. */}
+          <input type="checkbox" id="billing" class="billing-input" checked aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
           <label for="billing" class="billing-switch">
             <span class="opt opt-m">Mensuel</span>
             <span class="opt opt-y">Annuel <span class="save">-120 € par an</span></span>
@@ -80,7 +81,7 @@ const faqLd = {
         <div class="grid-plans">
           {PLANS.map((p) => (
             <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
-              {p.highlight && <span class="plan-badge">Le plus complet</span>}
+              {p.highlight && <span class="plan-badge">Recommandée</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-tag">{p.tagline}</p>
               <p class="plan-price">
@@ -90,7 +91,7 @@ const faqLd = {
               </p>
               {p.highlight && <p class="plan-perday">soit moins de 3 € par jour ({perDay(p.monthly)} €)</p>}
               <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
-              {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
+              {p.highlight && <p class="plan-wheel">Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
               <ul class="check-list">
                 {p.features.map((ft) => <li>{ft}</li>)}
               </ul>

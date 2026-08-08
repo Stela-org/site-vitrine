@@ -77,7 +77,7 @@ const faq = [
   },
   {
     q: "Combien coûte Stela ?",
-    a: "Deux offres transparentes : Étoile à 49 € par mois et Constellation à 89 € par mois. En annuel, 468 € et 948 € par an, soit 120 € d'économie. Essai gratuit de 7 jours, sans engagement, annulable en un clic.",
+    a: "Deux offres transparentes. Constellation, la plus complète et la plus choisie : 79 € par mois en annuel (948 € par an, soit 120 € d'économie), ou 89 € par mois sans engagement de durée. Étoile, pour commencer : 39 € par mois en annuel (468 € par an), ou 49 € par mois. Dans tous les cas : essai gratuit de 7 jours, sans engagement, annulable en un clic.",
   },
   {
     q: "Pour quels commerces ?",
@@ -128,13 +128,12 @@ const websiteLd = {
     <div class="container hero-grid">
       <div>
         <p class="eyebrow">Votre réputation locale, en pilote automatique</p>
-        <h1>Plus d'avis Google, des réponses toutes prêtes, des clients qui reviennent.</h1>
+        <h1>Vos clients satisfaits laissent enfin leur avis Google. Stela le demande au bon moment.</h1>
         <p class="lead">
           Stela collecte vos avis, y répond avec Nova en 10 secondes et fait revenir vos clients. Vous gardez la main, et vous êtes prêt en 10 minutes.
         </p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#tarifs">Essai gratuit 7 jours</a>
-          <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
         </div>
         <div class="hero-trust"><TripleZero /></div>
       </div>
@@ -365,7 +364,8 @@ const websiteLd = {
       <h2>Un prix affiché, un essai gratuit, sans engagement</h2>
 
       <div class="billing-toggle">
-        <input type="checkbox" id="billing" class="billing-input" aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
+        {/* Annuel coché par défaut : on ancre le prix annuel (79 €), le mensuel reste à un clic. */}
+        <input type="checkbox" id="billing" class="billing-input" checked aria-label="Afficher les tarifs annuels (120 € d'économie par an)" />
         <label for="billing" class="billing-switch">
           <span class="opt opt-m">Mensuel</span>
           <span class="opt opt-y">Annuel <span class="save">-120 € par an</span></span>
@@ -375,7 +375,7 @@ const websiteLd = {
       <div class="grid-plans reveal-stagger">
         {PLANS.map((p) => (
           <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
-            {p.highlight && <span class="plan-badge">Le plus complet</span>}
+            {p.highlight && <span class="plan-badge">Recommandée</span>}
             <h3 class="plan-name">{p.name}</h3>
             <p class="plan-tag">{p.tagline}</p>
             <p class="plan-price">
@@ -384,7 +384,7 @@ const websiteLd = {
               <span class="per">/ mois</span>
             </p>
             <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
-            {p.highlight && <p class="plan-wheel">🎁 Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
+            {p.highlight && <p class="plan-wheel">Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
             <ul class="check-list">
               {p.features.map((f) => <li>{f}</li>)}
             </ul>
