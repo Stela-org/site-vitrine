@@ -11,6 +11,12 @@ import { TARIFS_URL } from "../config/site";
 // La page ne connait aucune cle : elle parle a /api/diagnostic, qui garde la
 // cle Places cote serveur. Voir lib/diagnostic.js pour ce qui est mesurable et,
 // surtout, pour ce qui ne l'est pas.
+//
+// `stickyCta={false}` : le bandeau CTA collant recouvrait la case de
+// consentement du rapport en bas de la carte, sur mobile. Sur cette page, c'est
+// la ligne qu'il ne faut jamais masquer. Le bandeau applique deja cette regle a
+// la banniere de consentement, qu'il refuse de chevaucher. Et il n'est perdu
+// pour personne : la carte de resultat porte son propre bouton d'essai.
 
 const faq = [
   {
@@ -36,6 +42,7 @@ const faqLd = {
   title="Diagnostic gratuit de votre fiche Google | Stela"
   description="Entrez le nom de votre établissement et recevez immédiatement l'état des lieux de votre fiche Google : note, avis, fraîcheur, informations manquantes. Sans rendez-vous, sans email obligatoire."
   path="/diagnostic"
+  stickyCta={false}
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
 
