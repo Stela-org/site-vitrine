@@ -1,0 +1,431 @@
+---
+import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Glyph from "../components/Glyph.astro";
+import { TARIFS_URL } from "../config/site";
+
+// LOT DIAG-1 : diagnostic gratuit d'une fiche Google, sans rendez-vous impose
+// et sans email exige. Le resultat s'affiche ENTIEREMENT avant qu'on propose
+// quoi que ce soit : la capture d'email est une suite, jamais un peage.
+//
+// La page ne connait aucune cle : elle parle a /api/diagnostic, qui garde la
+// cle Places cote serveur. Voir lib/diagnostic.js pour ce qui est mesurable et,
+// surtout, pour ce qui ne l'est pas.
+
+const faq = [
+  {
+    q: "Que regarde exactement ce diagnostic ?",
+    a: "Ce que Google publie sur votre fiche : votre note, votre nombre d'avis, la date de votre dernier avis rédigé, et les informations présentes ou absentes (site web, téléphone, horaires, photos). Rien d'autre.",
+  },
+  {
+    q: "Pourquoi ne mesurez-vous pas mon taux de réponse aux avis ?",
+    a: "Parce que l'API publique de Google ne publie pas les réponses du propriétaire. Nous pourrions l'estimer ; nous préférons ne pas inventer un chiffre. Un diagnostic ne vaut que s'il ne dit que ce qu'il mesure.",
+  },
+  {
+    q: "Faut-il donner son email pour voir le résultat ?",
+    a: "Non. Le diagnostic s'affiche en entier, immédiatement. L'email sert uniquement à recevoir le rapport si vous le souhaitez, et rien n'est conservé tant que vous ne le donnez pas.",
+  },
+];
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+---
+<Base
+  title="Diagnostic gratuit de votre fiche Google | Stela"
+  description="Entrez le nom de votre établissement et recevez immédiatement l'état des lieux de votre fiche Google : note, avis, fraîcheur, informations manquantes. Sans rendez-vous, sans email obligatoire."
+  path="/diagnostic"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
+
+  <div class="container"><Breadcrumb items={[{ label: "Diagnostic" }]} /></div>
+
+  <section class="hero">
+    <div class="container" style="max-width:760px;">
+      <p class="eyebrow">Diagnostic gratuit</p>
+      <h1>Que dit votre fiche Google de vous ?</h1>
+      <p class="lead">
+        Entrez le nom de votre établissement. Vous recevez l'état des lieux tout de suite,
+        sur cette page. Pas de rendez-vous, pas de compte, pas d'email obligatoire.
+      </p>
+
+      <form id="dg-form" class="dg-form" novalidate>
+        <label class="dg-label" for="dg-q">Nom de votre établissement et ville</label>
+        <div class="dg-row">
+          <input
+            id="dg-q"
+            name="q"
+            type="text"
+            class="dg-input"
+            placeholder="Le Bistrot du Port, Lyon"
+            autocomplete="organization"
+            required
+          />
+          <button type="submit" class="btn btn-primary dg-submit">Diagnostiquer</button>
+        </div>
+        <!-- Honeypot : invisible pour un humain, rempli par un robot. -->
+        <div class="dg-hp" aria-hidden="true">
+          <label for="dg-site">Ne pas remplir</label>
+          <input id="dg-site" name="site_web" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+      </form>
+
+      <noscript>
+        <p class="dg-noscript">
+          Le diagnostic a besoin de JavaScript pour interroger Google et afficher votre résultat.
+          Vous pouvez sinon nous écrire, on vous le fait à la main.
+        </p>
+      </noscript>
+
+      <div id="dg-out" class="dg-out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:760px;">
+      <h2>Ce que ce diagnostic mesure, et ce qu'il ne mesure pas</h2>
+      <dl class="dg-faq">
+        {faq.map((f) => (
+          <div class="dg-faq-item">
+            <dt>{f.q}</dt>
+            <dd>{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="dg-note">
+        <Glyph class="dg-note-glyph" /> Les données proviennent de l'API publique Google Places.
+        Une fiche est relue au maximum une fois par jour.
+      </p>
+      <p class="dg-cta-essai">
+        Vous préférez que tout cela se fasse tout seul ?
+        <a href={TARIFS_URL}>Essayez Stela gratuitement pendant 7 jours</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .dg-form { margin-top: 1.6rem; }
+  .dg-label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: .5rem; color: var(--text-secondary); }
+  .dg-row { display: flex; gap: .6rem; align-items: stretch; }
+  .dg-input { flex: 1 1 auto; min-width: 0; padding: .85rem 1rem; font-size: 1rem; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .dg-input:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+  .dg-submit { flex: 0 0 auto; white-space: nowrap; }
+  /* Le honeypot doit rester dans le flux pour qu'un robot le remplisse : on le
+     sort de l'ecran plutot que de le mettre en display:none. */
+  .dg-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .dg-noscript { margin-top: 1rem; font-size: .92rem; color: var(--text-muted); }
+  .dg-out { margin-top: 1.6rem; }
+
+  .dg-faq { margin: 1.2rem 0 0; }
+  .dg-faq-item { border-top: 1px solid var(--border); padding: 1rem 0; }
+  .dg-faq dt { font-weight: 600; color: var(--ink); margin-bottom: .35rem; }
+  .dg-faq dd { margin: 0; color: var(--text-secondary); font-size: .95rem; }
+  .dg-note { margin-top: 1.4rem; font-size: .85rem; color: var(--text-muted); }
+  .dg-note-glyph { color: var(--brass); }
+  .dg-cta-essai { margin-top: 1rem; font-size: .95rem; }
+</style>
+
+<!-- LOT DIAG-1 : ces regles habillent des noeuds crees par document.createElement
+     APRES le rendu. Les styles scopes d'Astro s'appliquent via un attribut
+     data-astro-cid-* pose a la compilation sur les elements du TEMPLATE : un
+     noeud cree en JavaScript ne le porte pas, et restait donc entierement nu
+     (constat trouve en regardant la capture, pas en relisant le code). D'ou
+     is:global, borne par #dg-out, qui n'existe que sur cette page. -->
+<style is:global>
+  /* Etats intermediaires */
+  #dg-out .dg-msg { padding: 1rem 1.1rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-secondary); font-size: .95rem; }
+
+  /* Desambiguisation : une etape, courte, nom + adresse. */
+  #dg-out .dg-choix-titre { font-weight: 600; margin: 0 0 .7rem; font-size: .95rem; color: var(--text-secondary); }
+  #dg-out .dg-choix { display: flex; flex-direction: column; gap: .5rem; }
+  #dg-out .dg-choix-btn { text-align: left; padding: .8rem 1rem; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; width: 100%; }
+  #dg-out .dg-choix-btn:hover { border-color: var(--brass); }
+  #dg-out .dg-choix-btn:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+  #dg-out .dg-choix-nom { display: block; font-weight: 600; color: var(--ink); }
+  #dg-out .dg-choix-adr { display: block; font-size: .88rem; color: var(--text-muted); margin-top: .15rem; }
+
+  /* Resultat */
+  #dg-out .dg-carte { scroll-margin-top: calc(var(--nav-h) + 1rem);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem; box-shadow: var(--shadow); }
+  #dg-out .dg-etab { font-size: .9rem; color: var(--text-muted); margin: 0 0 .2rem; }
+  #dg-out .dg-verdict { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin: 0 0 .3rem; }
+  #dg-out .dg-verdict-txt { color: var(--text-secondary); margin: 0 0 1.1rem; font-size: .95rem; }
+
+  #dg-out .dg-score-ligne { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; }
+  #dg-out .dg-score { font-size: 2.6rem; font-weight: 800; color: var(--ink); line-height: 1; }
+  #dg-out .dg-score-sur { color: var(--text-muted); font-size: .95rem; }
+  #dg-out .dg-jauge { height: 8px; background: var(--cream); border-radius: 999px; overflow: hidden; margin-bottom: 1.2rem; }
+  #dg-out .dg-jauge-fill { height: 100%; background: var(--brass); border-radius: 999px; }
+
+  #dg-out .dg-constats { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .8rem; }
+  #dg-out .dg-constat { display: flex; gap: .7rem; align-items: flex-start; font-size: .95rem; color: var(--text-secondary); }
+  #dg-out .dg-mark { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; display: inline-flex;
+    align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; margin-top: .05rem; }
+  #dg-out .dg-bon { background: rgba(30,158,99,.14); color: #1E9E63; }
+  #dg-out .dg-attention { background: rgba(200,153,46,.16); color: #8A6A1E; }
+  #dg-out .dg-fort { background: rgba(192,57,43,.12); color: #C0392B; }
+
+  /* Les deux suites, a egalite visuelle : aucune n'est un peage. */
+  #dg-out .dg-suites { margin-top: 1.2rem; display: grid; gap: .9rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 700px) { #dg-out .dg-suites { grid-template-columns: 1fr; } }
+  #dg-out .dg-suite { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; background: var(--surface); }
+  #dg-out .dg-suite h3 { font-size: 1rem; margin: 0 0 .5rem; color: var(--ink); }
+  #dg-out .dg-suite p { font-size: .9rem; color: var(--text-secondary); margin: 0 0 .8rem; }
+  #dg-out .dg-email { width: 100%; padding: .7rem .85rem; font-size: .95rem; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--cream); color: var(--ink); margin-bottom: .6rem; }
+  #dg-out .dg-consent { display: flex; gap: .55rem; align-items: flex-start; font-size: .82rem;
+    color: var(--text-muted); margin-bottom: .7rem; line-height: 1.45; }
+  #dg-out .dg-consent input { margin-top: .2rem; flex: 0 0 auto; }
+  #dg-out .dg-btn-secondaire { width: 100%; padding: .7rem 1rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--ink); border-radius: var(--radius-sm); background: transparent; color: var(--ink); }
+  #dg-out .dg-btn-secondaire:hover { background: var(--cream); }
+  #dg-out .dg-suite-cta { display: block; text-align: center; padding: .7rem 1rem; font-weight: 600;
+    border-radius: var(--radius-sm); background: var(--brass); color: #fff; }
+  #dg-out .dg-suite-cta:hover { color: #fff; text-decoration: none; }
+  #dg-out .dg-retour { margin-top: 1rem; font-size: .88rem; }
+</style>
+
+<script>
+  // Diagnostic cote client : orchestration seule. Aucun calcul de score ici, il
+  // vient du serveur, qui est aussi le seul a connaitre la cle Places.
+  const form = document.getElementById("dg-form");
+  const champ = document.getElementById("dg-q");
+  const hp = document.getElementById("dg-site");
+  const out = document.getElementById("dg-out");
+  const bouton = form?.querySelector(".dg-submit");
+
+  const MESSAGES = {
+    requete_courte: "Indiquez au moins le nom de votre établissement.",
+    trop_de_demandes: "Vous avez lancé plusieurs diagnostics d'affilée. Réessayez dans une heure.",
+    indisponible: "Le diagnostic est momentanément indisponible. Réessayez plus tard.",
+    google_indisponible: "Google n'a pas répondu. Réessayez dans un instant.",
+    fiche_invalide: "Cet établissement n'a pas pu être identifié.",
+    email_invalide: "Cette adresse email ne semble pas valide.",
+    consentement_requis: "Cochez la case pour que nous puissions vous écrire.",
+    envoi_impossible: "L'envoi a échoué. Réessayez dans un instant.",
+    reseau: "La connexion a échoué. Vérifiez votre réseau et réessayez.",
+  };
+
+  const vide = () => { out.textContent = ""; };
+  const message = (texte) => {
+    vide();
+    const p = document.createElement("p");
+    p.className = "dg-msg";
+    p.textContent = texte;
+    out.appendChild(p);
+  };
+  const erreur = (code) => message(MESSAGES[code] || MESSAGES.indisponible);
+
+  async function poste(url, charge) {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(charge),
+    });
+    return { statut: r.status, corps: await r.json().catch(() => ({})) };
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const q = String(champ.value || "").trim();
+    if (q.length < 3) return erreur("requete_courte");
+
+    bouton.disabled = true;
+    message("Lecture de votre fiche Google...");
+    try {
+      const { corps } = await poste("/api/diagnostic", { action: "recherche", q, site_web: hp.value });
+      if (corps.erreur) return erreur(corps.erreur);
+      const candidats = corps.candidats || [];
+      if (candidats.length === 0) {
+        return message("Aucun établissement trouvé sous ce nom. Essayez en ajoutant la ville.");
+      }
+      // Une seule correspondance : inutile de faire choisir entre une option.
+      if (candidats.length === 1) return lancerDiagnostic(candidats[0].placeId);
+      afficherChoix(candidats);
+    } catch {
+      erreur("reseau");
+    } finally {
+      bouton.disabled = false;
+    }
+  });
+
+  function afficherChoix(candidats) {
+    vide();
+    const bloc = document.createElement("div");
+    const titre = document.createElement("p");
+    titre.className = "dg-choix-titre";
+    titre.textContent = "Plusieurs établissements portent ce nom. Lequel est le vôtre ?";
+    bloc.appendChild(titre);
+
+    const liste = document.createElement("div");
+    liste.className = "dg-choix";
+    for (const c of candidats) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "dg-choix-btn";
+      const nom = document.createElement("span");
+      nom.className = "dg-choix-nom";
+      nom.textContent = c.nom;
+      b.appendChild(nom);
+      if (c.adresse) {
+        const adr = document.createElement("span");
+        adr.className = "dg-choix-adr";
+        adr.textContent = c.adresse;
+        b.appendChild(adr);
+      }
+      b.addEventListener("click", () => lancerDiagnostic(c.placeId));
+      liste.appendChild(b);
+    }
+    bloc.appendChild(liste);
+    out.appendChild(bloc);
+  }
+
+  async function lancerDiagnostic(placeId) {
+    message("Analyse de votre fiche...");
+    try {
+      const { corps } = await poste("/api/diagnostic", { action: "diagnostic", placeId, site_web: hp.value });
+      if (corps.erreur) return erreur(corps.erreur);
+      afficherResultat(corps, placeId);
+    } catch {
+      erreur("reseau");
+    }
+  }
+
+  function afficherResultat(d, placeId) {
+    vide();
+    const carte = document.createElement("div");
+    carte.className = "dg-carte";
+
+    if (d.etablissement?.nom) {
+      const e = document.createElement("p");
+      e.className = "dg-etab";
+      e.textContent = d.etablissement.adresse
+        ? `${d.etablissement.nom}, ${d.etablissement.adresse}`
+        : d.etablissement.nom;
+      carte.appendChild(e);
+    }
+
+    const vt = document.createElement("p");
+    vt.className = "dg-verdict";
+    vt.textContent = d.verdict.titre;
+    carte.appendChild(vt);
+
+    const ligne = document.createElement("div");
+    ligne.className = "dg-score-ligne";
+    const sc = document.createElement("span");
+    sc.className = "dg-score";
+    sc.textContent = String(d.score);
+    const sur = document.createElement("span");
+    sur.className = "dg-score-sur";
+    sur.textContent = "sur 100";
+    ligne.append(sc, sur);
+    carte.appendChild(ligne);
+
+    const jauge = document.createElement("div");
+    jauge.className = "dg-jauge";
+    const fill = document.createElement("div");
+    fill.className = "dg-jauge-fill";
+    fill.style.width = `${Math.max(2, d.score)}%`;
+    jauge.appendChild(fill);
+    carte.appendChild(jauge);
+
+    const vx = document.createElement("p");
+    vx.className = "dg-verdict-txt";
+    vx.textContent = d.verdict.texte;
+    carte.appendChild(vx);
+
+    const ul = document.createElement("ul");
+    ul.className = "dg-constats";
+    for (const c of d.constats) {
+      const li = document.createElement("li");
+      li.className = "dg-constat";
+      const mark = document.createElement("span");
+      mark.className = `dg-mark dg-${c.ton}`;
+      mark.textContent = c.ton === "bon" ? "✓" : c.ton === "attention" ? "!" : "✗";
+      mark.setAttribute("aria-hidden", "true");
+      const txt = document.createElement("span");
+      txt.textContent = c.texte;
+      li.append(mark, txt);
+      ul.appendChild(li);
+    }
+    carte.appendChild(ul);
+    carte.appendChild(suites(placeId));
+    out.appendChild(carte);
+    carte.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // Les deux suites. Le diagnostic est DEJA lu au-dessus : rien n'est retenu.
+  function suites(placeId) {
+    const grille = document.createElement("div");
+    grille.className = "dg-suites";
+
+    const g = document.createElement("div");
+    g.className = "dg-suite";
+    g.innerHTML =
+      "<h3>Recevoir le rapport par email</h3>" +
+      "<p>Pour le garder sous la main ou le transmettre.</p>";
+    const email = document.createElement("input");
+    email.type = "email";
+    email.className = "dg-email";
+    email.placeholder = "vous@etablissement.fr";
+    email.setAttribute("aria-label", "Votre adresse email");
+    const label = document.createElement("label");
+    label.className = "dg-consent";
+    const case_ = document.createElement("input");
+    case_.type = "checkbox";
+    // JAMAIS precoche : le consentement se donne, il ne se presume pas.
+    case_.checked = false;
+    const txt = document.createElement("span");
+    txt.textContent = "J'accepte de recevoir ce rapport et les conseils de Stela par email. Désinscription en un clic.";
+    label.append(case_, txt);
+    const envoyer = document.createElement("button");
+    envoyer.type = "button";
+    envoyer.className = "dg-btn-secondaire";
+    envoyer.textContent = "Recevoir le rapport";
+    const retour = document.createElement("p");
+    retour.className = "dg-retour";
+
+    envoyer.addEventListener("click", async () => {
+      retour.textContent = "";
+      envoyer.disabled = true;
+      try {
+        const { corps } = await poste("/api/diagnostic-rapport", {
+          email: email.value.trim(),
+          consentement: case_.checked === true,
+          placeId,
+          site_web: hp.value,
+        });
+        retour.textContent = corps.ok
+          ? "C'est envoyé. Regardez votre boîte dans une minute."
+          : MESSAGES[corps.erreur] || MESSAGES.indisponible;
+      } catch {
+        retour.textContent = MESSAGES.reseau;
+      } finally {
+        envoyer.disabled = false;
+      }
+    });
+
+    g.append(email, label, envoyer, retour);
+
+    const d = document.createElement("div");
+    d.className = "dg-suite";
+    d.innerHTML =
+      "<h3>Corriger tout cela</h3>" +
+      "<p>Stela collecte les avis, y répond et tient la fiche à jour, sans que vous y pensiez.</p>";
+    const cta = document.createElement("a");
+    cta.className = "dg-suite-cta";
+    cta.href = "/tarifs";
+    cta.textContent = "Essai gratuit 7 jours";
+    d.appendChild(cta);
+
+    grille.append(g, d);
+    return grille;
+  }
+</script>
