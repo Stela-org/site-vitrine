@@ -46,7 +46,7 @@
 | S9 | Nouveautés Google Business Profile du mois | google-business-profile | En relecture (PR) |
 | S10 | Avis Google : Paris et Lyon, deux marchés (ville) | ville | En relecture (PR) |
 | S11 | Avis Google restaurant : Marseille, Bordeaux, Nice (villes) | ville | En relecture (PR) |
-| S12 | Nantes, Brest, Rouen, Nancy + bilan trimestriel GEO | ville | À faire |
+| S12 | Nantes, Brest, Rouen, Nancy + bilan trimestriel GEO | ville | En relecture (PR) |
 
 > Note sur les semaines villes (S10 à S12) : les 9 anciens articles de blog de
 > ville ont déjà été consolidés au VIT-4 et redirigent en 301 vers les landing
