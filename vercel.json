@@ -15,59 +15,27 @@
       "permanent": true
     },
     {
-      "source": "/blog/e-reputation-restaurant-guide-complet.html",
+      "source": "/blog/e-reputation-restaurant-guide-complet",
       "destination": "https://www.mystela.fr/blog/e-reputation-commerce-local-guide",
       "permanent": true
     },
     {
-      "source": "/blog/qr-code-avis-google-restaurant.html",
+      "source": "/blog/qr-code-avis-google-restaurant",
       "destination": "https://www.mystela.fr/blog/qr-code-avis-google",
       "permanent": true
     },
     {
-      "source": "/blog/avis-google-restaurant-:ville.html",
+      "source": "/blog/avis-google-restaurant-:ville",
       "destination": "https://www.mystela.fr/restaurants-:ville",
       "permanent": true
     },
     {
-      "source": "/blog/:slug.html",
-      "destination": "https://www.mystela.fr/blog/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/blog/index.html",
+      "source": "/blog/index",
       "destination": "https://www.mystela.fr/blog",
       "permanent": true
     },
     {
-      "source": "/restaurants-:ville.html",
-      "destination": "https://www.mystela.fr/restaurants-:ville",
-      "permanent": true
-    },
-    {
-      "source": "/qui-sommes-nous.html",
-      "destination": "https://www.mystela.fr/",
-      "permanent": true
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "avistars.fr"
-        }
-      ],
-      "destination": "https://www.mystela.fr/",
-      "permanent": true
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.avistars.fr"
-        }
-      ],
+      "source": "/qui-sommes-nous",
       "destination": "https://www.mystela.fr/",
       "permanent": true
     },
@@ -90,7 +58,7 @@
           "value": "avistars.fr"
         }
       ],
-      "destination": "https://www.mystela.fr/",
+      "destination": "https://www.mystela.fr/:path*",
       "permanent": true
     },
     {
@@ -101,7 +69,7 @@
           "value": "www.avistars.fr"
         }
       ],
-      "destination": "https://www.mystela.fr/",
+      "destination": "https://www.mystela.fr/:path*",
       "permanent": true
     }
   ],
