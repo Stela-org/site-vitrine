@@ -82,7 +82,7 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 
 | Semaine | Titre | Cluster | Statut |
 |---|---|---|---|
-| S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | À faire |
+| S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | En relecture (PR) |
 | S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | À faire |
 | S15 | Quelles sont les nouveautés Google Business Profile de septembre 2026 ? | google-business-profile | À faire |
 | S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | À faire |
