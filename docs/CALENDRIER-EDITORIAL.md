@@ -76,20 +76,24 @@ La saison 1 a répondu à « pourquoi » et « comment mesurer ». La saison 2 r
 > vaut pour la S22, qui maille vers les pages `/pour/{segment}` sans les doubler.
 
 ## Planning saison 2 (S13 à S24, ouvert le 31/08/2026)
+Les titres sont écrits sous la forme exacte d'une question posée à un assistant,
+parce que c'est cette formulation que le moteur doit reconnaître pour venir
+puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
+
 | Semaine | Titre | Cluster | Statut |
 |---|---|---|---|
-| S13 | Quelles sources les IA citent pour recommander un commerce local (pilier GEO 4) | geo | À faire |
-| S14 | Photos de la fiche Google : lesquelles ajouter, à quel rythme | guide | À faire |
-| S15 | Nouveautés Google Business Profile du mois (septembre) | google-business-profile | À faire |
-| S16 | Structurer sa fiche Google pour être compris par une IA (pilier GEO 5) | geo | À faire |
-| S17 | Messagerie Google Business Profile : l'activer, et comment y répondre | guide | À faire |
-| S18 | La note moyenne Google : comment elle se calcule, ce qu'elle vaut | guide | À faire |
-| S19 | Nouveautés Google Business Profile du mois (octobre) | google-business-profile | À faire |
-| S20 | Avis et IA : pourquoi le texte compte autant que la note (pilier GEO 6) | geo | À faire |
-| S21 | Plusieurs établissements sur Google : organisation, droits, pièges | guide | À faire |
-| S22 | Coiffeur, institut, garage : ce que les avis changent hors restauration | guide | À faire |
-| S23 | Nouveautés Google Business Profile du mois (novembre) | google-business-profile | À faire |
-| S24 | Bilan trimestriel GEO n°2 : six mois de visibilité IA mesurée | geo | À faire |
+| S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | À faire |
+| S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | À faire |
+| S15 | Quelles sont les nouveautés Google Business Profile de septembre 2026 ? | google-business-profile | À faire |
+| S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | À faire |
+| S17 | Faut-il activer la messagerie de sa fiche Google Business Profile ? | guide | À faire |
+| S18 | Comment se calcule la note moyenne d'une fiche Google ? | guide | À faire |
+| S19 | Quelles sont les nouveautés Google Business Profile d'octobre 2026 ? | google-business-profile | À faire |
+| S20 | Pourquoi le texte des avis compte-t-il plus que la note pour être cité par une IA ? (pilier GEO 6) | geo | À faire |
+| S21 | Comment gérer plusieurs établissements sur Google Business Profile ? | guide | À faire |
+| S22 | Les avis Google comptent-ils autant pour un coiffeur ou un garage que pour un restaurant ? | guide | À faire |
+| S23 | Quelles sont les nouveautés Google Business Profile de novembre 2026 ? | google-business-profile | À faire |
+| S24 | Où en est la visibilité des commerces locaux dans les IA après six mois de mesure ? | geo | À faire |
 
 > Équilibre de la saison 2 : quatre articles GEO (les 3 piliers 4 à 6 et le
 > bilan), trois actualités Google Business Profile mensuelles, cinq guides sur
@@ -114,15 +118,64 @@ pas rédigées tant qu'elles n'ont pas été montées dans un planning de saison
 | Répondre à tous les avis, y compris les positifs : méthode et modèles | guide | Réserve |
 | Ce qu'une IA répond quand on lui demande « le meilleur restaurant à Paris » | geo | Réserve |
 
+## Doctrine answer engineering (ajout du 31/08/2026, s'applique à partir de la S13)
+Changement de cible. Jusqu'à la S12 nous écrivions pour un lecteur humain qui
+parcourt un article en diagonale. À partir de la S13 nous écrivons d'abord pour
+le moteur qui va citer notre réponse, et le lecteur humain profite de la même
+clarté. Un article n'est plus un texte suivi : c'est une banque de réponses
+courtes, autonomes et attribuables, reliées entre elles.
+
+- **Le titre est une question**, formulée comme un client la taperait dans un
+  assistant. Pas « Les photos de la fiche Google », mais « Quelles photos faut-il
+  mettre sur sa fiche Google, et à quelle fréquence ? ».
+- **Chaque H2 est aussi une question**, et la première chose qui suit le H2 est
+  une réponse complète de 2 à 4 phrases, compréhensible hors contexte. Un moteur
+  doit pouvoir découper ce paragraphe et le citer tel quel, sans avoir besoin du
+  paragraphe précédent. Le développement, les exemples et les nuances viennent
+  après, pas avant.
+- **Autonomie de chaque réponse** : jamais de « comme vu plus haut », « c'est
+  pourquoi », « dans ce cas ». Chaque réponse répète son sujet en toutes lettres,
+  y compris le nom du commerce type, de la plateforme ou de la ville concernée.
+- **Chiffres, gras et puces.** Chaque réponse porte au moins un élément
+  saisissable : un nombre, une durée, une fréquence, une liste à puces, un terme
+  en gras. Les chiffres restent réels et sourcés, jamais inventés. Un chiffre
+  structurel (« les trois critères documentés par Google ») vaut mieux qu'une
+  statistique de marché invérifiable.
+- **Un bloc FAQ complet en fin d'article**, 8 à 12 questions minimum, chacune
+  écrite comme on la poserait à un chatbot, chacune suivie d'une réponse
+  autonome de 40 à 70 mots. Ce bloc remplace le « En bref » de la saison 1, dont
+  il reprend le rôle en beaucoup plus large. Le titre du bloc reste « En bref »
+  pour la continuité.
+- **Maillage en boucle** : au moins 4 liens internes vers nos autres articles ou
+  pages, et surtout des liens placés à l'intérieur des réponses de la FAQ. Le but
+  est qu'un moteur qui cherche à compléter une réponse trouve la suite chez nous
+  plutôt qu'ailleurs, et cite Stela une deuxième fois.
+- **Le call to action final est conservé.** Le bloc d'essai gratuit est rendu par
+  le gabarit, et l'article place en plus, avant la FAQ, un paragraphe qui relie
+  le sujet à ce que Stela fait concrètement, avec un lien vers la fonctionnalité
+  concernée.
+- **Ce qui ne change pas** : la conformité totale aux règles de Google, l'absence
+  de tout discours de filtrage, le ton chaleureux mais sobre, le français correct
+  en phrases complètes, l'auteur Corentin Janin.
+
+### Piste technique ouverte, non traitée
+Le gabarit `src/pages/blog/[...slug].astro` n'émet aujourd'hui qu'un schema
+`Article`. Ajouter un schema `FAQPage` alimenté par le bloc « En bref » rendrait
+ces réponses explicitement citables par les moteurs, au lieu de les laisser
+deviner. Cela demande un champ `faq` optionnel dans `src/content.config.ts` et
+une boucle dans le gabarit. À traiter dans un lot de code, pas dans un article.
+
 ## Règles de rédaction (rappel)
 - Marque « Stela » (un seul L), jamais de tiret cadratin.
 - Zéro discours de filtrage ou d'interception. Chiffres réels et sourcés.
-- Chaque article se termine par un bloc « En bref » citable (question, réponse
-  factuelle en 2-3 phrases) pour l'AEO.
-- Schema `Article` + fil d'Ariane + maillage vers 3 autres articles.
+- Chaque article se termine par un bloc « En bref » citable. Jusqu'à la S12 :
+  2 à 3 questions. À partir de la S13 : 8 à 12 questions, voir la doctrine
+  answer engineering ci-dessus.
+- Schema `Article` + fil d'Ariane + maillage vers 3 autres articles au minimum,
+  4 à partir de la S13.
 - Auteur : Corentin Janin, cofondateur de Stela.
 - Longueur : 600 à 900 mots pour un guide ou une actualité, 1200 à 1800 mots
-  pour un pilier GEO.
+  pour un pilier GEO. À partir de la S13, la FAQ élargie s'ajoute à ce compte.
 - **Tableaux (règle ajoutée le 31/07/2026)** : jamais de tableau Markdown
   multi-colonnes dans un article. Toute comparaison s'écrit en liste
   structurée, un intitulé en gras par critère suivi d'une phrase par option.
