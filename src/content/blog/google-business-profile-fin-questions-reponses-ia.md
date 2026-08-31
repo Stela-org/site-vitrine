@@ -41,4 +41,20 @@ C'est le même principe que celui qui gouverne la recommandation par les intelli
 
 **Par quoi la section Questions/Réponses est-elle remplacée ?** Par des réponses générées par l'IA Gemini directement dans Google Maps, à partir des informations déjà présentes sur la fiche (description, attributs, avis, photos). Il n'y a plus de question ni de réponse affichée publiquement à rédiger soi-même.
 
-**Que faire concrètement après ce changement ?** Vérifier que les informations les plus demandées (parking, accessibilité, horaires, prestations, prix) figurent bien dans la description, les attributs et la section produits ou menu de la fiche, et maintenir un flux d'avis récents et sincères, puisque ce sont ces contenus qui nourrissent désormais les réponses automatiques.
+**Que faire concrètement après ce changement ?** Vérifier que les informations les plus demandées, du parking à l'accessibilité en passant par les horaires, les prestations et les prix, figurent bien dans la description, les attributs et la section produits ou menu de la fiche, et maintenir un flux d'avis récents et sincères, puisque ce sont ces contenus qui nourrissent désormais les réponses automatiques.
+
+**Depuis quand la section Questions/Réponses n'existe-t-elle plus ?** L'API Q&A a été arrêtée le 3 novembre 2025, et le retrait de la section publique a suivi à partir du 3 décembre 2025, de façon progressive sur les fiches existantes. Les fiches créées depuis cette date ne disposent plus du tout de cette rubrique.
+
+**Ma fiche a perdu ses anciennes questions, est-ce un bug ?** Non. Si votre fiche affichait encore des questions de clients avec vos réponses il y a quelques mois et que la section a rétréci ou disparu, il s'agit du retrait de fonctionnalité décidé par Google. Il touche l'ensemble des fiches et n'est pas propre à votre établissement.
+
+**Comment répondre désormais à une question de client sur ma fiche ?** Vous ne rédigez plus de réponse à une question affichée : l'IA répond à votre place, à partir de ce que Google sait déjà de votre établissement. La seule façon d'agir consiste donc à renseigner l'information en amont, dans les attributs, la description ou la section produits.
+
+**Que se passe-t-il si l'information n'existe nulle part sur ma fiche ?** L'intelligence artificielle ne l'invente pas. Elle donnera une réponse incomplète, ou ne répondra pas du tout. C'est le principal effet de ce changement : la possibilité de combler un manque en répondant soi-même à une question précise a disparu.
+
+**Quelles informations faut-il vérifier en priorité sur sa fiche ?** Les réponses aux questions les plus fréquentes : parking, accessibilité, animaux acceptés, moyens de paiement, terrasse. Elles doivent figurer dans les attributs ou la description. Nos [bonnes pratiques de la fiche Google Business Profile](/blog/bonnes-pratiques-fiche-google-business-profile) reprennent ces réglages point par point.
+
+**Une FAQ sur mon site sert-elle encore à quelque chose ?** Oui, et davantage qu'avant. Une page qui répond en deux ou trois phrases aux questions les plus posées reste une source que l'intelligence artificielle peut reprendre, y compris en dehors de Google Maps, là où la fiche ne suffit plus à couvrir tous les cas.
+
+**Les avis jouent-ils un rôle dans ces réponses automatiques ?** Oui, l'IA s'appuie aussi sur leur contenu pour répondre. Un flux régulier d'avis sincères, collectés sans jamais trier les clients selon leur satisfaction, nourrit des réponses plus fiables et plus précises sur votre établissement.
+
+**Comment vérifier ce que l'IA répond à mon sujet ?** En posant vous-même les questions qu'un client poserait, régulièrement, et en notant l'exactitude des réponses. La méthode de relevé mensuel figure dans notre article sur [comment mesurer sa visibilité dans les réponses des IA](/blog/mesurer-visibilite-ia-commerce-local).

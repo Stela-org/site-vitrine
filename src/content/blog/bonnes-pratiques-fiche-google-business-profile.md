@@ -48,3 +48,21 @@ L'onglet performance de la fiche donne accès aux recherches qui ont mené à la
 **Le filtrage des avis avant de les demander est-il autorisé par Google ?** Non. Sélectionner les clients à qui l'on demande un avis selon leur satisfaction supposée est interdit par les règles de Google et peut entraîner une suppression d'avis ou une sanction de la fiche. L'invitation doit être ouverte à tous les clients, sans exception.
 
 **Que regarder en premier dans le tableau de performance de la fiche ?** L'évolution des recherches qui mènent à la fiche et le nombre de clics vers le site ou de demandes d'itinéraire. Une baisse soudaine signale souvent une information manquante ou périmée à corriger rapidement.
+
+**Quelle catégorie principale choisir pour sa fiche Google ?** La plus précise disponible plutôt que la plus large : « restaurant italien » vaut mieux que « restaurant ». La catégorie principale pèse lourd dans les recherches locales et détermine les demandes sur lesquelles vous êtes éligible. Des catégories secondaires peuvent la compléter si l'activité le justifie.
+
+**Qu'est-ce que la cohérence NAP, et pourquoi compte-t-elle ?** NAP signifie Name, Address, Phone. Le nom, l'adresse et le téléphone doivent être strictement identiques sur la fiche Google, le site et les annuaires. Une adresse orthographiée différemment d'un site à l'autre sème le doute sur la fiabilité de la fiche, auprès de Google comme des assistants.
+
+**À quelle fréquence faut-il publier des posts sur sa fiche ?** Un post par semaine, même court, suffit à entretenir l'impression d'une fiche vivante. La fonction Posts sert à annoncer des nouveautés, des offres ou des événements, et elle montre aux visiteurs comme à Google que la fiche est suivie activement.
+
+**Les attributs de la fiche servent-ils vraiment à quelque chose ?** Oui, et ils sont souvent laissés vides. Les attributs comme l'accessibilité, la terrasse, le paiement sans contact ou la réservation en ligne répondent directement aux questions que se posent les clients avant de venir. Les compléter prend quelques minutes et réduit les questions redondantes.
+
+**Quelles photos faut-il mettre sur sa fiche Google ?** Des photos récentes et représentatives de la devanture, de la salle et des produits. Une photo de couverture vieille de plusieurs années, ou une devanture qui a changé sans mise à jour, brouille la première impression et fait douter de l'activité réelle de l'établissement.
+
+**Pourquoi les horaires provoquent-ils autant d'avis négatifs ?** Parce qu'une fiche qui indique « ouvert » alors que le rideau est baissé génère une frustration immédiate. C'est l'une des premières causes d'avis négatifs évitables, bien avant la qualité du service. Vérifiez les horaires à chaque changement de saison et à chaque jour férié.
+
+**Une fiche Google bien tenue aide-t-elle à être cité par les IA ?** Oui, c'est même la source principale des assistants, car elle réunit sous forme normalisée le nom, l'adresse, la catégorie, les horaires et les attributs. Notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local) détaille ce mécanisme.
+
+**Que faire si la fiche est modifiée sans mon accord ?** Google autorise des suggestions de modification par les internautes. Consultez votre fiche au moins une fois par mois et corrigez toute information erronée. Une baisse inexpliquée dans l'onglet performance est souvent le premier signe d'une modification passée inaperçue.
+
+**Combien de temps faut-il pour qu'une modification de fiche soit visible ?** Les corrections d'horaires et d'attributs apparaissent généralement vite, alors qu'un changement de catégorie ou de nom peut demander une vérification de la part de Google. Si une modification n'est jamais prise en compte, le sujet rejoint celui des [fiches suspendues](/blog/fiche-google-business-profile-suspendue).

@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import { SITE , TARIFS_URL } from "../../config/site";
+import { extractFaq, faqPageLd } from "../../lib/faq";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -39,11 +40,18 @@ const articleLd = {
 };
 const dateStr = (d.updatedDate ?? d.pubDate).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
 
+// Le bloc « En bref » de l'article devient un schema FAQPage. Sans lui, un
+// moteur doit deviner que ces paragraphes en gras sont des questions ; avec
+// lui, chaque réponse est explicitement déclarée comme telle et devient
+// citable. Le contenu reste celui affiché dans la page, comme Google l'exige.
+const faqLd = faqPageLd(extractFaq(post.body ?? ""), url);
+
 // Maillage : autres articles.
 const others = (await getCollection("blog")).filter((p) => p.id !== post.id).slice(0, 3);
 ---
 <Base title={`${d.metaTitle ?? d.title} | Blog Stela`} description={d.description} path={`/blog/${post.id}`} ogImage={d.ogImage ?? "/images/og-default.png"}>
   <script type="application/ld+json" set:html={JSON.stringify(articleLd)} is:inline />
+  {faqLd && <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />}
 
   <article class="post">
     <div class="container">

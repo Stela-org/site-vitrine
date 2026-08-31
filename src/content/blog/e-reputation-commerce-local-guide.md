@@ -58,6 +58,26 @@ L'e-réputation n'est jamais acquise. Suivez votre note, vos nouveaux avis et vo
 
 ## En bref
 
-**Qu'est-ce que l'e-réputation d'un commerce local ?** C'est l'image de votre établissement en ligne : votre fiche Google, vos avis, vos réponses et votre présence dans les moteurs et les IA. Elle influence directement le choix des clients.
+**Qu'est-ce que l'e-réputation d'un commerce local ?** C'est l'image de votre établissement en ligne : votre fiche Google, vos avis, vos réponses et votre présence dans les moteurs et les intelligences artificielles. Elle influence directement le choix des clients.
 
 **Comment l'améliorer durablement ?** En soignant votre fiche Google, en collectant des avis sincères sans jamais les filtrer, en répondant à tous les avis, et en surveillant régulièrement votre présence, y compris dans les réponses des intelligences artificielles.
+
+**De quoi se compose exactement l'e-réputation d'un commerce ?** De quatre éléments : la fiche Google Business Profile, qui est souvent le premier contact ; les avis, par leur nombre, leur note, leur fraîcheur et leur contenu ; les réponses du gérant à ces avis ; et la présence ailleurs, des plateformes du secteur aux réponses des assistants comme ChatGPT ou Gemini.
+
+**Comment mesurer son e-réputation quand on part de zéro ?** Regardez votre situation avec les yeux d'un client. Cherchez votre établissement sur Google et lisez votre fiche comme si vous ne la connaissiez pas, notez votre nombre d'avis, votre note et la date du dernier avis, repérez les mots qui reviennent, puis demandez à une intelligence artificielle les bons établissements de votre activité dans votre ville.
+
+**Par quel levier commencer pour améliorer son e-réputation ?** Par la fiche Google : catégorie précise, horaires exacts, attributs et photos récentes. C'est le levier le plus rapide et le plus rentable, et il ne coûte que du temps. Nos [bonnes pratiques de la fiche Google Business Profile](/blog/bonnes-pratiques-fiche-google-business-profile) reprennent chaque réglage dans l'ordre.
+
+**Quelles erreurs abîment le plus une e-réputation ?** Quatre surtout : acheter de faux avis, dont le risque de sanction est réel et la perte de confiance irréversible ; filtrer ou trier les avis selon la note ; ignorer les avis négatifs ; et laisser une fiche Google incomplète ou obsolète, qui fait douter même quand l'établissement est excellent.
+
+**À quelle fréquence faut-il surveiller son e-réputation ?** Une fois par mois suffit pour un commerce local. Ce rendez-vous régulier permet de suivre la note, les nouveaux avis, la date du dernier avis reçu et votre présence dans les réponses des assistants, sans y consacrer plus d'une demi-heure.
+
+**La note moyenne est-elle le seul indicateur qui compte ?** Non. La fraîcheur des avis et les mots employés pèsent souvent autant. Une fiche à 4,3 alimentée chaque semaine inspire davantage confiance qu'une fiche à 4,8 dont le dernier avis date d'un an, et elle donne bien plus de matière aux intelligences artificielles.
+
+**Faut-il être présent sur d'autres plateformes que Google ?** C'est utile selon le secteur, en particulier pour l'hôtellerie et la restauration. L'essentiel est la cohérence : le nom, l'adresse et le téléphone doivent être identiques partout, sans quoi vous semez le doute chez les moteurs comme chez les clients.
+
+**L'e-réputation joue-t-elle sur la visibilité dans les intelligences artificielles ?** Oui, directement. Les assistants s'appuient sur la fiche Google et sur le contenu des avis pour décider qui recommander et comment le décrire. Le détail des sources qu'ils consultent figure dans notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local).
+
+**Peut-on réparer une e-réputation dégradée ?** Oui, mais cela prend des mois et non des semaines. La méthode est constante : corriger la fiche, répondre publiquement et calmement aux avis négatifs, puis rétablir un flux d'avis sincères qui dilue progressivement les anciens. Aucun raccourci n'existe, et ceux qui en promettent aggravent la situation.
+
+**Répondre aux avis compte-t-il autant que les avis eux-mêmes ?** Presque. Vos réponses sont lues par les futurs clients au même titre que les avis, et une réponse calme à une critique en dit souvent plus qu'une série de cinq étoiles. Notre guide sur [la réponse aux avis négatifs](/blog/repondre-avis-negatif-google-restaurant) donne cinq exemples concrets.

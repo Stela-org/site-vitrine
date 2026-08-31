@@ -54,3 +54,17 @@ D'une ville à l'autre et d'un trimestre à l'autre, la règle est identique. Le
 **Comment un restaurant indépendant peut-il rivaliser avec une chaîne sur Google ?** En jouant sur ce que la chaîne fait mal : des réponses personnalisées, des photos réelles de la salle et des plats, une fiche à jour. Le classement local tient compte de la proximité et de la pertinence de la fiche, pas uniquement du nombre d'avis accumulés au niveau national.
 
 **À quelle fréquence faut-il faire le point sur sa visibilité dans les IA ?** Un relevé par mois et un bilan par trimestre suffisent. Le relevé mensuel consiste à poser les mêmes questions à ChatGPT, Gemini et Perplexity et à noter les réponses ; le bilan trimestriel sert à repérer la tendance et à choisir un seul chantier pour les trois mois suivants.
+
+**Pourquoi un avis pèse-t-il plus lourd dans une ville moyenne ?** C'est une question d'arithmétique, pas de géographie. Sur une fiche qui compte quelques dizaines d'avis, un commentaire isolé déplace nettement la moyenne. La contrepartie est symétrique : une série d'avis négatifs s'y rattrape aussi moins vite que sur un marché de la taille de Paris ou de Lyon.
+
+**Comment collecter des avis quand la clientèle est surtout locale ?** En privilégiant le message envoyé après la visite plutôt que la sollicitation immédiate. Un habitué n'est pas pressé et répondra volontiers quelques heures plus tard, alors qu'un client de passage doit être invité pendant qu'il est encore sur place.
+
+**Que faire quand plusieurs publics se croisent sur une même fiche ?** Accepter que les avis ne parlent pas de la même chose et répondre à chacun dans son registre. Un visiteur de week-end, un étudiant et un cadre en déplacement ne jugent pas le même service, et pourtant leurs avis se lisent dans la même liste, sous les yeux du prochain client.
+
+**Comment compenser un creux saisonnier de collecte ?** En invitant systématiquement, y compris pendant les mois calmes où la salle est moins pleine. Une fiche qui ne collecte qu'au printemps paraît figée en février, au moment précis où la clientèle locale sort toujours et cherche une adresse ouverte.
+
+**Les règles de Google changent-elles selon la taille de la ville ?** Non, jamais. Tous les clients doivent être invités à s'exprimer publiquement, aucune contrepartie ne peut être offerte, et aucun tri selon la satisfaction supposée n'est autorisé. Seuls le moment de l'invitation et le style des réponses s'adaptent au terrain.
+
+**Par quoi commencer quand on tient un commerce dans une ville moyenne ?** Par la régularité de la collecte, qui produit le double effet d'amortir les avis isolés et de rendre la fiche vivante. Nos pages sur les [restaurants de Rouen](/restaurants-rouen) et de [Nancy](/restaurants-nancy) détaillent le contexte quartier par quartier.
+
+**Quelles sources une intelligence artificielle lit-elle pour recommander un commerce en région ?** Les mêmes que partout : la fiche Google Business Profile, les avis publics, le site, les annuaires et la presse locale. La taille de la ville ne change pas les sources, seulement le nombre de concurrents. Le détail figure dans notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local).

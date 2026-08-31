@@ -12,7 +12,7 @@
 
 - Étoile : 49 € par mois. Collecte d'avis Google conforme, réponses assistées par IA, récupération client, tableau de bord, QR codes et supports fournis.
 - Constellation : 89 € par mois. Tout Étoile, plus les avis multi-plateformes, la visibilité IA (GEO), la réservation, les SMS et WhatsApp, l'analyse des retours et les insights.
-- L'abonnement annuel revient à deux mois offerts. L'essai est gratuit pendant 7 jours et sans engagement, résiliable en un clic.
+- L'abonnement annuel revient à 468 € par an pour Étoile (soit 39 € par mois) et à 948 € par an pour Constellation (soit 79 € par mois), dans les deux cas 120 € d'économie sur l'année par rapport au mensuel. L'essai est gratuit pendant 7 jours et sans engagement, résiliable en un clic.
 - Le parcours d'achat se fait depuis le site : le choix d'une offre mène à Stripe Checkout, où la carte est demandée pour ouvrir l'essai. Le compte est créé ensuite, par email.
 
 ## Pages principales
@@ -36,6 +36,7 @@
 
 ## Visibilité dans les IA (GEO)
 
+- [Sur quelles sources les IA s'appuient-elles pour recommander un commerce local](https://www.mystela.fr/blog/sources-ia-recommandation-commerce-local) : les cinq familles de sources que lisent les assistants, et la vérification à faire pour chacune.
 - [Être recommandé par ChatGPT quand on est un commerce local](https://www.mystela.fr/blog/etre-recommande-par-chatgpt-commerce-local) : comment les assistants choisissent les commerces qu'ils citent.
 - [GEO ou SEO pour un commerce local](https://www.mystela.fr/blog/geo-ou-seo-commerce-local) : ce qui change entre être classé dans Google et être cité par une IA.
 - [Mesurer sa visibilité dans les IA](https://www.mystela.fr/blog/mesurer-visibilite-ia-commerce-local) : une méthode simple pour savoir si son commerce est cité par les assistants.

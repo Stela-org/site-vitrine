@@ -40,3 +40,19 @@ En attendant une éventuelle ouverture européenne de Gemini pour les fiches d'�
 **Cette fonctionnalité est-elle disponible en France ?** Non, pas à ce jour. Google a exclu l'Espace économique européen et le Royaume-Uni du déploiement initial, sans annoncer de date d'ouverture, une situation généralement rapprochée du cadre réglementaire européen.
 
 **Comment un commerce français peut-il déjà bénéficier d'une aide IA pour répondre à ses avis ?** Des outils comme [Nova, l'assistante de Stela](/reponse-automatique-avis), proposent déjà une rédaction automatique des réponses d'avis en France, dans le respect des règles de Google, sans attendre l'arrivée de Gemini sur les fiches d'établissement.
+
+**Que peut faire concrètement Gemini sur une fiche Google Business Profile ?** Cinq actions, à la demande du propriétaire : mettre à jour les horaires, publier une actualité ou une offre saisonnière, proposer une réponse à un avis dans le ton de l'établissement, résumer les retours clients récents, et analyser les indicateurs de performance de la fiche.
+
+**Qu'est-ce qu'un « Business notebook » chez Google ?** C'est le nom donné par Google à l'espace de travail de cette intégration. Il centralise l'historique des échanges avec l'assistant, la fiche connectée et le site web de l'établissement, afin que Gemini garde le contexte d'une conversation à l'autre plutôt que de repartir de zéro à chaque fois.
+
+**Gemini publie-t-il des réponses aux avis automatiquement ?** Non. Gemini rédige des propositions de réponse, mais c'est toujours le commerçant qui les relit et les publie. Rien ne part sans validation humaine, selon le centre d'aide de Google Business Profile.
+
+**Pourquoi cette fonctionnalité est-elle exclue de l'Europe ?** Google a expressément écarté l'Espace économique européen et le Royaume-Uni du déploiement initial, sans communiquer de date d'ouverture. Plusieurs médias spécialisés y voient un lien avec le cadre réglementaire européen plutôt qu'un simple choix de calendrier produit.
+
+**Toutes les fiches peuvent-elles utiliser Gemini dans les pays concernés ?** Non. Dès le lancement, la fonctionnalité s'adresse aux seules fiches uniques vérifiées et gérées directement par leur propriétaire. Les établissements multi-sites, les franchises et les fiches administrées par une agence en sont exclus pour le moment.
+
+**Qu'est-ce qui change aujourd'hui pour un commerçant français ?** Rien dans la gestion quotidienne : les outils natifs de Google Business Profile restent identiques à ce qu'ils étaient avant l'annonce. La direction prise par Google est en revanche nette, avec un assistant qui répond aux avis, analyse la performance et tient la fiche à jour.
+
+**Que faire en attendant une ouverture européenne ?** Travailler les fondamentaux, qui restent la meilleure façon d'être visible localement : informations exactes, photos récentes, avis récents et sans tri. Nos [bonnes pratiques de la fiche Google Business Profile](/blog/bonnes-pratiques-fiche-google-business-profile) détaillent les réglages qui comptent réellement.
+
+**Cette intégration change-t-elle la façon d'être recommandé par les IA ?** Non, ce sont deux sujets distincts. Gemini dans la fiche est un outil de gestion pour le commerçant, alors que la visibilité dans les réponses des assistants dépend des sources qu'ils lisent. Notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local) explique cette seconde mécanique.
