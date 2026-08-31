@@ -50,3 +50,19 @@ Pour le détail quartier par quartier, nos pages consacrées aux [restaurants de
 **Comment obtenir un avis d'un touriste qui ne reviendra pas ?** En le sollicitant pendant sa visite, au moment de l'addition, quand le souvenir est frais et le téléphone déjà en main. Un QR code sur la table ou sur le ticket évite au client d'avoir à chercher votre fiche lui-même, ce qui fait toute la différence sur une clientèle de passage.
 
 **La façon de gérer ses avis change-t-elle vraiment selon la ville ?** Seul le tempo change, jamais la méthode. Le profil de clientèle détermine le moment de l'invitation et le style des réponses, mais les règles de Google, elles, sont identiques à Marseille, à Bordeaux, à Nice et partout ailleurs : on invite tous les clients, sans tri et sans contrepartie.
+
+**Pourquoi une fiche pleine d'avis peut-elle sembler à l'abandon ?** Parce que ce n'est pas le volume qui est lu en premier, mais la date. Un restaurant qui a collecté trois cents avis pendant l'été et plus rien ensuite affiche, en février, un dernier avis vieux de six mois. Le client en déduit un établissement endormi, voire fermé.
+
+**Quel est le principal risque d'une collecte uniquement saisonnière ?** Perdre la clientèle locale, celle qui sort justement hors saison. Une fiche sans avis récent en hiver ne rassure pas un habitant qui cherche où dîner un mardi de janvier, au moment précis où l'établissement a le plus besoin de lui.
+
+**Comment obtenir un avis d'un client qui ne reviendra jamais ?** En le sollicitant pendant sa visite, au moment de l'addition, quand le souvenir est frais et le téléphone déjà en main. Un QR code sur la table ou sur le ticket évite au client de chercher votre fiche lui-même, ce qui change tout sur une clientèle de passage.
+
+**Faut-il lisser sa collecte tout au long de l'année ?** Oui, c'est le principe. Une invitation systématique à chaque service produit un flux continu, alors qu'une campagne ponctuelle crée un pic suivi d'un long silence. Un afflux soudain d'avis groupés dans un temps très court fait d'ailleurs partie des signaux qui déclenchent une revérification chez Google.
+
+**Le calendrier de fréquentation change-t-il quelque chose aux règles de Google ?** Non, absolument rien. Ce que Google regarde ne varie ni avec la saison ni avec la ville : la fraîcheur des avis, leur régularité, la cohérence de la fiche. Le calendrier local ne modifie que le moment où vous sollicitez vos clients.
+
+**Comment gérer les avis en langue étrangère d'une clientèle touristique ?** Répondez dans la langue de l'avis quand c'est possible, ou en français dans une formulation simple à défaut. Sur les marchés à forte clientèle internationale comme [Nice](/restaurants-nice), ces réponses sont lues par les visiteurs suivants autant que par leur auteur.
+
+**Que faire pendant la basse saison quand la salle est vide ?** C'est le meilleur moment pour rattraper le retard : répondre aux avis en attente, mettre à jour les photos et les horaires de la fiche, et continuer à inviter les quelques clients présents. Nos pages sur les [restaurants à Marseille](/restaurants-marseille) et à [Bordeaux](/restaurants-bordeaux) détaillent ces rythmes locaux.
+
+**Une collecte régulière aide-t-elle aussi la visibilité dans les IA ?** Oui. Les assistants privilégient les établissements dont les informations sont fraîches et cohérentes, et ils décrivent un lieu avec les mots de ses avis récents. Le mécanisme complet figure dans notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local).

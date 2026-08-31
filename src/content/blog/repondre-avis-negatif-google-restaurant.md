@@ -65,4 +65,24 @@ Attention : inviter tout le monde ne veut pas dire trier. Filtrer les avis selon
 
 **Faut-il répondre à tous les avis négatifs ?** Oui. Une réponse posée rassure les futurs clients et montre votre sérieux. Répondez sous 48 heures, remerciez, reconnaissez le point soulevé et proposez une suite.
 
-**Peut-on supprimer un avis négatif ?** Vous pouvez signaler à Google un avis qui enfreint ses règles, mais vous ne pouvez pas supprimer un avis simplement parce qu'il est négatif. La meilleure réponse reste une bonne réponse publique, et davantage d'avis sincères à côté.
+**Peut-on supprimer un avis négatif ?** Vous pouvez signaler à Google un avis qui enfreint ses règles, mais vous ne pouvez pas supprimer un avis simplement parce qu'il est négatif. La meilleure réponse reste une bonne réponse publique, et davantage d'avis sincères à côté. Notre guide détaille [ce que Google retire vraiment](/blog/supprimer-mauvais-avis-google-restaurant).
+
+**En combien de temps faut-il répondre à un avis négatif ?** Idéalement sous 48 heures. Passé ce délai, la réponse perd de son effet auprès du client concerné et auprès de ceux qui liront l'échange. Évitez toutefois de répondre à chaud, sous le coup de l'émotion : quelques heures de recul valent mieux qu'une réponse immédiate et sèche.
+
+**Quelles sont les règles d'une bonne réponse à un avis négatif ?** Elles tiennent en cinq points : répondre vite, rester courtois même si l'avis est injuste, remercier pour le retour avant toute chose, reconnaître le point soulevé sans se justifier longuement, et proposer une suite concrète, en privé si nécessaire.
+
+**Comment répondre à un avis négatif injuste ou agressif ?** En accusant réception du mécontentement sans entrer dans le conflit. Une formulation qui reconnaît le ressenti, signale que le ton rend l'échange difficile et propose d'en discuter posément suffit. Les futurs lecteurs jugeront la différence de tenue entre l'avis et votre réponse.
+
+**Que répondre à un avis d'une étoile sans aucun commentaire ?** Demandez des précisions, avec courtoisie. Une réponse du type « Merci pour votre note, nous aimerions comprendre ce qui n'a pas fonctionné pour nous améliorer » montre votre ouverture aux autres lecteurs, même si le client ne répond jamais.
+
+**Quelles erreurs faut-il éviter en répondant ?** Cinq surtout : se justifier sur plusieurs paragraphes, contredire frontalement le client, copier-coller la même réponse partout, répondre à chaud, et ignorer l'avis en espérant qu'il passe inaperçu. Le silence est la pire des options, car il se lit comme un aveu.
+
+**Les clients lisent-ils vraiment les réponses du gérant ?** Oui, une large part des clients consulte les réponses avant de choisir un établissement. Une réponse calme et utile à un avis négatif en dit souvent plus long sur un commerce qu'une série d'avis cinq étoiles sans commentaire.
+
+**Faut-il aussi répondre aux avis positifs ?** Oui, même brièvement. Répondre à l'ensemble des avis montre une présence constante et encourage les clients suivants à écrire à leur tour. Une réponse courte et personnalisée vaut mieux qu'une formule identique recopiée sur tous les avis.
+
+**Comment limiter l'impact d'un avis négatif sur sa note ?** En collectant régulièrement des avis sincères à côté. Plus le flux est continu, moins un avis isolé pèse sur la moyenne. La méthode figure dans notre guide [comment avoir plus d'avis Google](/blog/comment-avoir-plus-avis-google-restaurant), et elle exclut tout tri des clients selon leur satisfaction supposée.
+
+**Répondre aux avis change-t-il quelque chose pour les intelligences artificielles ?** Oui, indirectement. Un assistant lit la zone d'avis dans son ensemble, réponses comprises, et une fiche vivante où le gérant répond envoie un signal de sérieux. La description que l'IA fera de vous reste toutefois surtout nourrie par les mots de vos clients.
+
+**Peut-on demander à un client de retirer son avis négatif ?** Vous pouvez le contacter pour résoudre le problème, et il retirera parfois son avis de lui-même. En revanche, insister, conditionner un geste commercial à ce retrait ou décourager un avis négatif sont des pratiques contraires aux règles de Google.

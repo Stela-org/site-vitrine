@@ -48,6 +48,26 @@ Attention : inviter tout le monde ne veut pas dire filtrer. Sélectionner les cl
 
 ## En bref
 
-**Peut-on supprimer un avis Google négatif ?** Non, pas parce qu'il est négatif. Google ne retire que les avis qui enfreignent ses règles (contenu insultant, faux avis, conflit d'intérêts, hors sujet). Ceux-là peuvent être signalés.
+**Peut-on supprimer un avis Google négatif ?** Non, pas parce qu'il est négatif. Google ne retire que les avis qui enfreignent ses règles : contenu insultant, faux avis, conflit d'intérêts, hors sujet. Ceux-là peuvent être signalés.
 
-**Que faire face à un avis injuste mais conforme ?** Répondez-y de façon calme et professionnelle, et continuez à collecter des avis sincères. Un avis isolé pèse peu au milieu de nombreux avis récents.
+**Que faire face à un avis injuste mais conforme ?** Répondez-y de façon calme et professionnelle, et continuez à collecter des avis sincères. Un avis isolé pèse peu au milieu de nombreux avis récents. Notre guide sur [la réponse aux avis négatifs](/blog/repondre-avis-negatif-google-restaurant) donne cinq exemples de formulations.
+
+**Quels avis Google accepte-t-il de supprimer ?** Cinq catégories principales : les avis au contenu insultant, haineux ou obscène, les avis manifestement faux publiés par une personne qui n'est jamais venue, ceux qui relèvent d'un conflit d'intérêts comme un concurrent ou un ancien salarié, les avis hors sujet, et ceux qui contiennent des données personnelles ou de la publicité.
+
+**Comment signaler un avis non conforme sur Google ?** Ouvrez votre fiche dans la section des avis, repérez l'avis concerné, utilisez l'option de signalement et sélectionnez le motif correspondant à l'infraction. Si le signalement n'aboutit pas, une demande complémentaire reste possible via l'assistance Google Business Profile.
+
+**Combien de temps prend la suppression d'un avis signalé ?** Le signalement n'est pas instantané et n'aboutit pas toujours. Google juge selon ses propres règles, sans obligation de résultat pour le commerçant. Restez factuel dans votre demande en expliquant précisément quelle règle est enfreinte, plutôt qu'en exprimant votre désaccord avec le contenu.
+
+**Peut-on payer un prestataire pour faire supprimer un avis ?** Aucune méthode ni aucun outil ne peut garantir la suppression d'un avis négatif légitime. Les offres qui le promettent sont à considérer avec la plus grande méfiance. Seul un avis qui enfreint réellement les règles de Google peut être retiré, et c'est Google qui en décide.
+
+**Un avis d'un concurrent peut-il être retiré ?** Oui, il relève du conflit d'intérêts, l'un des motifs prévus par les règles de Google. Signalez-le en indiquant ce motif précis. Apportez, si vous en disposez, des éléments factuels montrant que l'auteur n'a jamais été client de l'établissement.
+
+**Que faire d'un avis qui contient des propos diffamatoires ?** Signalez-le d'abord à Google au titre du contenu inapproprié. Si l'avis vous cause un préjudice réel et que le signalement n'aboutit pas, la voie juridique existe, mais elle est longue. Dans l'intervalle, une réponse publique mesurée limite l'effet sur les lecteurs.
+
+**Comment un client peut-il supprimer son propre avis ?** Il est le seul à pouvoir le faire librement, depuis son compte Google, dans la liste de ses contributions. Vous pouvez le contacter pour résoudre le problème, mais ni insister, ni conditionner un geste commercial au retrait de son avis.
+
+**Le volume d'avis protège-t-il vraiment d'un mauvais avis ?** Oui, mécaniquement. Un avis négatif isolé pèse lourd sur une fiche qui en compte peu, et beaucoup moins parmi de nombreux avis récents. C'est la seule protection à la fois efficace et pleinement conforme, à condition d'inviter tous les clients sans trier selon la note.
+
+**Peut-on désactiver les avis sur sa fiche Google ?** Non, il n'existe pas d'option permettant de fermer les avis d'une fiche active. Les avis sont publics par principe. La marge de manœuvre du commerçant porte sur la réponse publique, le signalement des avis non conformes et la collecte régulière d'avis sincères.
+
+**Filtrer les clients avant de demander un avis évite-t-il les mauvais avis ?** Non, et c'est interdit. Sélectionner les clients selon leur satisfaction supposée est un filtrage contraire aux règles de Google, qui expose la fiche à une sanction. Notre guide [comment avoir plus d'avis Google](/blog/comment-avoir-plus-avis-google-restaurant) explique la méthode conforme.

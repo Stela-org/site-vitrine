@@ -82,7 +82,7 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 
 | Semaine | Titre | Cluster | Statut |
 |---|---|---|---|
-| S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | En relecture (PR) |
+| S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | Livré |
 | S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | À faire |
 | S15 | Quelles sont les nouveautés Google Business Profile de septembre 2026 ? | google-business-profile | À faire |
 | S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | À faire |
@@ -158,12 +158,21 @@ courtes, autonomes et attribuables, reliées entre elles.
   de tout discours de filtrage, le ton chaleureux mais sobre, le français correct
   en phrases complètes, l'auteur Corentin Janin.
 
-### Piste technique ouverte, non traitée
-Le gabarit `src/pages/blog/[...slug].astro` n'émet aujourd'hui qu'un schema
-`Article`. Ajouter un schema `FAQPage` alimenté par le bloc « En bref » rendrait
-ces réponses explicitement citables par les moteurs, au lieu de les laisser
-deviner. Cela demande un champ `faq` optionnel dans `src/content.config.ts` et
-une boucle dans le gabarit. À traiter dans un lot de code, pas dans un article.
+### Schema FAQPage : livré le 31/08/2026
+Le gabarit `src/pages/blog/[...slug].astro` émet désormais un schema `FAQPage`
+en plus du schema `Article`, alimenté par le bloc « En bref » de l'article. Les
+réponses ne sont plus à deviner par les moteurs, elles sont explicitement
+déclarées comme des questions-réponses, donc citables.
+
+L'extraction se fait dans `src/lib/faq.ts`, en lisant le Markdown source plutôt
+qu'un champ `faq` recopié dans le frontmatter : une duplication finit toujours
+par diverger de l'article, et c'est la version affichée qui fait foi. Google
+exige d'ailleurs que le contenu d'un `FAQPage` soit visible sur la page.
+
+Conséquence pour la rédaction : le bloc « En bref » doit garder sa forme exacte,
+un paragraphe par question, la question en gras suivie de la réponse. Un
+paragraphe qui ne commence pas par une question en gras est ignoré, et un
+article sans bloc « En bref » n'émet aucun `FAQPage`, sans casser le build.
 
 ## Règles de rédaction (rappel)
 - Marque « Stela » (un seul L), jamais de tiret cadratin.

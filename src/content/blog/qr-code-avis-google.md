@@ -51,3 +51,23 @@ Un QR code fonctionne d'autant mieux qu'il est accompagné d'un mot. Formez votr
 **Comment marche un QR code d'avis Google ?** Le client le scanne avec son téléphone et arrive directement sur votre page d'avis, sans rien taper. C'est le moyen le plus rapide de collecter des avis.
 
 **Le QR code d'avis est-il autorisé par Google ?** Oui, à condition de le proposer à tous les clients sans trier selon la note, et de ne rien offrir en échange de l'avis. C'est une invitation ouverte, pas une récompense.
+
+**Où placer son QR code d'avis dans un commerce ?** Là où le client est disponible et satisfait : sur l'addition ou le ticket de caisse, sur un chevalet posé sur la table ou au comptoir, à l'accueil ou près de la sortie, ou sur un support remis en main propre à la fin d'une prestation. Variez les emplacements et gardez ceux qui fonctionnent chez vous.
+
+**Qu'est-ce qui fait un bon QR code d'avis ?** Quatre choses : un message clair qui invite à scanner, un parcours court qui mène directement à la page d'avis sans étape inutile, un visuel soigné et lisible de près, et un format adapté au lieu, du chevalet en salle à l'autocollant en caisse.
+
+**Faut-il proposer le QR code à tous les clients ?** Oui, sans exception. Ne le présenter qu'aux clients supposés satisfaits constitue un filtrage, interdit par Google et susceptible d'entraîner une sanction sur la fiche. Le QR code doit rester une invitation ouverte, présentée de la même façon à chacun.
+
+**Peut-on offrir un café ou une réduction contre un avis scanné ?** Non. Les avis obtenus contre une récompense, quelle qu'elle soit, sont interdits par Google. Le QR code doit être une invitation gratuite. Un geste commercial peut accompagner la visite, jamais l'avis lui-même.
+
+**Le QR code fonctionne-t-il mieux qu'un SMS ou qu'un email ?** Il excelle sur le moment, quand le client est encore sur place et satisfait. Un message envoyé quelques heures après la visite touche en revanche ceux qui sont déjà repartis. Les deux se complètent plus qu'ils ne se remplacent.
+
+**Faut-il un QR code différent par membre de l'équipe ?** C'est utile. Un QR code par poste ou par personne permet de voir ce qui fonctionne, quel moment et quel emplacement produisent le plus d'avis. Cela aide aussi à impliquer l'équipe, qui voit concrètement le résultat de ses invitations.
+
+**Comment obtenir le lien direct vers sa page d'avis Google ?** Il s'obtient depuis la fiche Google Business Profile, dans les options de demande d'avis, qui fournissent un lien court menant directement au formulaire. C'est ce lien qu'il faut encoder dans le QR code, et non l'adresse générale de la fiche.
+
+**Un QR code doit-il être accompagné d'un mot de l'équipe ?** Oui, cela change beaucoup. Un support seul est souvent ignoré, alors qu'une invitation dite de vive voix au bon moment transforme le geste en habitude. Formez l'équipe à proposer le scan simplement, à la fin du service ou de la prestation.
+
+**Le QR code aide-t-il aussi la visibilité dans les IA ?** Indirectement, oui. Il augmente le flux d'avis, et ce sont les mots de ces avis que les assistants reprennent pour décrire un établissement. Le mécanisme est expliqué dans notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local).
+
+**Que faire si les clients scannent peu ?** Vérifiez d'abord le parcours : un scan qui n'ouvre pas immédiatement le formulaire fait perdre la moitié des clients. Testez ensuite un autre emplacement et un autre moment. Notre guide [comment avoir plus d'avis Google](/blog/comment-avoir-plus-avis-google-restaurant) détaille les leviers complémentaires.

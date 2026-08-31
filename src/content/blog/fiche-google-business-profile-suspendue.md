@@ -49,3 +49,21 @@ Ce point de vigilance compte particulièrement à l'ouverture d'un nouvel établ
 **Une fiche suspendue peut-elle être définitivement perdue ?** Non, dans la grande majorité des cas la fiche peut être rétablie via l'outil d'appel officiel de Google, à condition de fournir des justificatifs qui prouvent la réalité de l'établissement (Kbis, facture, photo de devanture).
 
 **Le filtrage des avis peut-il provoquer une suspension ?** Oui. Sélectionner les clients à qui l'on demande un avis selon leur satisfaction supposée est interdit par les règles de Google et fait partie des signaux qui peuvent déclencher une revérification ou une suspension de la fiche.
+
+**Quelle différence entre une suspension totale et une suspension partielle ?** Une suspension totale fait disparaître la fiche des résultats, sans plus aucune trace sur Maps ni dans la recherche. Une suspension partielle est plus discrète : la fiche reste visible, mais certaines fonctions sont bloquées, comme la modification des informations, la réponse aux avis ou la publication.
+
+**Quelles sont les causes les plus fréquentes de suspension ?** Cinq principalement : une adresse non éligible comme une boîte postale ou une domiciliation sans accueil de clientèle, un nom d'établissement bourré de mots-clés, une fiche en double, des changements répétés sur des champs sensibles, et des avis suspects détectés automatiquement.
+
+**Comment faire appel d'une suspension de fiche Google ?** En quatre étapes : identifier le motif affiché dans le Gestionnaire de fiches, réunir les preuves dès le premier envoi, déposer l'appel via l'outil dédié, puis suivre le statut dans le Gestionnaire. Un dossier complet dès le départ évite les allers-retours qui rallongent le délai.
+
+**Quels justificatifs faut-il fournir pour rétablir une fiche ?** Les pièces qui prouvent la réalité de l'établissement : un extrait Kbis ou équivalent, une facture récente à l'adresse de l'établissement, et une photo de la devanture avec l'enseigne visible. Joignez-les dès le premier envoi plutôt que de décrire la situation par un canal non officiel.
+
+**Peut-on accélérer le traitement en déposant un second appel ?** Non. Le délai varie selon les cas et peut atteindre plusieurs semaines, et déposer un nouvel appel tant que le premier est en cours d'examen n'accélère pas le processus. Mieux vaut consacrer ce temps à vérifier que le dossier initial était bien complet.
+
+**Ajouter sa ville dans le nom de la fiche est-il risqué ?** Oui. Modifier le nom d'établissement pour y glisser des mots-clés ou une localité est explicitement interdit par Google et compte parmi les causes fréquentes de suspension. Le nom de la fiche doit être celui de l'enseigne, tel qu'il figure sur la devanture.
+
+**Que faire quand un même établissement a deux fiches ?** Ne créez jamais une fiche supplémentaire, y compris après un changement de gérant ou une reprise de fonds : passez par un transfert de propriété de la fiche existante. Un doublon finit généralement par être fusionné ou suspendu par Google.
+
+**Comment éviter une suspension avant qu'elle n'arrive ?** Par trois réflexes : une cohérence stricte du nom, de l'adresse et du téléphone entre la fiche, le site et les annuaires ; une seule fiche par établissement et par adresse ; et aucun tri des avis. Nos [bonnes pratiques de la fiche Google](/blog/bonnes-pratiques-fiche-google-business-profile) détaillent chaque point.
+
+**Faut-il continuer à collecter des avis pendant une suspension ?** Oui, mais sans à-coups. Une collecte régulière et ouverte à tous les clients ne pose aucun problème, alors qu'un afflux soudain d'avis groupés dans un temps très court fait partie des signaux qui déclenchent justement une revérification.

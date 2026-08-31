@@ -80,18 +80,38 @@ Un client demande « un restaurant italien avec terrasse à Bordeaux, ouvert le 
 4. **Ajoutez des réponses factuelles sur votre site.** Une page claire par intention, avec des blocs questions-réponses.
 5. **Remesurez chaque mois.** Le paysage bouge vite. Ce qui compte, c'est la tendance sur plusieurs mois.
 
-## Tableau récapitulatif
+## Quel levier donne le meilleur résultat pour l'effort fourni ?
 
-| Levier | Effort | Effet sur la citation par les IA |
-|---|---|---|
-| Fiche Google à jour | Faible | Élevé, c'est le socle |
-| Avis sincères et récents | Moyen, régulier | Élevé, nourrit la description |
-| Langage clair sur le site | Moyen | Moyen à élevé |
-| Blocs questions-réponses | Faible | Moyen, très réutilisable |
-| Données structurées | Faible, technique | Moyen, lève les ambiguïtés |
+Cinq leviers déterminent votre présence dans les réponses des assistants. Les voici classés du meilleur rapport effort sur effet au moins bon, avec pour chacun l'effort demandé et l'effet attendu.
+
+- **Une fiche Google à jour.** Effort faible, effet élevé. C'est le socle, et le premier chantier à traiter.
+- **Des avis sincères et récents.** Effort moyen mais régulier, effet élevé. C'est ce qui nourrit la description que l'assistant fait de vous.
+- **Des blocs questions-réponses sur votre site.** Effort faible, effet moyen mais très réutilisable, parce qu'une réponse courte et nette se cite telle quelle.
+- **Des données structurées.** Effort faible mais technique, effet moyen. Elles lèvent les ambiguïtés pour la machine.
+- **Un langage clair sur l'ensemble du site.** Effort moyen, effet moyen à élevé. C'est le travail de fond le plus long, et le plus durable.
 
 ## En bref
 
-**Comment être recommandé par ChatGPT quand on est un commerce local ?** En soignant votre fiche Google, en collectant beaucoup d'avis sincères sans jamais les filtrer, et en publiant des informations claires et factuelles sur votre établissement. Les IA citent les commerces qu'elles comprennent le mieux.
+**Comment être recommandé par ChatGPT quand on est un commerce local ?** En soignant votre fiche Google, en collectant beaucoup d'avis sincères sans jamais les filtrer, et en publiant des informations claires et factuelles sur votre établissement. Les intelligences artificielles citent les commerces qu'elles comprennent le mieux.
 
-**Le GEO remplace-t-il le référencement Google ?** Non, il le prolonge. Les mêmes bases, à savoir une fiche à jour, des avis et un contenu clair, servent à la fois la recherche classique et les réponses des intelligences artificielles.
+**Le GEO remplace-t-il le référencement Google ?** Non, il le prolonge. Les mêmes bases, à savoir une fiche à jour, des avis et un contenu clair, servent à la fois la recherche classique et les réponses des intelligences artificielles. Notre article [GEO ou SEO pour un commerce local](/blog/geo-ou-seo-commerce-local) détaille ce qui les sépare.
+
+**Qu'est-ce que le GEO exactement ?** Le GEO, pour Generative Engine Optimization, consiste à rendre son établissement facile à comprendre, à citer et à recommander par les intelligences artificielles. Là où le référencement classique vise une place dans une liste de liens, le GEO vise une mention dans la réponse rédigée que l'assistant donne directement au client.
+
+**D'où une intelligence artificielle tire-t-elle ses recommandations locales ?** De sources publiques et récentes : la fiche Google Business Profile, le contenu des avis clients, les pages web qui parlent de l'établissement, et les index de recherche que certains assistants interrogent en direct. Notre article sur [les sources des IA](/blog/sources-ia-recommandation-commerce-local) les détaille une par une.
+
+**Les IA citent-elles toujours les établissements les mieux notés ?** Non, et c'est l'observation la plus contre-intuitive du sujet. Les établissements cités sont souvent ceux dont la présence en ligne est la plus claire et la plus cohérente, pas ceux qui affichent la meilleure moyenne. Une fiche précise et des avis parlants pèsent davantage qu'un dixième de point.
+
+**Pourquoi une intelligence artificielle ne mentionne-t-elle jamais ma terrasse ?** Parce que personne ne l'a écrit. Un assistant reprend le vocabulaire de vos avis et de votre fiche, il n'invente rien. Si aucun avis ne parle de votre terrasse et si l'attribut n'est pas coché sur votre fiche Google, l'information n'existe pas pour la machine.
+
+**Combien d'avis faut-il pour être cité par une IA ?** Il n'existe pas de seuil. La régularité et la richesse du contenu comptent davantage que le nombre : un flux d'avis récents qui décrivent des plats, une ambiance ou un service donne plus de matière que des dizaines d'avis anciens réduits à « très bien ».
+
+**Faut-il ajouter des données structurées sur son site ?** C'est utile mais secondaire. Le balisage schema.org aide les moteurs à comprendre vos informations sans ambiguïté, pour un effort technique faible. Il vient après les deux vrais chantiers : une fiche Google exacte et une collecte d'avis régulière auprès de tous vos clients.
+
+**Un commerce sans site internet peut-il être recommandé par une IA ?** Oui. La fiche Google Business Profile et les avis suffisent à être cité, et ce sont les deux sources les plus lues par les assistants. Un site ajoute de la matière et permet de répondre à des intentions précises, mais son absence n'est pas rédhibitoire.
+
+**Comment savoir si je suis déjà cité par les intelligences artificielles ?** En posant vous-même la question aux trois assistants, chaque mois, et en notant si vous apparaissez, à quel rang et avec quels mots. La méthode complète de relevé est décrite dans [comment mesurer sa visibilité dans les IA](/blog/mesurer-visibilite-ia-commerce-local).
+
+**Combien de temps avant de voir un effet ?** Comptez plusieurs mois. Les assistants ne relisent pas votre fiche en temps réel et travaillent par cycles de mise à jour. Ce qui compte est la tendance sur plusieurs relevés mensuels, pas le résultat d'une semaine à l'autre.
+
+**Peut-on filtrer les avis pour améliorer sa description par les IA ?** Non, et ce serait contre-productif. Trier les avis selon la note est interdit par Google et met la fiche en danger. Une collecte ouverte à tous les clients produit en plus une description plus fidèle, donc plus utile à un assistant qui cherche à décrire précisément votre établissement.
