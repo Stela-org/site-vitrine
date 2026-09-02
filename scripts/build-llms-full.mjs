@@ -101,15 +101,52 @@ const morceaux = [
 ];
 
 let manquantes = 0;
+const sections = new Map();
 for (const [slug, titre] of PAGES) {
   const f = `${DIST}/${slug}.html`;
   if (!existsSync(f)) { console.error(`build:llms-full ECHEC : ${f} absent du build.`); manquantes++; continue; }
   const url = slug === "index" ? SITE : `${SITE}/${slug}`;
-  morceaux.push("", "---", "", `## ${titre}`, "", `Source : ${url}`, "", markdown(readFileSync(f, "utf8")));
+  const corps = markdown(readFileSync(f, "utf8"));
+  sections.set(slug, corps);
+  morceaux.push("", "---", "", `## ${titre}`, "", `Source : ${url}`, "", corps);
 }
 if (manquantes) process.exit(1);
 
 const sortie = morceaux.join("\n").replace(/\n{3,}/g, "\n\n") + "\n";
-writeFileSync(`${DIST}/llms-full.txt`, sortie, "utf8");
 const mots = sortie.split(/\s+/).filter(Boolean).length;
-console.log(`build:llms-full OK : ${PAGES.length} pages, ${mots} mots, ${Buffer.byteLength(sortie)} octets -> dist/llms-full.txt`);
+
+// TROIS REFUS. Ce script extrait du HTML : le jour où une classe change, où un
+// `<main>` disparaît, ou où l'élagage devient trop gourmand, il continuerait
+// d'écrire un fichier et de sortir en 0. Un llms-full.txt vide se déploierait
+// sans que rien ne le dise, et c'est exactement le silence qu'on refuse ailleurs.
+const griefs = [];
+
+// 1. Aucune page ne doit rendre du vide. Le seuil est bas volontairement : il
+//    attrape l'extraction cassée, pas la page courte.
+const MIN_PAGE = 60;
+for (const [slug, titre] of PAGES) {
+  const bloc = sections.get(slug) ?? "";
+  const n = bloc.split(/\s+/).filter(Boolean).length;
+  if (n < MIN_PAGE) griefs.push(`la page « ${titre} » (${slug}) ne rend que ${n} mots, seuil ${MIN_PAGE} : l'extraction ne trouve plus son contenu.`);
+}
+
+// 2. Le fichier entier doit rester du même ordre de grandeur. 5 035 mots au
+//    02/09/2026 ; la moitié serait une regression massive, pas une retouche.
+const MIN_TOTAL = 2500;
+if (mots < MIN_TOTAL) griefs.push(`le fichier entier ne fait que ${mots} mots, seuil ${MIN_TOTAL}.`);
+
+// 3. Des reperes qui ne peuvent pas disparaitre sans que quelque chose soit
+//    casse. Les deux montants sont le coeur de l'offre : s'ils manquent, ce
+//    n'est pas le fichier qui a un probleme, c'est la page Tarifs.
+const REPERES = ["49 €", "89 €", "Étoile", "Constellation"];
+const absents = REPERES.filter((r) => !sortie.includes(r));
+if (absents.length) griefs.push(`repere(s) introuvable(s) dans le fichier : ${absents.join(", ")}. Soit l'extraction a casse, soit la page Tarifs a change.`);
+
+if (griefs.length) {
+  console.error(`build:llms-full ECHEC : ${griefs.length} probleme(s) :`);
+  for (const g of griefs) console.error("  " + g);
+  process.exit(1);
+}
+
+writeFileSync(`${DIST}/llms-full.txt`, sortie, "utf8");
+console.log(`build:llms-full OK : ${PAGES.length} pages, ${mots} mots, ${Buffer.byteLength(sortie)} octets, ${REPERES.length} repere(s) presents -> dist/llms-full.txt`);
