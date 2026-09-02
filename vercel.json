@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "buildCommand": "astro build && (node scripts/indexnow-ping.mjs || true)",
+  "buildCommand": "astro build && node scripts/build-llms-full.mjs && (node scripts/indexnow-ping.mjs || true)",
   "redirects": [
     {
       "source": "/sitemap.xml",
