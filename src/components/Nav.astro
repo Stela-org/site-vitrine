@@ -55,8 +55,11 @@ import Logo from "./Logo.astro";
   .nav-links { display: flex; align-items: center; gap: 1.6rem; }
   .nav-links > a { font-weight: 600; color: var(--text-secondary); transition: color .15s ease; }
   .nav-links > a:hover { color: var(--ink); text-decoration: none; }
-  .nav-links .nav-cta { color: #fff; }
-  .nav-links .nav-cta:hover { color: #fff; }
+  /* LOT SEO-FIX-1. Cette regle rattrapait la couleur des liens du menu sur le
+     bouton. Elle ecrasait aussi, par sa specificite, le texte navy que
+     .btn-primary pose desormais sur le laiton : le CTA du menu etait le SEUL
+     bouton reste en blanc sur or, a 3,21. */
+  .nav-links .nav-cta, .nav-links .nav-cta:hover { color: var(--ink); }
 
   /* La case à cocher est masquée visuellement mais reste focusable au clavier. */
   .nav-toggle { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); }
