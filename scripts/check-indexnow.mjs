@@ -82,4 +82,8 @@ if (erreurs.length) {
   for (const e of erreurs) console.error("  " + e);
   process.exit(1);
 }
-console.log(`check:indexnow OK : cle ${nom} coherente, servie par la production, soumission acceptee par api.indexnow.org.`);
+// Le message final doit dire ce qui a REELLEMENT ete verifie. Annoncer une
+// soumission acceptee alors qu'on l'a sautee, c'est refabriquer le silence que
+// ce gardien existe pour supprimer.
+const volet3 = process.env.INDEXNOW_SKIP === "1" ? "soumission NON verifiee (sautee)" : "soumission acceptee par api.indexnow.org";
+console.log(`check:indexnow OK : cle ${nom} coherente, servie par la production, ${volet3}.`);
