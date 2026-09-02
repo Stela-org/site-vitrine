@@ -69,6 +69,9 @@ jobs:
       - name: check overflow (aucun scroll horizontal)
         run: npm run check:overflow
 
+      - name: check contraste (WCAG 1.4.3 sur le HTML rendu)
+        run: npm run check:contraste
+
   alerte:
     name: Alertes (non bloquant)
     runs-on: ubuntu-latest
