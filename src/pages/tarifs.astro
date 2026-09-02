@@ -98,7 +98,8 @@ const faqLd = {
               <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
                 data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
                 data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
-                href={stripeLink(p.id, "monthly", "tarifs")}>Essai gratuit 7 jours</a>
+                href={stripeLink(p.id, "monthly", "tarifs")}
+                aria-label={`Essai gratuit 7 jours, offre ${p.name}`}>Essai gratuit 7 jours</a>
             </div>
           ))}
         </div>

@@ -134,7 +134,7 @@ const websiteLd = {
           Stela collecte vos avis, y répond avec Nova en 10 secondes et fait revenir vos clients. Vous gardez la main, et vous êtes prêt en 10 minutes.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="#tarifs">Essai gratuit 7 jours</a>
+          <a class="btn btn-primary" href="#tarifs" aria-label="Essai gratuit 7 jours, voir les offres plus bas">Essai gratuit 7 jours</a>
         </div>
         {/* LOT DIAG-1 : entree basse friction, volontairement en retrait des deux
             CTA ci-dessus. Elle s'adresse a qui n'est pas encore pret a essayer. */}
@@ -422,7 +422,8 @@ const websiteLd = {
             <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
               data-href-monthly={stripeLink(p.id, "monthly", "home")}
               data-href-yearly={stripeLink(p.id, "yearly", "home")}
-              href={stripeLink(p.id, "monthly", "home")}>Essai gratuit 7 jours</a>
+              href={stripeLink(p.id, "monthly", "home")}
+              aria-label={`Essai gratuit 7 jours, offre ${p.name}`}>Essai gratuit 7 jours</a>
           </div>
         ))}
       </div>
