@@ -98,7 +98,8 @@ const faqLd = {
               <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
                 data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
                 data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
-                href={stripeLink(p.id, "monthly", "tarifs")}>Essai gratuit 7 jours</a>
+                href={stripeLink(p.id, "monthly", "tarifs")}
+                aria-label={`Essai gratuit 7 jours, offre ${p.name}`}>Essai gratuit 7 jours</a>
             </div>
           ))}
         </div>
@@ -164,13 +165,14 @@ const faqLd = {
   .loss-foot { text-align: center; color: var(--text-secondary); font-weight: 600; margin: 1rem auto 0; max-width: 52ch; }
   @media (max-width: 560px) { .loss-inner { flex-direction: column; text-align: center; gap: .75rem; } }
   .plans-sec { background: var(--cream); }
-  .plan-perday { margin: -.1rem 0 .3rem; font-size: .82rem; font-weight: 700; color: var(--brass); }
+  .plan-perday { margin: -.1rem 0 .3rem; font-size: .82rem; font-weight: 700; color: var(--royal); }
   .guarantee { max-width: 620px; margin: 1.25rem auto 0; display: flex; gap: 1rem; align-items: center; text-align: left; }
   .guarantee-badge { flex: none; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; border-radius: 999px; padding: .3rem .7rem; }
   .guarantee p { margin: 0; color: var(--text-secondary); font-size: .95rem; }
   .guarantee strong { color: var(--ink); }
   .compare-link { text-align: center; margin-top: 1rem; }
-  .compare-link a { font-weight: 700; color: var(--accentBlue, #2D6CDF); }
+  /* 4,43 contre 4,5 requis avec l'ancien #2D6CDF : sept centiemes manquaient. */
+  .compare-link a { font-weight: 700; color: var(--royal); }
   .billing-toggle { display: flex; justify-content: center; margin: 1.25rem 0; }
   .billing-input { position: absolute; opacity: 0; pointer-events: none; }
   .billing-switch { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px;
@@ -181,7 +183,7 @@ const faqLd = {
   .billing-switch .opt-y { background: transparent; }
   .billing-input:checked + .billing-switch .opt-m { background: transparent; color: var(--text-secondary); }
   .billing-input:checked + .billing-switch .opt-y { background: var(--ink); color: #fff; }
-  .save { font-size: .7rem; background: var(--brass); color: #fff; padding: .12rem .5rem; border-radius: 999px; flex: none; }
+  .save { font-size: .7rem; background: var(--brass); color: var(--ink); padding: .12rem .5rem; border-radius: 999px; flex: none; }
 
   .amount-y, .plan-note-y { display: none; }
   #tarifs:has(.billing-input:checked) .amount-m { display: none; }
@@ -196,8 +198,8 @@ const faqLd = {
   .plan-hl { border: 2px solid var(--brass); position: relative;
     background: linear-gradient(180deg, #fffdf8, #fff); box-shadow: 0 20px 50px rgba(176,138,62,.18); }
   @media (min-width: 721px) { .plan-hl { transform: scale(1.04); } }
-  .plan-wheel { margin: .6rem 0 0; font-size: .82rem; color: var(--brass); font-weight: 600; }
-  .plan-badge { align-self: flex-start; background: var(--brass); color: #fff; font-size: .74rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; margin-bottom: .5rem; }
+  .plan-wheel { margin: .6rem 0 0; font-size: .82rem; color: var(--royal); font-weight: 600; }
+  .plan-badge { align-self: flex-start; background: var(--brass); color: var(--ink); font-size: .74rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; margin-bottom: .5rem; }
   .plan-name { font-size: 1.4rem; margin-bottom: .25rem; }
   .plan-tag { min-height: 2.2em; }
   .plan-price { margin: .4rem 0 .2rem; }
@@ -250,7 +252,9 @@ const faqLd = {
   .freeze-inner { position: relative; z-index: 2; text-align: center; max-width: 46ch; margin-inline: auto; }
   .freeze-title { color: #fff; }
   .freeze-text { color: #cdd5e4; font-size: clamp(1.02rem, 1.9vw, 1.18rem); margin-bottom: .9rem; }
-  .freeze-more a { color: var(--brass); font-weight: 700; }
+  /* Sur le panneau sombre --ink-deep, l'or reste possible : le laiton n'y est
+     qu'a 4,01, mais l'or secondaire y atteint 4,93. Rien a ceder ici. */
+  .freeze-more a { color: var(--gold); font-weight: 700; }
 
   @media (prefers-reduced-motion: no-preference) {
     /* Le grain vit toujours : c'est une texture, pas un déplacement. Longhands

@@ -16,6 +16,14 @@
   --ink-deep: #1D3158;
   --brass: #B08A3E; /* étoile / logo, intouchable */
   --gold: #C8992E;  /* accent or secondaire */
+  /* LOT SEO-FIX-1. Bleu royal de config/brand.ts, introduit comme couleur de
+     TEXTE lisible. Le laiton ne peut pas porter de petit texte sur fond clair :
+     mesure, il plafonne a 2,61 face au creme #EEE7DA quand WCAG 1.4.3 demande
+     4,5. Ce n'est pas un reglage, c'est sa luminance. Le laiton reste donc la
+     couleur des SURFACES, des etoiles et du logo, ou il est intouchable ; le
+     royal prend les libelles de 10 a 12 px qui etaient illisibles pour tout le
+     monde, pas seulement pour les malvoyants. Arbitrage de Nicolas, 02/09/2026. */
+  --royal: #2B4C8C;
   --cream: #F7F4EF;
   --surface: #FFFFFF;
   --border: #ECE6DC;
@@ -113,8 +121,12 @@ section { padding-block: clamp(32px, 5.5vw, 64px); }
   padding: .85rem 1.5rem; border-radius: 999px; border: 1.5px solid transparent; cursor: pointer;
   transition: transform .15s ease, box-shadow .15s ease, background .15s ease; text-decoration: none; }
 .btn:hover { text-decoration: none; transform: translateY(-1px); }
-.btn-primary { background: var(--brass); color: #fff; box-shadow: var(--shadow); }
-.btn-primary:hover { background: #9c7833; }
+/* Texte navy sur la surface laiton : 4,87. Le blanc n'y etait qu'a 3,21.
+   Le survol ECLAIRCIT au lieu d'assombrir : avec un texte fonce, assombrir le
+   fond degrade le contraste (navy sur l'ancien #9c7833 ne donnait que 3,83).
+   var(--gold) porte le navy a 5,99, donc le survol reste le plus lisible. */
+.btn-primary { background: var(--brass); color: var(--ink); box-shadow: var(--shadow); }
+.btn-primary:hover { background: var(--gold); }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--border); }
 .btn-ghost:hover { border-color: var(--ink); }
 
@@ -126,7 +138,7 @@ section { padding-block: clamp(32px, 5.5vw, 64px); }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
 
 .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; font-weight: 700;
-  color: var(--brass); margin-bottom: .75rem; }
+  color: var(--royal); margin-bottom: .75rem; }
 .lead { font-size: clamp(1.05rem, 2vw, 1.3rem); color: var(--text-secondary); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 1.4rem; box-shadow: var(--shadow); }

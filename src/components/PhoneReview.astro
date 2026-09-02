@@ -15,7 +15,19 @@ import Glyph from "./Glyph.astro";
   </div>
   <div class="phone-screen">
     <div class="ps-photo">
-      <img src="/images/hero-bistro.webp" alt="Devanture d'un commerce local accueillant" width="300" height="120" loading="eager" decoding="async" />
+      {/* LOT SEO-FIX-1. La boite CSS de cette photo fait 240 x 120 a TOUS les
+          viewports (mesure Playwright a 375, 768 et 1440 px) : la maquette de
+          telephone n'est pas fluide. Il ne faut donc jamais plus de 480 px
+          reels en densite 2, ni 720 en densite 3. On servait 1200 x 669 dans
+          tous les cas, soit 75,6 Ko pour une vignette.
+          Les attributs width/height portent les dimensions intrinseques du
+          fichier servi par defaut. Ils ne pilotent pas la mise en page : la
+          regle .ps-photo img fixe width:100% et height:120px, et le CSS gagne.
+          Le 1200 reste en dernier recours pour les densites superieures a 3. */}
+      <img src="/images/hero-bistro-480.webp"
+        srcset="/images/hero-bistro-480.webp 480w, /images/hero-bistro-720.webp 720w, /images/hero-bistro.webp 1200w"
+        sizes="240px"
+        alt="Devanture d'un commerce local accueillant" width="480" height="268" loading="eager" decoding="async" />
       <span class="ps-place">Votre établissement</span>
     </div>
     <div class="ps-body">
@@ -68,7 +80,7 @@ import Glyph from "./Glyph.astro";
     text-shadow: 0 1px 6px rgba(0,0,0,.5); }
   .ps-body { padding: 14px 16px 16px; text-align: center; }
   .ps-greet { font-weight: 700; color: var(--ink); margin: 0 0 .5rem; font-size: .9rem; }
-  .ps-teaser { display: inline-block; font-size: .68rem; font-weight: 700; color: var(--brass);
+  .ps-teaser { display: inline-block; font-size: .68rem; font-weight: 700; color: var(--royal);
     background: rgba(176,138,62,.12); border-radius: 999px; padding: .2rem .6rem; margin-bottom: .7rem; }
   .ps-q { font-weight: 800; color: var(--ink); font-size: 1rem; margin: 0 0 .25rem; line-height: 1.25; }
   .ps-sub { color: var(--text-muted); font-size: .72rem; margin: 0 0 .6rem; }

@@ -25,7 +25,7 @@
       "permanent": true
     },
     {
-      "source": "/blog/avis-google-restaurant-:ville",
+      "source": "/blog/avis-google-restaurant-:ville(bordeaux|brest|lyon|marseille|nancy|nantes|nice|paris|rouen)",
       "destination": "https://www.mystela.fr/restaurants-:ville",
       "permanent": true
     },

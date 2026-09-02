@@ -83,6 +83,24 @@ if (existsSync("vercel.json")) {
       if (conf.cleanUrls === true && typeof regle.source === "string" && regle.source.endsWith(".html")) {
         offenders.push(`vercel.json ${champ}[${i}].source [règle morte sous cleanUrls] : ${regle.source} ne se déclenchera jamais (retirer .html de la source)`);
       }
+      // LOT SEO-FIX-1 : la règle trop gourmande. Un paramètre `:nom` sans
+      // motif capture N'IMPORTE QUEL suffixe. Tant que la destination garde la
+      // MÊME forme de chemin que la source (`/:path*` vers `/:path*`), c'est
+      // sans danger : on rejoue l'URL telle quelle. Dès que la destination
+      // change de forme, le paramètre fabrique une URL qui n'existe peut-être
+      // pas, et la redirection sert un 404 à la place de la page demandée.
+      // Le 02/09/2026, `/blog/avis-google-restaurant-:ville` envoyait l'article
+      // publié `...-paris-lyon` sur `/restaurants-paris-lyon`, inexistant :
+      // un 404 lié depuis les 16 pages du blog. Le correctif est toujours une
+      // liste fermée, `:ville(bordeaux|brest|...)`.
+      if (typeof regle.source === "string" && typeof regle.destination === "string") {
+        const forme = (v) => v.replace(/:[A-Za-z0-9_]+(\([^)]*\))?\*?/g, ":P");
+        const nus = [...regle.source.matchAll(/:([A-Za-z0-9_]+)(\([^)]*\))?/g)].filter((m) => !m[2]);
+        const memeForme = forme(regle.source) === forme(new URL(regle.destination, "https://www.mystela.fr").pathname);
+        if (nus.length > 0 && !memeForme) {
+          offenders.push(`vercel.json ${champ}[${i}].source [règle trop gourmande] : ${regle.source} capture n'importe quel suffixe et le réinjecte dans ${regle.destination}, de forme différente. Borner le paramètre par une liste fermée, ex. :${nus[0][1]}(a|b|c).`);
+        }
+      }
     });
   }
 }
