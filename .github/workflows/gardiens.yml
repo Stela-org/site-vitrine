@@ -78,15 +78,15 @@ jobs:
       - name: check contraste (WCAG 1.4.3 sur le HTML rendu)
         run: npm run check:contraste
 
-      # INDEXNOW_SKIP est OUVERT depuis le 02/09/2026, et il doit se refermer.
-      # api.indexnow.org repond 403 UserForbiddedToAccessSite : la propriete
-      # www.mystela.fr n'est pas reconnue pour cette cle cote Bing Webmaster
-      # Tools. C'est une action de console, pas de code. Sans ce saut, toute
-      # pull request serait rouge jusqu'a ce que la verification soit faite.
-      # Le saut n'est PAS silencieux : le gardien pose une annotation ::warning::
-      # en tete de chaque pull request tant qu'elle dure.
-      # A RETIRER des que Bing a valide le domaine. C'est la seule ligne a
-      # supprimer pour que le gardien redevienne strict.
+      # INDEXNOW_SKIP est PERMANENT, et ce n'est pas une dette.
+      # Bing filtre les soumissions par ORIGINE. Mesure du 03/09/2026, meme cle,
+      # meme charge utile, meme demi-heure : HTTP 202 depuis le build Vercel,
+      # HTTP 403 UserForbiddedToAccessSite depuis un runner GitHub Actions
+      # (run 33773938) et depuis un poste de developpement.
+      # Le volet de soumission ne peut donc pas vivre ici : il serait rouge en
+      # permanence alors que la production, elle, soumet bien. Ce qui reste
+      # verifie en CI : la coherence de la cle, nom contre contenu.
+      # Le ping reel se lit dans les logs de build Vercel, qui font foi.
       - name: check indexnow (la cle est coherente et la soumission aboutit)
         run: npm run check:indexnow
         env:

@@ -29,8 +29,19 @@
 // clé sans pouvoir la vérifier est précisément ce qu'on voulait empêcher. Le
 // 03/09/2026, la rotation INDEXNOW-KEY-1 s'est heurtée à ce mur.
 //
-// Le saut laisse une annotation ::warning:: en tête de la pull request : on ne
-// saute pas en silence.
+// LE SAUT EST STRUCTUREL, PAS UNE DETTE. Bing filtre les soumissions PAR ORIGINE.
+// Mesuré le 03/09/2026, même clé, même charge utile, même demi-heure : 202 depuis
+// le build Vercel, 403 UserForbiddedToAccessSite depuis un runner GitHub Actions
+// (run 33773938) ET depuis un poste de développement. Ce n'est ni la clé ni la
+// charge : le script de ping lui-même, lancé avec INDEXNOW_FORCE=1 depuis un
+// poste, rend 403 alors que Vercel rend 202 avec exactement le même corps.
+//
+// Le volet de soumission ne peut donc PAS vivre en CI. Il n'y a rien à attendre
+// et rien à refermer : ce gardien vérifie ce qu'il peut vérifier depuis n'importe
+// où, et la ligne finale nomme ce qu'il n'a pas vérifié.
+//
+// Aucune annotation ::warning:: n'est posée. Une alerte qu'on voit à chaque pull
+// request pour un fait qui ne changera jamais est une alerte qu'on ne lit plus.
 import { readFileSync, globSync } from "node:fs";
 import { basename } from "node:path";
 
@@ -66,11 +77,9 @@ if (saute) {
 
 // 3) IndexNow accepte-t-il une soumission ? Une seule URL, la page d'accueil.
 if (saute) {
-  const msg = "check:indexnow : soumission sautee (INDEXNOW_SKIP=1). A retirer des que la verification Bing est faite.";
-  // Sur GitHub, une annotation ::warning:: s'affiche en tete de la pull request.
-  // Un saut doit se voir sur l'ecran de qui relit, pas seulement dans un journal.
-  if (process.env.GITHUB_ACTIONS) console.log(`::warning title=IndexNow non verifie::${msg}`);
-  console.warn("check:indexnow AVERTISSEMENT : " + msg);
+  // Pas d'annotation ::warning:: : voir l'en-tete. Le saut est un fait mesure,
+  // pas une dette en attente, et la ligne finale dit deja ce qui n'a pas ete vu.
+  console.warn("check:indexnow : soumission non verifiee (INDEXNOW_SKIP=1, Bing filtre par origine). Le ping reel se controle dans les logs de build Vercel.");
 } else {
   try {
     const r = await fetch("https://api.indexnow.org/indexnow", {
@@ -81,7 +90,7 @@ if (saute) {
     });
     if (r.status >= 400 && r.status < 500) {
       let d = ""; try { d = (await r.text()).slice(0, 240); } catch { /* corps illisible, le code suffit */ }
-      erreurs.push(`api.indexnow.org refuse la soumission : HTTP ${r.status} ${d}\n    Cette classe d'erreur ne se repare pas toute seule : verifier la propriete ${new URL(SITE).host} et la cle ${cleDuNom} dans Bing Webmaster Tools.\n    Pour debloquer une PR en attendant : INDEXNOW_SKIP=1.`);
+      erreurs.push(`api.indexnow.org refuse la soumission : HTTP ${r.status} ${d}\n    Cette classe d'erreur ne se repare pas toute seule : verifier la propriete ${new URL(SITE).host} et la cle ${cleDuNom} dans Bing Webmaster Tools.\n    Depuis la CI ou un poste, un 403 peut aussi venir du filtrage par origine de Bing : verifier d'abord les logs de build Vercel, qui font foi.`);
     } else if (!r.ok) {
       console.warn(`check:indexnow AVERTISSEMENT : api.indexnow.org repond ${r.status}. Panne de leur cote, non bloquant.`);
     }
