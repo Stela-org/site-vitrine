@@ -18,9 +18,19 @@
 //          se répare jamais tout seul : la CI tombe.
 //   5xx, réseau, délai dépassé = leur service. On avertit, on ne fait pas tomber.
 //
-// ÉCHAPPATOIRE. INDEXNOW_SKIP=1 saute la soumission, pour débloquer une PR pendant
-// que la vérification Bing est en cours. Elle laisse une ligne dans le journal :
-// on ne saute pas en silence.
+// ÉCHAPPATOIRE. INDEXNOW_SKIP=1 saute les deux volets qui dépendent du MONDE
+// EXTÉRIEUR : la lecture du fichier de clé en production, et la soumission. Le
+// contrôle de cohérence local, lui, tourne toujours.
+//
+// Pourquoi les deux et pas seulement la soumission. Une ROTATION DE CLÉ crée une
+// fenêtre où la production sert encore l'ANCIENNE clé pendant que le dépôt porte
+// déjà la nouvelle : le fichier neuf répond 404 tant que la PR n'est pas fusionnée.
+// Un gardien qui refuse cette fenêtre rend la rotation impossible, et pousser une
+// clé sans pouvoir la vérifier est précisément ce qu'on voulait empêcher. Le
+// 03/09/2026, la rotation INDEXNOW-KEY-1 s'est heurtée à ce mur.
+//
+// Le saut laisse une annotation ::warning:: en tête de la pull request : on ne
+// saute pas en silence.
 import { readFileSync, globSync } from "node:fs";
 import { basename } from "node:path";
 
@@ -42,7 +52,10 @@ if (!/^[a-f0-9]{8,128}$/i.test(cleDuNom)) erreurs.push(`la cle ${cleDuNom} n'est
 
 // 2) Le fichier de clé est-il servi par la PRODUCTION ? C'est ce que Bing va lire.
 const urlCle = `${SITE}/${nom}`;
-try {
+const saute = process.env.INDEXNOW_SKIP === "1";
+if (saute) {
+  console.warn(`check:indexnow AVERTISSEMENT : lecture de ${urlCle} sautee (INDEXNOW_SKIP=1).`);
+} else try {
   const r = await fetch(urlCle, { signal: AbortSignal.timeout(15000) });
   const corps = await r.text();
   if (!r.ok) erreurs.push(`${urlCle} repond ${r.status} : Bing ne peut pas lire la cle.`);
@@ -52,7 +65,7 @@ try {
 }
 
 // 3) IndexNow accepte-t-il une soumission ? Une seule URL, la page d'accueil.
-if (process.env.INDEXNOW_SKIP === "1") {
+if (saute) {
   const msg = "check:indexnow : soumission sautee (INDEXNOW_SKIP=1). A retirer des que la verification Bing est faite.";
   // Sur GitHub, une annotation ::warning:: s'affiche en tete de la pull request.
   // Un saut doit se voir sur l'ecran de qui relit, pas seulement dans un journal.
@@ -85,5 +98,5 @@ if (erreurs.length) {
 // Le message final doit dire ce qui a REELLEMENT ete verifie. Annoncer une
 // soumission acceptee alors qu'on l'a sautee, c'est refabriquer le silence que
 // ce gardien existe pour supprimer.
-const volet3 = process.env.INDEXNOW_SKIP === "1" ? "soumission NON verifiee (sautee)" : "soumission acceptee par api.indexnow.org";
-console.log(`check:indexnow OK : cle ${nom} coherente, servie par la production, ${volet3}.`);
+const reseau = saute ? "presence en production et soumission NON verifiees (sautees)" : "servie par la production, soumission acceptee par api.indexnow.org";
+console.log(`check:indexnow OK : cle ${nom} coherente, ${reseau}.`);
