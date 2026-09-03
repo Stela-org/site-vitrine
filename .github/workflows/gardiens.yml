@@ -69,7 +69,7 @@ jobs:
       - name: check devis (parcours de devis, sans JavaScript)
         run: npm run check:devis
 
-      - name: check pour (pages metier : plancher de mots et unicite)
+      - name: check pour (plancher de mots et unicite des pages metier)
         run: npm run check:pour
 
       - name: check overflow (aucun scroll horizontal)
