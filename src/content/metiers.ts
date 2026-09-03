@@ -30,6 +30,43 @@ export type Metier = {
 };
 
 export const METIERS: Record<string, Metier> = {
+  restaurant: {
+    introTitre: "Le service ne laisse aucune fenêtre pour demander",
+    etapesTitre: "De la fin du repas à l'avis publié",
+    intro: [
+      "Un restaurant ne vit pas en journée continue, il vit en services. Deux par jour, parfois trois le week-end, et dans chacun un coup de feu où tout se joue en quarante minutes : les entrées qui sortent, la table 12 qui redemande du pain, le pass qui sonne, le chef de rang qui court. C'est exactement pendant ce créneau que les clients de la première vague terminent leur repas et repartent.",
+      "Personne n'a une main libre pour leur demander un avis à ce moment-là, et c'est le seul moment où ils sont encore là. Un salon de coiffure encaisse une cliente toutes les quarante minutes ; une salle de soixante couverts en libère quinze en un quart d'heure. Le rapport entre le nombre de départs et le nombre de gens capables de parler à quelqu'un n'est comparable à aucun autre métier.",
+      "S'ajoute une difficulté qui n'existe qu'ici : le client repart en ayant payé une addition qu'il vient de vérifier. Lui tendre un QR code au moment où il fait ses comptes, c'est glisser une demande de faveur entre le total et le pourboire. Beaucoup de restaurateurs le sentent, et n'osent plus demander du tout.",
+    ],
+    moment: {
+      titre: "Pourquoi la restauration est le seul métier où l'on demande le jour même",
+      texte: [
+        "Un repas se juge tout de suite. Pas besoin d'attendre de rouler, de se recoiffer ou de rentrer chez soi : le client sait en sortant si c'était bon, si le service était juste, si l'addition correspondait à ce qu'il a eu dans l'assiette.",
+        "La demande part donc le soir même, une à deux heures après le départ de la table, quand le client est rentré et que le service est terminé de votre côté. Vous ne la déclenchez pas : elle se cale sur la fin du repas et vous laisse en salle.",
+        "Le midi et le soir n'appellent pas le même délai. Un déjeuner d'affaires expédié en cinquante minutes et un dîner de quatre heures ne se racontent pas au même rythme, et les deux réglages se posent séparément.",
+      ],
+    },
+    objection: {
+      titre: "« On va me noter sur l'attente d'un samedi soir complet »",
+      texte: [
+        "C'est la remarque la plus fréquente en restauration, et elle est fondée : une salle pleine produit des avis qui parlent d'attente, de bruit, d'une table trop serrée, parfois du stationnement. Autant de choses que la cuisine ne décide pas.",
+        "Sauf que ces avis-là arrivent déjà, sans que vous ayez rien demandé. Le client agacé d'avoir attendu vingt minutes écrit spontanément ; celui qui a bien mangé rentre se coucher. Ne rien demander revient à laisser la moitié la plus mécontente écrire seule.",
+        "Demander à tout le monde rétablit l'équilibre, et vous donne en plus quelque chose d'utile : quand trois avis du même samedi parlent d'attente, ce n'est plus une humeur, c'est une information sur votre organisation de salle.",
+      ],
+    },
+    etapes: [
+      { t: "La table règle et s'en va", d: "Rien à faire pendant le service : aucun QR à tendre, aucune phrase à placer." },
+      { t: "Le soir même, la demande part", d: "Une à deux heures après le départ, quand le client est rentré et que vous fermez." },
+      { t: "La réponse vous attend le lendemain", d: "Nova la rédige en reprenant le plat cité. Vous relisez au calme, avant le service du midi." },
+      { t: "Un repas raté remonte avant d'être public", d: "Le temps de proposer quelque chose plutôt que de le lire sur votre fiche." },
+    ],
+    chiffre: {
+      valeur: "24 %",
+      phrase: "des clients d'un commerce de bouche attendent qu'on leur demande un avis le JOUR MÊME de leur visite, et 48 % dans les deux à trois jours. C'est le délai le plus court de tous les secteurs mesurés : une invitation envoyée une semaine plus tard arrive après la bataille.",
+      source: "BrightLocal, Local Consumer Review Survey 2024",
+    },
+  },
+
   coiffeur: {
     introTitre: "Ce qu'un salon a de particulier",
     etapesTitre: "Du fauteuil à l'avis publié",
