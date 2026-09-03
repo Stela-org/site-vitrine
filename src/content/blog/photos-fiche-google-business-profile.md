@@ -62,7 +62,7 @@ Une fiche vivante repose sur deux flux réguliers, les photos et les avis. Le pr
 
 **À quelle fréquence faut-il ajouter des photos sur une fiche Google ?** Google ne fixe aucune fréquence obligatoire. Notre recommandation est d'ajouter deux à quatre photos par mois, soit une dizaine de minutes de travail, en se calant sur ce qui change réellement : carte de saison, réaménagement, nouvelle vitrine. Une fiche dont la dernière photo a trois ans donne l'image d'un établissement figé.
 
-**Quel format Google accepte t il pour les photos d'une fiche ?** Google documente le format JPG ou PNG, un poids compris entre 10 Ko et 5 Mo, une résolution recommandée de 720 pixels sur 720 pixels et une résolution minimale de 250 pixels sur 250 pixels. La photo doit être nette, bien éclairée et sans retouche significative ni filtre excessif.
+**Quel format Google accepte-t-il pour les photos d'une fiche ?** Google documente le format JPG ou PNG, un poids compris entre 10 Ko et 5 Mo, une résolution recommandée de 720 pixels sur 720 pixels et une résolution minimale de 250 pixels sur 250 pixels. La photo doit être nette, bien éclairée et sans retouche significative ni filtre excessif.
 
 **Quelle taille doit faire une vidéo sur une fiche Google Business Profile ?** Une vidéo publiée sur une fiche Google Business Profile doit durer 30 secondes au maximum, peser moins de 75 Mo et être dans une résolution d'au moins 720 pixels de hauteur. Une vidéo tournée avec un téléphone récent respecte ces limites, à condition de la raccourcir avant l'envoi.
 
