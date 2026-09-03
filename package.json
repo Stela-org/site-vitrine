@@ -6,9 +6,9 @@
   "description": "Site vitrine Stela (www.mystela.fr) — Astro, statique, SEO/GEO first.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/indexnow-ping.mjs",
+    "build": "astro build && node scripts/build-llms-full.mjs && node scripts/indexnow-ping.mjs",
     "preview": "astro preview",
-    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run check:animations && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities && npm run check:devis && npm run check:cookies && npm run check:overflow && npm run check:diagnostic",
+    "check": "npm run lint:copy && npm run check:brand && npm audit --audit-level=high && astro build && npm run build:llms-full && npm run check:animations && npm run check:links && npm run check:schema && npm run check:stripe && npm run check:alt && npm run check:channels && npm run check:analytics && npm run check:partner && npm run check:cities && npm run check:devis && npm run check:cookies && npm run check:overflow && npm run check:contraste && npm run check:indexnow && npm run check:diagnostic",
     "lint:copy": "node scripts/check-copy.mjs",
     "check:brand": "node scripts/check-brand.mjs",
     "check:links": "node scripts/check-links.mjs",
@@ -23,6 +23,9 @@
     "build:guide": "node scripts/build-guide-pdf.mjs",
     "indexnow": "node scripts/indexnow-ping.mjs",
     "check:overflow": "node scripts/check-overflow.mjs",
+    "check:contraste": "node scripts/check-contraste.mjs",
+    "check:indexnow": "node scripts/check-indexnow.mjs",
+    "build:llms-full": "node scripts/build-llms-full.mjs",
     "check:cookies": "node scripts/check-cookies.mjs",
     "check:devis": "node scripts/check-devis.mjs",
     "check:diagnostic": "node scripts/check-diagnostic.mjs"
