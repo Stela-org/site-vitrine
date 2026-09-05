@@ -1,12 +1,21 @@
 name: Gardiens du site vitrine
 
+# LOT CI-VITRINE-1 — `on: push` etait NU, donc declenche sur TOUTES les
+# branches. Mesure sur les 30 dernieres runs : 11 runs `pull_request` et 11
+# runs `push` jumelles, meme SHA, meme resultat. Un tiers des runs de ce depot
+# etaient une copie exacte d'une autre. Le filtre de branche les supprime.
 on:
   push:
+    branches: ["main"]
   pull_request:
 
 concurrency:
-  group: gardiens-${{ github.ref }}
-  cancel-in-progress: true
+  group: "gardiens-${{ github.ref }}"
+  # Sur une PR, annuler la run precedente est un gain : seul le dernier commit
+  # de la branche compte. Sur main, JAMAIS — deux merges rapproches
+  # annuleraient la run du premier et le commit intermediaire repartirait non
+  # teste. Meme correctif que stella-app (LOT CI-2, PR #29).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   bloquant:
