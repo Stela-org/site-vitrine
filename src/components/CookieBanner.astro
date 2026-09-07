@@ -3,7 +3,7 @@ import { ANALYTICS } from "../config/site";
 // Config passée au script client via un bloc de données JSON (non exécutable,
 // conforme à une CSP script-src stricte sans 'unsafe-inline'). Le script de
 // consentement ci-dessous est bundlé par Astro (fichier externe servi en 'self').
-const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey, phHost: ANALYTICS.posthogHost });
+const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey, phHost: ANALYTICS.posthogHost, metaId: ANALYTICS.metaPixelId });
 ---
 <script type="application/json" id="stela-analytics" set:html={cfg} />
 
@@ -13,9 +13,12 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     LOT CONSENT-1 : le texte annonce aussi la publicité, car l'acceptation passe
     les signaux publicitaires du Consent Mode v2 (ad_storage, ad_user_data,
     ad_personalization) à « granted ». Le texte doit couvrir ce que le clic
-    autorise réellement, pas seulement ce qui est chargé aujourd'hui. */}
+    autorise réellement, pas seulement ce qui est chargé aujourd'hui.
+    LOT META-CONFORMITE : c'est la même règle qui fait nommer Meta ici, avant
+    que le pixel existe. Le texte décrit ce que le clic autorisera ; le charger
+    d'abord et le déclarer ensuite, c'est l'ordre inverse, et c'est la faute. */}
 <div id="cookie-banner" class="cookie-banner" hidden>
-  <p>Ce site utilise des cookies de mesure d'audience et de publicité (Google). Vous pouvez les accepter ou les refuser.</p>
+  <p>Ce site utilise des cookies de mesure d'audience et de publicité (Google, Meta). Vous pouvez les accepter ou les refuser.</p>
   <div class="cookie-actions">
     <button type="button" id="cookie-deny" class="btn btn-ghost">Refuser</button>
     <button type="button" id="cookie-accept" class="btn btn-primary">Accepter</button>
@@ -90,7 +93,7 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
     w.stelaQueue = [];
   }
 
-  let gaLoaded = false, phLoaded = false;
+  let gaLoaded = false, phLoaded = false, metaLoaded = false;
   function loadTrackers() {
     if (cfg.gaId && !gaLoaded) {
       gaLoaded = true;
@@ -124,6 +127,36 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
         if (ph && ph.init) ph.init(cfg.phKey, { api_host: cfg.phHost });
       });
       document.head.appendChild(p);
+    }
+    // LOT META-CONFORMITE : pixel Meta, sur EXACTEMENT le même interrupteur que
+    // GA4. On n'arrive dans loadTrackers() qu'après « Accepter » : un refus ne
+    // passe jamais ici, et un visiteur qui n'a rien choisi non plus. Tant que
+    // metaPixelId est vide, ce bloc ne fait rien du tout.
+    //
+    // Pas de repli <noscript><img src="facebook.com/tr"> : ce serait une image
+    // tierce chargée depuis le markup statique, donc sans consentement, et le
+    // gardien check:analytics la refuse (règle 2, ressource tierce chargée
+    // automatiquement). Le pixel n'existe qu'en JavaScript, après le clic.
+    if (cfg.metaId && !metaLoaded) {
+      metaLoaded = true;
+      const w2 = window as any;
+      // Amorce officielle fbq, réécrite sans eval ni script inline : la CSP de
+      // production interdit 'unsafe-inline' sur script-src.
+      const n: any = function (...a: unknown[]) {
+        n.callMethod ? n.callMethod.apply(n, a) : n.queue.push(a);
+      };
+      n.push = n; n.loaded = true; n.version = "2.0"; n.queue = [];
+      w2.fbq = w2._fbq = n;
+      const m = document.createElement("script");
+      m.async = true; m.src = "https://connect.facebook.net/en_US/fbevents.js";
+      document.head.appendChild(m);
+      // Le pixel est déclaré comme révoqué par défaut, puis accordé : si le
+      // script arrive avant la ligne suivante, il ne peut rien émettre entre
+      // les deux. C'est la même précaution d'ordre que le Consent Mode de gtag.
+      w2.fbq("consent", "revoke");
+      w2.fbq("init", cfg.metaId);
+      w2.fbq("consent", "grant");
+      w2.fbq("track", "PageView");
     }
   }
 

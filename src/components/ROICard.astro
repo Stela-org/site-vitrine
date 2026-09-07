@@ -1,7 +1,16 @@
 ---
 // Carte « Reporting » reprenant le visuel du tableau de bord CRM Stela.
-// VIT-12 §1 : décision fondateur : aucune mention illustrative VISIBLE sur
-// cette carte (ni badge, ni pied). aria-label neutre conservé (non visible).
+//
+// VIT-12 §1 avait acté une décision fondateur inverse : aucune mention
+// illustrative VISIBLE sur cette carte. LOT META-CONFORMITE la renverse, sur
+// demande explicite du fondateur, pour une raison qui n'existait pas en VIT-12 :
+// cette page devient la destination d'une campagne publicitaire Meta. La carte
+// affiche un chiffre d'affaires et un retour sur investissement sous les
+// intitulés « Reporting / Votre établissement / 30 derniers jours », sans rien
+// qui dise que ce sont des exemples, alors que les cartes d'avis situées juste
+// au-dessus portent bien « Exemples illustratifs » et que le simulateur porte
+// « Indicatif, non contractuel ». Un examinateur y lit une promesse financière
+// chiffrée tenue par la page d'arrivée. La mention est donc VISIBLE.
 interface Props {
   place?: string; period?: string;
   avis?: string; note?: string; ca?: string; roi?: string;
@@ -44,6 +53,11 @@ const {
   <div class="rep-spark" aria-hidden="true">
     {[34, 41, 38, 52, 47, 63, 71].map((h) => <span style={`--h:${h}%`}></span>)}
   </div>
+
+  <p class="rep-note">
+    Exemple illustratif. Les chiffres affichés ne correspondent à aucun établissement réel
+    et ne constituent ni une projection ni un engagement.
+  </p>
 </div>
 <style>
   .rep { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow); }
@@ -75,6 +89,8 @@ const {
     }
   }
   @keyframes rep-rise { to { transform: scaleY(1); } }
-  /* VIT-12 §1 : spark = dernier élément, pas de marge basse superflue. */
-  .rep-spark { margin-bottom: 0; }
+  /* La légende est désormais le dernier élément : le spark reprend une marge
+     basse, et la mention reste lisible (contraste vérifié par check:contraste). */
+  .rep-spark { margin-bottom: .75rem; }
+  .rep-note { margin: 0; font-size: .7rem; line-height: 1.35; color: var(--text-muted); }
 </style>
