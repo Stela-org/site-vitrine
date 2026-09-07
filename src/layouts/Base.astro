@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { SITE, analyticsEnabled } from "../config/site";
+import { sameAsField } from "../lib/sameAs";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import CookieBanner from "../components/CookieBanner.astro";
@@ -44,7 +45,10 @@ const orgLd = {
   // vignette des resultats de recherche : il exige un format matriciel. Le SVG
   // reste le logo du SITE ; celui-ci n'existe que pour le balisage.
   logo: new URL("/images/logo-monogramme-512.png", SITE.url).href,
-  sameAs: SITE.sameAs,
+  // LOT GEO-3o-SOCIAL : le spread, et non `sameAs: SITE.sameAs`. Si aucune
+  // adresse n'est renseignée, la clé DISPARAÎT au lieu de devenir `[]` : un
+  // tableau vide déclarerait positivement que Stela n'a aucune autre présence.
+  ...sameAsField(SITE.sameAs),
   founder: { "@type": "Person", name: "Nicolas Anquetin", jobTitle: "Cofondateur", url: new URL("/notre-histoire", SITE.url).href },
 };
 const appLd = {

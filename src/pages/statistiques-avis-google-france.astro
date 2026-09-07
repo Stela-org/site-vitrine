@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import { SITE, TARIFS_URL } from "../config/site";
+import { sameAsField } from "../lib/sameAs";
 
 // Page-données pensée comme aimant à backlinks et citations IA. 100 % sourcée.
 
@@ -36,7 +37,7 @@ const datasetLd = {
   // téléchargeable (CSV/JSON) que nous n'avons pas, et déclarer une distribution
   // inexistante serait pire que son absence.
   isAccessibleForFree: true,
-  creator: { "@type": "Organization", name: SITE.brand, url: SITE.url, sameAs: SITE.sameAs },
+  creator: { "@type": "Organization", name: SITE.brand, url: SITE.url, ...sameAsField(SITE.sameAs) },
   // Date des DONNÉES, pas du balisage. VIT-16 n'a touché aucun chiffre : elle ne
   // bouge pas. Ne jamais faire passer un changement de métadonnée pour une mise
   // à jour de données.
