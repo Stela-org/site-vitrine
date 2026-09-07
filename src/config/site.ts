@@ -185,7 +185,13 @@ export const ANALYTICS = {
   // jamais après « Refuser ». La CSP de vercel.json autorise déjà les domaines
   // nécessaires, pour ne pas rejouer l'incident FIX-CSP-GA4 où la mesure partait
   // et le navigateur la refusait en silence.
-  metaPixelId: "",
+  //
+  // LOT META-PIXEL-1 : ce jour est arrivé. Le compte publicitaire existe, l'ID
+  // ci-dessous est le vrai, et cette seule ligne suffit à rendre vivant tout ce
+  // que META-CONFORMITE avait posé à blanc. Rien d'autre n'a bougé : ni le code
+  // de chargement, ni la CSP, ni les gardiens : c'était précisément le but de
+  // faire la déclaration d'abord et le branchement ensuite.
+  metaPixelId: "1090103370133102",
 } as const;
 
 export const analyticsEnabled = () =>

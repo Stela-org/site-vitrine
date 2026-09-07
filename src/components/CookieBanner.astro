@@ -150,10 +150,21 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
       const m = document.createElement("script");
       m.async = true; m.src = "https://connect.facebook.net/en_US/fbevents.js";
       document.head.appendChild(m);
-      // Le pixel est déclaré comme révoqué par défaut, puis accordé : si le
-      // script arrive avant la ligne suivante, il ne peut rien émettre entre
-      // les deux. C'est la même précaution d'ordre que le Consent Mode de gtag.
-      w2.fbq("consent", "revoke");
+      // LOT META-PIXEL-1, correction. La version précédente ouvrait par un
+      // w2.fbq("consent", "revoke") censé imiter le Consent Mode de gtag. Avec
+      // un identifiant vide, ce bloc ne s'exécutait jamais : le défaut est resté
+      // invisible jusqu'à ce que le vrai ID le réveille. Mesuré ici, sous la CSP
+      // de production : les quatre appels partent AVANT que fbevents.js soit
+      // chargé, donc dans la file d'amorce ; fbevents s'arrête de vider cette
+      // file sur le « revoke » et n'en repart jamais. Résultat exact observé :
+      // fbq.queue reste à [init, grant, track], fbq.getState().pixels est VIDE,
+      // aucune requête signals/config ne part. Le script se charge et le pixel
+      // ne mesure rien : c'est la signature du bug FIX-GTAG, sur un autre tag.
+      //
+      // Le « revoke » ne protégeait d'ailleurs de rien : ces appels sont
+      // synchrones et le script est async, il ne peut RIEN arriver entre eux.
+      // Et on n'entre ici qu'après « Accepter » : le consentement à déclarer est
+      // « grant », pas son contraire. On le supprime donc, et le pixel s'initialise.
       w2.fbq("init", cfg.metaId);
       w2.fbq("consent", "grant");
       w2.fbq("track", "PageView");
