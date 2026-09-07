@@ -366,12 +366,21 @@ async function networkScenario() {
         `(ids observes : ${pixels.ids.join(", ") || "aucun"}, appels restes en file d'amorce : ${pixels.queue}). ` +
         "Le pixel se charge et ne mesure rien : identifiant vide, malforme, ou appel fbq bloque dans la file avant init.",
       );
-    } else if (pixels.queue > 0) {
-      errors.push(
-        `APRES acceptation : ${pixels.queue} appel(s) fbq bloque(s) dans la file d'amorce apres initialisation du pixel. ` +
-        "fbevents.js a cesse de vider la file : les evenements empiles ne partiront jamais.",
-      );
     }
+    // La longueur de la file d'amorce N'EST PAS un critere de succes, et le
+    // gardien a failli le faire croire. Mesure : depuis un runner de CI, le
+    // pixel s'initialise correctement (getState().pixels porte l'identifiant)
+    // et la file reste pourtant a 3. La cause n'est pas dans notre code : le
+    // bundle servi par Meta embarque sa propre detection de robots
+    // (« [Meta pixel] Bot traffic detected and blocked ») et cesse alors de
+    // traiter les appels. Depuis un navigateur reel la file se vide. Un gardien
+    // qui echoue selon la reputation IP du runner n'apprend rien et finit
+    // ignore, ce qui est precisement le mal que ce lot corrige ailleurs.
+    //
+    // Le signal qui discrimine VRAIMENT le bug d'origine (les appels bloques
+    // derriere un fbq("consent","revoke")) est la liste des pixels initialises,
+    // vide dans ce cas : c'est elle qu'on exige ci-dessus. La file ne sert plus
+    // qu'a etoffer le diagnostic quand cette exigence echoue.
   }
 
   // Le cookie _ga (first-party, pose par gtag.js) prouve que le consentement
@@ -682,21 +691,35 @@ stripeMode = "ok";
 await browser.close();
 server.close();
 
-// Violations CSP observees pendant le scenario. Celles qui touchent la mesure
-// sont bloquantes (elles signifient que la CSP mange les donnees) ; les autres
-// sont signalees pour information, sans faire echouer le check.
+// LOT FIX-CSP-GOOGLE-1. Avant ce lot, une violation CSP n'etait bloquante que
+// si son URL matchait une liste de domaines « de mesure ». Tout le reste passait
+// en AVERTISSEMENT, affiche puis oublie. C'est exactement ce qui a laisse vivre
+// deux refus pendant des semaines :
+//   - img-src refusait www.google.fr/ads/ga-audiences (visible en production) ;
+//   - img-src refusait www.googletagmanager.com/a et connect-src refusait
+//     www.google.com/measurement/conversion depuis un routage Google americain,
+//     cette derniere portant une VRAIE conversion essai_demarre.
+// Aucune des deux ne matchait la liste, ou seulement par accident. La liste
+// etait le probleme : elle demandait de deviner a l'avance quel domaine Google
+// compterait, alors que le domaine depend du PAYS du visiteur.
+//
+// On inverse donc la charge de la preuve : TOUTE violation CSP fait echouer le
+// check. Une requete refusee est soit une mesure perdue, soit une ressource que
+// la page n'aurait pas du demander : les deux meritent d'etre corrigees, aucune
+// ne merite un avertissement. Si une exception legitime apparait un jour, elle
+// s'ajoute ICI, nommement et avec sa raison ecrite — jamais en re-elargissant
+// une regle generale.
 const violations = [...new Map(cspViolations.map((v) => [`${v.directive} ${v.blocked}`, v])).values()];
-// LOT META-PIXEL-1 : les domaines Meta rejoignent la liste bloquante. Une CSP
-// qui refuse connect.facebook.net mange la mesure publicitaire exactement comme
-// FIX-CSP-GA4 mangeait GA4, et sans plus d'erreur visible cote page.
-const MESURE_RE = /google-analytics|analytics\.google|googletagmanager|facebook\.net|facebook\.com/i;
-for (const v of violations.filter((x) => MESURE_RE.test(x.blocked || ""))) {
-  errors.push(`Violation CSP bloquant la mesure : ${v.directive} refuse ${v.blocked}.`);
-}
-const autres = violations.filter((x) => !MESURE_RE.test(x.blocked || ""));
-if (autres.length) {
-  console.warn(`check:cookies : ${autres.length} violation(s) CSP hors mesure (non bloquant) :`);
-  autres.forEach((v) => console.warn(`  ${v.directive} refuse ${v.blocked}`));
+/** Exceptions explicites. Vide, et c'est voulu : chaque entree doit etre motivee. */
+const VIOLATIONS_TOLEREES = [];
+for (const v of violations) {
+  const toleree = VIOLATIONS_TOLEREES.some((e) => e.directive === v.directive && e.test.test(v.blocked || ""));
+  if (toleree) continue;
+  errors.push(
+    `Violation CSP : ${v.directive} refuse ${v.blocked}. ` +
+    "Le navigateur a refuse cette requete en silence, sans erreur cote page. " +
+    "Si elle porte de la mesure, la donnee est PERDUE : ajouter le domaine a la directive concernee dans vercel.json.",
+  );
 }
 
 if (errors.length) {
@@ -706,5 +729,5 @@ if (errors.length) {
 }
 console.log("check:cookies OK : pages servies sous la CSP de production ; bannière (Refuser + Accepter) fiable sur mobile ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit /g/collect ABOUTI (2xx) vers un domaine bien présent dans la connect-src, cookie _ga déposé, événement essai_demarre transmis, 0 violation CSP sur la mesure.");
 console.log("check:cookies OK (META-EVENTS-1) : après acceptation, Meta reçoit Lead (essai_demarre) et CompleteRegistration (guide_telecharge), sans aucun paramètre personnel ; après refus, aucune requête Meta.");
-console.log("check:cookies OK (META-PIXEL-1) : 0 requête Meta avant tout choix et après refus ; après acceptation, fbevents.js chargé en 2xx, pixel Meta RÉELLEMENT initialisé avec son identifiant, file d'amorce fbq vidée, 0 violation CSP sur les domaines Meta.");
+console.log("check:cookies OK (META-PIXEL-1) : 0 requête Meta avant tout choix et après refus ; après acceptation, fbevents.js chargé en 2xx, pixel Meta RÉELLEMENT initialisé avec son identifiant, 0 violation CSP.");
 console.log("check:cookies OK (GADS-2) : les 3 conversions portent l'empreinte SHA-256 de l'email quand il existe, 0 email en clair vers Google ; guide_telecharge reporté d'une page à l'autre et abouti en 2xx ; demande_devis préparé à la saisie et émis au submit ; chaîne Stripe étiquetée sur ses 5 issues (ok, timeout, api_vide, erreur, sans_session), 1 seul événement par issue.");

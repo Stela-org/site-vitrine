@@ -313,6 +313,38 @@ if (!csp) {
   if (!img.includes("https://www.facebook.com")) {
     errors.push("CSP img-src : https://www.facebook.com manquant. Le pixel Meta se replie sur une image de suivi lorsque fetch est indisponible ; elle serait bloquee.");
   }
+
+  // LOT FIX-CSP-GOOGLE-1. Domaines Google recenses en OBSERVANT le trafic reel
+  // sous une CSP permissive, pas en recopiant une documentation. Chacun est ici
+  // parce qu'une requete a ete vue partir vers lui, et le commentaire dit
+  // laquelle. Retirer l'un d'eux fait echouer ce gardien immediatement, sans
+  // attendre qu'un visiteur perde sa conversion.
+  //
+  // Piege propre a Google, et cause de ce lot : le domaine depend du PAYS du
+  // visiteur. Depuis la France, gtag envoie le ping d'audience a www.google.fr
+  // et la conversion a region1.analytics.google.com ; depuis les Etats-Unis
+  // (routage des runners de CI), les memes appels partent vers
+  // www.googletagmanager.com et www.google.com. Une CSP validee depuis un seul
+  // pays est une CSP validee a moitie.
+  const REQUIS_IMG = [
+    // Ping d'audience Google Signals (remarketing), charge comme IMAGE :
+    // observe refuse EN PRODUCTION sur www.mystela.fr, routage francais.
+    ["https://www.google.fr", "ping d'audience Google Signals (/ads/ga-audiences) depuis un routage francais"],
+    // Meme famille, routage americain : observe refuse dans les runners de CI.
+    ["https://www.googletagmanager.com", "ping de diagnostic du tag (/a) depuis un routage americain"],
+    ["https://www.google.com", "ping d'audience et de conversion depuis un routage americain"],
+  ];
+  for (const [src, pourquoi] of REQUIS_IMG) {
+    if (!img.includes(src)) {
+      errors.push(`CSP img-src : ${src} manquant (${pourquoi}). Le navigateur refusera l'image en silence : aucune erreur, aucune donnee.`);
+    }
+  }
+  // Conversion Google Ads depuis un routage americain : /measurement/conversion
+  // part vers www.google.com et NON vers region1.analytics.google.com. C'est la
+  // requete qui portait essai_demarre et que la CSP refusait.
+  if (!connect.includes("https://www.google.com")) {
+    errors.push("CSP connect-src : https://www.google.com manquant. Depuis un routage Google americain, la conversion Google Ads (/measurement/conversion) part vers ce domaine : refusee, la conversion est PERDUE, sans erreur visible.");
+  }
 }
 
 if (errors.length) {
