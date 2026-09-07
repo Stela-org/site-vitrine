@@ -106,6 +106,60 @@ for (const m of bundle.matchAll(/sha256_email_address\s*:\s*([^,}\n]{0,120})/g))
   }
 }
 
+// 3 ter) LOT META-PIXEL-1 : l'identifiant du pixel Meta doit REELLEMENT etre
+// present dans la configuration servie. META-CONFORMITE avait tout pose autour
+// d'un identifiant vide : le code de chargement, la CSP, les scenarios reseau
+// passaient tous, et le pixel ne faisait rien. Un retour a la chaine vide (ou un
+// identifiant qui se perd dans un refactor du bloc de config) redonnerait
+// exactement ce silence : bannière annonçant Meta, politique de confidentialite
+// citant Meta, et aucun pixel. Le gardien exige donc la presence de l'ID dans le
+// bloc <script type="application/json"> de CHAQUE page, au format Meta (15-16
+// chiffres). Cet ID est une donnee inerte, non executable : sa presence dans le
+// HTML ne declenche aucune requete, c'est le clic « Accepter » qui le fait.
+const META_ID_ATTENDU = /^\d{15,16}$/;
+// Le fichier de verification Google Search Console n'est pas une page du site :
+// c'est une ligne de texte servie avec une extension .html, sans layout, donc
+// sans banniere. On ne l'exige que la ou la banniere existe, et on verifie a
+// part que les pages de conversion, elles, la portent bien.
+let pagesAvecConfig = 0;
+for (const file of htmlFiles) {
+  const html = readFileSync(file, "utf8");
+  const bloc = html.match(/<script type="application\/json" id="stela-analytics">([\s\S]*?)<\/script>/);
+  if (!bloc) {
+    if (html.includes('id="cookie-banner"')) {
+      errors.push(`${file}: banniere de consentement presente mais bloc de configuration analytics (#stela-analytics) absent. Ni GA4 ni le pixel Meta ne peuvent etre configures : la banniere promet une mesure qui n'existe pas.`);
+    }
+    continue;
+  }
+  pagesAvecConfig++;
+  let cfg;
+  try {
+    cfg = JSON.parse(bloc[1]);
+  } catch {
+    errors.push(`${file}: bloc de configuration analytics illisible (JSON invalide).`);
+    continue;
+  }
+  if (!cfg.metaId) {
+    errors.push(`${file}: identifiant du pixel Meta absent de la configuration (metaId vide). Le bloc de chargement du pixel est inerte : Meta est annonce dans la banniere et la politique de confidentialite, et rien n'est pose.`);
+  } else if (!META_ID_ATTENDU.test(String(cfg.metaId))) {
+    errors.push(`${file}: identifiant du pixel Meta au format inattendu (${cfg.metaId}). Un ID Meta est une suite de 15 a 16 chiffres ; fbq("init") echouera en silence.`);
+  }
+  if (!cfg.gaId) {
+    errors.push(`${file}: identifiant de mesure GA4 absent de la configuration (gaId vide).`);
+  }
+}
+// Les pages de conversion doivent toutes porter la banniere ET la configuration :
+// une page qui perdrait son layout sortirait silencieusement de la mesure.
+for (const page of ["index.html", "merci-essai.html", "politique-confidentialite.html"]) {
+  const f = `${DIST}/${page}`;
+  if (existsSync(f) && !readFileSync(f, "utf8").includes('id="stela-analytics"')) {
+    errors.push(`/${page}: bloc de configuration analytics absent. Cette page est hors mesure (GA4 et pixel Meta).`);
+  }
+}
+if (pagesAvecConfig === 0) {
+  errors.push("aucune page ne porte le bloc de configuration analytics : la mesure est entierement debranchee.");
+}
+
 // 4) /merci-essai : presente, noindex, hors sitemap.
 const merci = `${DIST}/merci-essai.html`;
 if (!existsSync(merci)) {
@@ -185,4 +239,4 @@ if (errors.length) {
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4.`);
+console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4 et les domaines Meta, identifiants GA4 et pixel Meta presents dans la configuration servie.`);
