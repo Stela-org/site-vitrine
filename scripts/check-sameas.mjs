@@ -100,6 +100,25 @@ const IG = "https://www.instagram.com/exemple.stela/";
   verifie("URL invalide écartée : seule l'URL valide subsiste", liste.length === 1, `obtenu ${JSON.stringify(liste)}`);
 }
 
+// 5. L'ADRESSE NUMÉRIQUE FACEBOOK survit intacte.
+//    `profile.php?id=<numéro>` est la forme servie tant que la Page n'a pas de
+//    nom d'utilisateur personnalisé. Une normalisation qui jetterait la
+//    query string (tentation légitime : `?ref=`, `?fbclid=` sont du bruit)
+//    transformerait l'URL en `https://www.facebook.com/profile.php`, qui ne
+//    désigne PLUS la Page de Stela mais un formulaire vide. Ce cas fige donc
+//    la règle : ici le `?id=` EST l'identité.
+{
+  const numerique = "https://www.facebook.com/profile.php?id=61594423881667";
+  verifie(
+    "adresse numerique Facebook : query string preservee",
+    normalizeSameAsUrl(numerique) === numerique,
+    `obtenu ${normalizeSameAsUrl(numerique)}`,
+  );
+  const liste = buildSameAs([numerique, "https://www.instagram.com/mystela.fr/"]);
+  verifie("adresse numerique Facebook : presente dans le graphe", liste.includes(numerique));
+  verifie("adresse numerique Facebook : deux comptes Meta distincts", liste.length === 2, `obtenu ${liste.length}`);
+}
+
 // ── Volet 2 : ce qui est RÉELLEMENT servi ───────────────────────────────────
 const attendu = buildSameAs([...REGISTRES, FACEBOOK_URL, INSTAGRAM_URL]);
 verifie("config : au moins un registre public déclaré", REGISTRES.length > 0);

@@ -21,17 +21,32 @@ import { buildSameAs } from "../lib/sameAs";
 // silence : un `sameAs` dont une entrée ne résout pas décrédibilise les autres.
 //
 // FORME ATTENDUE : l'URL PUBLIQUE et canonique du profil, en https, telle qu'un
-// visiteur la voit dans sa barre d'adresse.
-//   Facebook   https://www.facebook.com/<nom-de-la-page>
-//   Instagram  https://www.instagram.com/<identifiant>/
-// Pas d'URL de partage, pas de lien raccourci, pas de `?ref=` : ce sont des
-// redirections, et `sameAs` doit désigner la page elle-même.
+// visiteur la voit dans sa barre d'adresse. Pas d'URL de partage, pas de lien
+// raccourci, pas de `?ref=` ni de `?fbclid=` : ce sont des redirections ou des
+// marqueurs de campagne, et `sameAs` doit désigner la page elle-même.
 //
-// À RENSEIGNER PAR NICOLAS. La Page Facebook existe (créée le 07/09/2026), le
-// compte Instagram professionnel est à créer. Tant que ces chaînes sont vides,
-// le site se construit et se sert exactement comme avant.
-export const FACEBOOK_URL = "";
-export const INSTAGRAM_URL = "";
+// ATTENTION, L'URL FACEBOOK CI-DESSOUS EST UNE ADRESSE NUMÉRIQUE
+// (`profile.php?id=<identifiant-numérique>`) ET NON UN NOM D'UTILISATEUR.
+// C'est la forme que Facebook sert tant qu'aucun nom d'utilisateur personnalisé
+// n'a été pris sur la Page : celui que nous voulions n'était pas disponible au
+// moment de la création (07/09/2026). Ce n'est PAS un lien de partage, c'est
+// bien l'adresse canonique de la Page aujourd'hui, elle résout, et un `sameAs`
+// doit pointer vers quelque chose qui résout. Le `?id=` fait donc partie de
+// l'identité, il ne doit pas être retiré.
+//
+// À REMPLACER LE JOUR OÙ UN IDENTIFIANT SERA PRIS : quand la Page obtiendra un
+// nom d'utilisateur (`https://www.facebook.com/<nom-d-utilisateur>`), mettre à
+// jour CETTE constante et rien d'autre. Facebook redirige l'ancienne adresse
+// numérique vers la nouvelle, mais `sameAs` ne doit pas déclarer une redirection
+// quand la cible est connue : un moteur qui suit une redirection accorde moins
+// de poids au lien qu'à une adresse finale.
+export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61594423881667";
+
+// Compte Instagram professionnel, relié à la Page Facebook ci-dessus dans Meta.
+// La barre oblique finale est celle que sert Instagram ; `buildSameAs` la
+// normalise et dédoublonne sans elle, donc les deux formes ne peuvent pas
+// produire deux entrées pour un même compte.
+export const INSTAGRAM_URL = "https://www.instagram.com/mystela.fr/";
 
 // Registres publics de la personne morale (SIREN 921060737), confirmés par
 // Nicolas. Déclarés avant `SITE` parce que le `sameAs` de l'Organization les
