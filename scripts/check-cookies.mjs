@@ -294,10 +294,20 @@ async function networkScenario() {
   // C'est exactement l'angle mort qui laisse croire qu'une mesure fonctionne
   // alors qu'elle n'existe pas. On exige donc maintenant la preuve inverse :
   // apres « Accepter », fbevents.js doit REELLEMENT etre demande, et aboutir.
-  const fbDeadline = Date.now() + 20000;
+  // On attend la REQUETE, puis sa REPONSE, avec deux limites de temps
+  // distinctes. Confondre les deux rend le gardien intermittent : depuis un
+  // runner de CI, la requete vers connect.facebook.net part en quelques
+  // millisecondes mais la reponse peut mettre plusieurs secondes a revenir.
+  // Conclure « jamais abouti » a l'instant ou la requete apparait, c'est
+  // accuser la CSP d'un simple aller-retour reseau.
   const fbevents = () => metaReqs.find((u) => u.includes("connect.facebook.net") && u.includes("fbevents.js"));
+  const fbDeadline = Date.now() + 20000;
   while (Date.now() < fbDeadline && !fbevents()) await page.waitForTimeout(250);
   const fbReq = fbevents();
+  if (fbReq) {
+    const respDeadline = Date.now() + 20000;
+    while (Date.now() < respDeadline && !responses.has(fbReq)) await page.waitForTimeout(250);
+  }
   if (!fbReq) {
     errors.push(
       `APRES acceptation : fbevents.js n'est pas charge (requetes Meta observees : ${metaReqs.length}). ` +
