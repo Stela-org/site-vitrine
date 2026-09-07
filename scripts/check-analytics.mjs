@@ -139,6 +139,54 @@ for (const m of bundle.matchAll(/sha256_email_address\s*:\s*([^,}\n]{0,120})/g))
   }
 }
 
+// 3 quater) LOT META-EVENTS-1 : les deux conversions doivent partir vers Meta,
+// et sous leur nom STANDARD. Le mode de panne du lot precedent, deplace d'un
+// cran : un pixel qui repond, un PageView qui remonte, et zero conversion. Rien
+// ne le signale — ni erreur console, ni violation CSP, ni test rouge — parce
+// qu'un remaniement qui supprime la table de correspondance laisse le reste
+// intact. On exige donc que le bundle SERVI porte encore les deux paires.
+//
+// Comparaison sur un bundle normalise (guillemets et espaces retires) : le
+// minifieur ecrit tantot essai_demarre:"Lead", tantot "essai_demarre":"Lead",
+// tantot avec des accents graves (c'est la forme qu'il produit aujourd'hui) :
+// les trois doivent passer. Ce qui ne doit pas passer, c'est l'absence.
+const bundleNormalise = bundle.replace(/["'`\s]/g, "");
+const META_ATTENDU = [
+  ["essai_demarre", "Lead", "le demarrage d'essai n'est plus remonte a Meta : les campagnes ne peuvent plus optimiser sur les prospects."],
+  ["guide_telecharge", "CompleteRegistration", "le telechargement du guide n'est plus remonte a Meta : la conversion du tunnel guide disparait des campagnes."],
+];
+for (const [ga4, meta, consequence] of META_ATTENDU) {
+  if (!bundleNormalise.includes(`${ga4}:${meta}`)) {
+    errors.push(
+      `pixel Meta (META-EVENTS-1) : la correspondance ${ga4} -> ${meta} est absente du bundle. ${consequence}`,
+    );
+  }
+}
+// L'appel lui-meme doit rester la : une table de correspondance que plus
+// personne n'appelle est aussi muette qu'une table absente, et c'est une
+// regression qu'aucune verification de presence ne voit. Le bundle doit porter
+// DEUX sites d'appel distincts a fbq("track", ...) : celui du PageView, pose au
+// chargement du pixel, et celui des conversions, qui lit la table. Un seul
+// signifie que l'un des deux a disparu.
+const appelsTrack = (bundleNormalise.match(/fbq\(track,/g) || []).length;
+if (appelsTrack < 2) {
+  errors.push(
+    `pixel Meta (META-EVENTS-1) : ${appelsTrack} appel(s) fbq("track", ...) dans le bundle, 2 attendus (PageView + conversions). ` +
+    "Soit le PageView, soit l'emission des conversions standard a disparu : le pixel repondra sans mesurer.",
+  );
+}
+// Aucune donnee personnelle ne doit accompagner ces evenements. Les appels
+// attendus sont a DEUX arguments (fbq, track, nom) : un troisieme argument
+// ouvrirait la porte a un email, un telephone ou un nom.
+for (const [, meta] of META_ATTENDU) {
+  const avecParams = new RegExp(`fbq\\([^)]*${meta}[^)]*,`);
+  if (avecParams.test(bundleNormalise)) {
+    errors.push(
+      `pixel Meta (META-EVENTS-1) : l'evenement ${meta} est emis avec des parametres. Seul le nom de l'evenement doit partir vers Meta, jamais une donnee personnelle.`,
+    );
+  }
+}
+
 // 3 ter) LOT META-PIXEL-1 : l'identifiant du pixel Meta doit REELLEMENT etre
 // present dans la configuration servie. META-CONFORMITE avait tout pose autour
 // d'un identifiant vide : le code de chargement, la CSP, les scenarios reseau
@@ -272,4 +320,4 @@ if (errors.length) {
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, verification de domaine Meta dans le <head> de ${htmlFiles.length - htmlFiles.filter((f) => HORS_PAGES.test(f)).length} page(s), CSP couvrant les deux familles de domaines de collecte GA4 et les domaines Meta, identifiants GA4 et pixel Meta presents dans la configuration servie.`);
+console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, verification de domaine Meta dans le <head> de ${htmlFiles.length - htmlFiles.filter((f) => HORS_PAGES.test(f)).length} page(s), CSP couvrant les deux familles de domaines de collecte GA4 et les domaines Meta, identifiants GA4 et pixel Meta presents dans la configuration servie, conversions Meta cablees (essai_demarre -> Lead, guide_telecharge -> CompleteRegistration) et sans aucun parametre.`);
