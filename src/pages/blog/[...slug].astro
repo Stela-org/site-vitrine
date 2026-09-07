@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import { SITE , TARIFS_URL } from "../../config/site";
+import { sameAsField } from "../../lib/sameAs";
 import { extractFaq, faqPageLd } from "../../lib/faq";
 
 export async function getStaticPaths() {
@@ -32,7 +33,12 @@ const articleLd = {
     name: "Corentin Janin",
     jobTitle: "Cofondateur de Stela",
     url: new URL("/notre-histoire", SITE.url).href,
-    sameAs: SITE.sameAs,
+    // LOT GEO-3o-SOCIAL : ce nœud est une PERSONNE, pas la marque. Il garde
+    // donc les registres seuls (l'entreprise dont l'auteur est cofondateur) et
+    // n'hérite PAS des comptes Meta ajoutés au `sameAs` de l'Organization :
+    // déclarer la Page Facebook de Stela comme étant Corentin Janin serait une
+    // affirmation fausse dans le graphe, pas un signal de plus.
+    ...sameAsField(SITE.registres),
   },
   // LOT SEO-LOGO : PNG et non SVG (Google ignore le vectoriel, cf. Base.astro).
   publisher: { "@type": "Organization", name: SITE.brand, logo: { "@type": "ImageObject", url: new URL("/images/logo-monogramme-512.png", SITE.url).href } },

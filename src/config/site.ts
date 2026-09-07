@@ -2,6 +2,45 @@
 // Marque, couleurs, URLs, prix : tout dérive d'ici, jamais en dur dans les pages
 // (cohérence + changement en 1 endroit). Aligné sur stella-app/config/brand.ts.
 
+import { buildSameAs } from "../lib/sameAs";
+
+// ── LOT GEO-3o-SOCIAL : les comptes Meta de la marque ─────────────────────────
+//
+// Ces deux constantes sont la SOURCE UNIQUE des adresses sociales de Stela.
+// Elles vivent ici, et non dans un composant, parce qu'un changement de compte
+// (une Page recréée, un handle Instagram modifié) doit se faire en UN endroit :
+// le jour où l'une d'elles est écrite en dur dans un bloc JSON-LD, le graphe
+// d'entité commence à diverger d'une page à l'autre et plus personne ne sait
+// laquelle fait foi.
+//
+// UN COMPTE NON RENSEIGNÉ EST SIMPLEMENT OMIS DU `sameAs`, JAMAIS RENDU VIDE.
+// C'est la règle déjà appliquée à `metaPixelId` : tant que la chaîne est vide,
+// rien n'est produit : pas de `""` dans le tableau, et si TOUT est vide, pas de
+// clé `sameAs` du tout (`sameAsField`). Déclarer une adresse vide reviendrait à
+// affirmer aux moteurs une identité qui n'existe pas, ce qui est pire que le
+// silence : un `sameAs` dont une entrée ne résout pas décrédibilise les autres.
+//
+// FORME ATTENDUE : l'URL PUBLIQUE et canonique du profil, en https, telle qu'un
+// visiteur la voit dans sa barre d'adresse.
+//   Facebook   https://www.facebook.com/<nom-de-la-page>
+//   Instagram  https://www.instagram.com/<identifiant>/
+// Pas d'URL de partage, pas de lien raccourci, pas de `?ref=` : ce sont des
+// redirections, et `sameAs` doit désigner la page elle-même.
+//
+// À RENSEIGNER PAR NICOLAS. La Page Facebook existe (créée le 07/09/2026), le
+// compte Instagram professionnel est à créer. Tant que ces chaînes sont vides,
+// le site se construit et se sert exactement comme avant.
+export const FACEBOOK_URL = "";
+export const INSTAGRAM_URL = "";
+
+// Registres publics de la personne morale (SIREN 921060737), confirmés par
+// Nicolas. Déclarés avant `SITE` parce que le `sameAs` de l'Organization les
+// compose avec les comptes Meta ci-dessus.
+const REGISTRES = [
+  "https://annuaire-entreprises.data.gouv.fr/entreprise/921060737",
+  "https://www.pappers.fr/entreprise/921060737",
+] as const;
+
 export const SITE = {
   brand: "Stela", // UN SEUL L en surface. Le nom à deux L reste un codename interne.
   tagline: "Vos avis, vos étoiles.",
@@ -44,10 +83,18 @@ export const SITE = {
 
   // Profils officiels (schema.org sameAs), confirmés par Nicolas (SIREN 921060737).
   // Pas de page LinkedIn entreprise pour l'instant : à ajouter ici le jour venu.
-  sameAs: [
-    "https://annuaire-entreprises.data.gouv.fr/entreprise/921060737",
-    "https://www.pappers.fr/entreprise/921060737",
-  ],
+  //
+  // LOT GEO-3o-SOCIAL : ces deux-là restent nommés à part parce qu'ils désignent
+  // la PERSONNE MORALE (registres publics, SIREN). Le `sameAs` de l'Organization
+  // y ajoute les présences sociales de la MARQUE.
+  registres: REGISTRES,
+
+  // Le graphe d'entité servi dans le JSON-LD de l'Organization : registres
+  // publics d'abord (vérifiables par un tiers, c'est le signal le plus fort),
+  // présences sociales ensuite. `buildSameAs` valide, dédoublonne, et ÉCARTE
+  // tout ce qui n'est pas une URL https exploitable, donc les deux constantes
+  // Meta tant qu'elles sont vides.
+  sameAs: buildSameAs([...REGISTRES, FACEBOOK_URL, INSTAGRAM_URL]),
 
   // Vérifications Google Search Console : le FICHIER (public/google...html) ET
   // la balise meta ci-dessous sont conservés tous les deux (VIT-0 décision 10).
