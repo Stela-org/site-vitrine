@@ -114,6 +114,29 @@ export const SITE = {
   // Vérifications Google Search Console : le FICHIER (public/google...html) ET
   // la balise meta ci-dessous sont conservés tous les deux (VIT-0 décision 10).
   googleSiteVerification: "_riHssD6JYmAWnuKsHPJfztC6RASpMns50XERQ7LObo",
+
+  // ── LOT META-DOMAIN-1 : vérification du domaine auprès de Meta ─────────────
+  //
+  // Identifiant fourni par Meta (Business Manager, Sécurité de la marque,
+  // Domaines) pour prouver que mystela.fr nous appartient. Sans cette preuve,
+  // Meta ne nous laisse pas décider qui peut attribuer des conversions à nos
+  // pages : n'importe quel autre compte publicitaire peut revendiquer nos URL.
+  //
+  // CE N'EST PAS UN SECRET. C'est un identifiant public, servi dans le HTML de
+  // chaque page, exactement comme `googleSiteVerification` juste au-dessus.
+  // Il est ici, et pas en dur dans le layout, pour la raison qui vaut pour
+  // tout le reste de ce fichier : une valeur de configuration se change en un
+  // endroit, et se lit sans ouvrir un composant.
+  //
+  // MÉTHODE IMPOSÉE PAR META, ET SES DEUX PIÈGES. La balise doit être dans le
+  // `<head>` du HTML SERVI, et ne doit pas être injectée par JavaScript. Le
+  // site n'exécute aucun script tiers avant consentement : une balise posée
+  // par script ne serait donc jamais vue par le robot de Meta, et la
+  // vérification échouerait sans message utile. Elle est rendue par Astro à la
+  // construction, dans `src/layouts/Base.astro`, donc présente dans le HTML
+  // statique, sur toutes les pages, sans dépendre d'aucun consentement.
+  // Le gardien `check:analytics` le vérifie sur le build.
+  facebookDomainVerification: "c9dr66qbuy2i6xhm1hsl4e4vx4qmbq",
 } as const;
 
 // Essai : durée réelle demandée au checkout Stripe. Affichée partout (« essai

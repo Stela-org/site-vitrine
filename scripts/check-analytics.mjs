@@ -50,6 +50,39 @@ for (const file of htmlFiles) {
   }
 }
 
+// 2 bis) LOT META-DOMAIN-1 : la balise de verification de domaine Meta doit
+// etre dans le <head> du HTML SERVI, sur chaque page, et jamais posee par
+// JavaScript. Meta echoue la verification dans les deux cas contraires, sans
+// message exploitable. Le site n'executant aucun script tiers avant
+// consentement, une balise injectee ne serait de toute facon jamais vue.
+// Ce gardien tombe si un remaniement du layout la deplace hors du <head>, la
+// vide, ou la remplace par une valeur differente de la configuration.
+const BALISE_META_DOMAINE = /<meta[^>]*\bname="facebook-domain-verification"[^>]*\bcontent="([^"]*)"[^>]*>/i;
+const ID_ATTENDU = (readFileSync("src/config/site.ts", "utf8").match(/facebookDomainVerification:\s*"([^"]+)"/) || [])[1];
+if (!ID_ATTENDU) {
+  errors.push("verification de domaine Meta : `facebookDomainVerification` introuvable dans src/config/site.ts.");
+}
+// UNE SEULE EXCLUSION, MOTIVEE : le fichier de verification Google Search
+// Console (public/google<jeton>.html) n'est pas une page. C'est une ligne de
+// texte servie avec une extension .html, sans <html> ni <head>, dont Google
+// lit le CONTENU. Y poser une balise la casserait. Toute autre page du site
+// passe par src/layouts/Base.astro et doit porter la balise.
+const HORS_PAGES = /\/google[0-9a-f]+\.html$/i;
+for (const file of htmlFiles) {
+  if (HORS_PAGES.test(file)) continue;
+  const html = readFileSync(file, "utf8");
+  const tete = html.slice(0, html.search(/<\/head>/i) === -1 ? 0 : html.search(/<\/head>/i));
+  const dansLaTete = BALISE_META_DOMAINE.exec(tete);
+  if (!dansLaTete) {
+    const ailleurs = BALISE_META_DOMAINE.test(html);
+    errors.push(ailleurs
+      ? `${file}: balise facebook-domain-verification presente mais HORS du <head>. Meta ne la lit que dans le <head>.`
+      : `${file}: balise facebook-domain-verification absente du <head> du HTML servi.`);
+  } else if (ID_ATTENDU && dansLaTete[1] !== ID_ATTENDU) {
+    errors.push(`${file}: balise facebook-domain-verification a « ${dansLaTete[1]} », attendu « ${ID_ATTENDU} » (src/config/site.ts).`);
+  }
+}
+
 // 3) Les trois conversions doivent rester cablees (dans le JS bundle, pas le HTML).
 const bundle = jsFiles.map((f) => readFileSync(f, "utf8")).join("\n");
 for (const evt of ["essai_demarre", "demande_devis", "guide_telecharge"]) {
@@ -287,4 +320,4 @@ if (errors.length) {
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, CSP couvrant les deux familles de domaines de collecte GA4 et les domaines Meta, identifiants GA4 et pixel Meta presents dans la configuration servie, conversions Meta cablees (essai_demarre -> Lead, guide_telecharge -> CompleteRegistration) et sans aucun parametre.`);
+console.log(`check:analytics OK : 0 script Google dans le HTML rendu (${htmlFiles.length} pages), 3 conversions cablees, suivi avance actif (hachage SHA-256 present, 0 email en clair), /merci-essai noindex et hors sitemap, verification de domaine Meta dans le <head> de ${htmlFiles.length - htmlFiles.filter((f) => HORS_PAGES.test(f)).length} page(s), CSP couvrant les deux familles de domaines de collecte GA4 et les domaines Meta, identifiants GA4 et pixel Meta presents dans la configuration servie, conversions Meta cablees (essai_demarre -> Lead, guide_telecharge -> CompleteRegistration) et sans aucun parametre.`);
