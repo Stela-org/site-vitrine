@@ -682,21 +682,35 @@ stripeMode = "ok";
 await browser.close();
 server.close();
 
-// Violations CSP observees pendant le scenario. Celles qui touchent la mesure
-// sont bloquantes (elles signifient que la CSP mange les donnees) ; les autres
-// sont signalees pour information, sans faire echouer le check.
+// LOT FIX-CSP-GOOGLE-1. Avant ce lot, une violation CSP n'etait bloquante que
+// si son URL matchait une liste de domaines « de mesure ». Tout le reste passait
+// en AVERTISSEMENT, affiche puis oublie. C'est exactement ce qui a laisse vivre
+// deux refus pendant des semaines :
+//   - img-src refusait www.google.fr/ads/ga-audiences (visible en production) ;
+//   - img-src refusait www.googletagmanager.com/a et connect-src refusait
+//     www.google.com/measurement/conversion depuis un routage Google americain,
+//     cette derniere portant une VRAIE conversion essai_demarre.
+// Aucune des deux ne matchait la liste, ou seulement par accident. La liste
+// etait le probleme : elle demandait de deviner a l'avance quel domaine Google
+// compterait, alors que le domaine depend du PAYS du visiteur.
+//
+// On inverse donc la charge de la preuve : TOUTE violation CSP fait echouer le
+// check. Une requete refusee est soit une mesure perdue, soit une ressource que
+// la page n'aurait pas du demander : les deux meritent d'etre corrigees, aucune
+// ne merite un avertissement. Si une exception legitime apparait un jour, elle
+// s'ajoute ICI, nommement et avec sa raison ecrite — jamais en re-elargissant
+// une regle generale.
 const violations = [...new Map(cspViolations.map((v) => [`${v.directive} ${v.blocked}`, v])).values()];
-// LOT META-PIXEL-1 : les domaines Meta rejoignent la liste bloquante. Une CSP
-// qui refuse connect.facebook.net mange la mesure publicitaire exactement comme
-// FIX-CSP-GA4 mangeait GA4, et sans plus d'erreur visible cote page.
-const MESURE_RE = /google-analytics|analytics\.google|googletagmanager|facebook\.net|facebook\.com/i;
-for (const v of violations.filter((x) => MESURE_RE.test(x.blocked || ""))) {
-  errors.push(`Violation CSP bloquant la mesure : ${v.directive} refuse ${v.blocked}.`);
-}
-const autres = violations.filter((x) => !MESURE_RE.test(x.blocked || ""));
-if (autres.length) {
-  console.warn(`check:cookies : ${autres.length} violation(s) CSP hors mesure (non bloquant) :`);
-  autres.forEach((v) => console.warn(`  ${v.directive} refuse ${v.blocked}`));
+/** Exceptions explicites. Vide, et c'est voulu : chaque entree doit etre motivee. */
+const VIOLATIONS_TOLEREES = [];
+for (const v of violations) {
+  const toleree = VIOLATIONS_TOLEREES.some((e) => e.directive === v.directive && e.test.test(v.blocked || ""));
+  if (toleree) continue;
+  errors.push(
+    `Violation CSP : ${v.directive} refuse ${v.blocked}. ` +
+    "Le navigateur a refuse cette requete en silence, sans erreur cote page. " +
+    "Si elle porte de la mesure, la donnee est PERDUE : ajouter le domaine a la directive concernee dans vercel.json.",
+  );
 }
 
 if (errors.length) {
