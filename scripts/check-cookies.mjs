@@ -225,6 +225,7 @@ async function networkScenario() {
   await page.evaluate(() => { try { localStorage.clear(); } catch { /* ignore */ } });
   await page.reload({ waitUntil: "networkidle" });
   googleReqs.length = 0;
+  metaReqs.length = 0;
   await trancherConsentement(page, "cookie-accept", "scenario reseau");
   // Le hit de collecte part apres le chargement et l'execution de gtag.js :
   // on attend qu'il apparaisse, avec une limite de temps.
@@ -283,6 +284,81 @@ async function networkScenario() {
       errors.push(
         `APRES acceptation : le hit de collecte part vers ${collectHost}, qui n'est PAS dans la connect-src de la CSP ` +
         `(${CONNECT_SRC.join(" ")}). En production, le navigateur le bloquera et GA4 restera vide.`,
+      );
+    }
+  }
+
+  // LOT META-PIXEL-1 : volet POSITIF du pixel Meta. Jusqu'ici ce scenario ne
+  // savait dire que « rien ne part » (avant choix, apres refus) — ce qu'un
+  // identifiant vide satisfait tout aussi bien qu'un pixel correctement branche.
+  // C'est exactement l'angle mort qui laisse croire qu'une mesure fonctionne
+  // alors qu'elle n'existe pas. On exige donc maintenant la preuve inverse :
+  // apres « Accepter », fbevents.js doit REELLEMENT etre demande, et aboutir.
+  // On attend la REQUETE, puis sa REPONSE, avec deux limites de temps
+  // distinctes. Confondre les deux rend le gardien intermittent : depuis un
+  // runner de CI, la requete vers connect.facebook.net part en quelques
+  // millisecondes mais la reponse peut mettre plusieurs secondes a revenir.
+  // Conclure « jamais abouti » a l'instant ou la requete apparait, c'est
+  // accuser la CSP d'un simple aller-retour reseau.
+  const fbevents = () => metaReqs.find((u) => u.includes("connect.facebook.net") && u.includes("fbevents.js"));
+  const fbDeadline = Date.now() + 20000;
+  while (Date.now() < fbDeadline && !fbevents()) await page.waitForTimeout(250);
+  const fbReq = fbevents();
+  if (fbReq) {
+    const respDeadline = Date.now() + 20000;
+    while (Date.now() < respDeadline && !responses.has(fbReq)) await page.waitForTimeout(250);
+  }
+  if (!fbReq) {
+    errors.push(
+      `APRES acceptation : fbevents.js n'est pas charge (requetes Meta observees : ${metaReqs.length}). ` +
+      "Soit ANALYTICS.metaPixelId est vide, soit le bloc de chargement du pixel n'est plus atteint : " +
+      "Meta est annonce dans la banniere et la politique de confidentialite, et aucun pixel n'est pose.",
+    );
+  } else if (!responses.has(fbReq)) {
+    errors.push(
+      `APRES acceptation : fbevents.js est demande mais n'a JAMAIS abouti (aucune reponse). ` +
+      `Cause la plus probable : la script-src de la CSP ne couvre pas connect.facebook.net. connect-src actuelle : ${CONNECT_SRC.join(" ")}`,
+    );
+  } else {
+    const status = responses.get(fbReq);
+    if (!(status >= 200 && status < 300)) {
+      errors.push(`APRES acceptation : fbevents.js en statut ${status} (attendu 2xx) -> ${fbReq}`);
+    }
+    // Le script charge ne prouve PAS que le pixel mesure quoi que ce soit :
+    // c'est exactement le piege dans lequel le lot META-PIXEL-1 est tombe. Avec
+    // un fbq("consent","revoke") en tete de la file d'amorce, fbevents.js se
+    // chargeait en 200, puis cessait de vider cette file : init, grant et
+    // PageView y restaient bloques, fbq.getState().pixels restait VIDE et aucune
+    // requete signals/config ne partait. Zero erreur console, zero violation CSP,
+    // et zero mesure. Le gardien exige donc trois preuves, pas une :
+    //   - fbq present dans la page,
+    //   - un pixel REELLEMENT initialise, avec un identifiant au format Meta,
+    //   - la file d'amorce videe (une file non vide = un appel jamais execute).
+    const etatFbq = async () => page.evaluate(() => {
+      const fbq = window.fbq;
+      if (!fbq) return { present: false, ids: [], queue: 0 };
+      const ids = (fbq.getState ? (fbq.getState().pixels || []) : []).map((p) => p.id);
+      return { present: true, ids, queue: (fbq.queue || []).length };
+    }).catch(() => ({ present: false, ids: [], queue: 0 }));
+    // L'initialisation aboutit apres l'execution du script : on attend.
+    const pixDeadline = Date.now() + 15000;
+    let pixels = await etatFbq();
+    while (Date.now() < pixDeadline && !pixels.ids.length) {
+      await page.waitForTimeout(250);
+      pixels = await etatFbq();
+    }
+    if (!pixels.present) {
+      errors.push("APRES acceptation : window.fbq absent alors que fbevents.js est charge. L'amorce du pixel n'est plus posee.");
+    } else if (!pixels.ids.some((id) => /^\d{15,16}$/.test(String(id)))) {
+      errors.push(
+        `APRES acceptation : fbevents.js est charge mais AUCUN pixel Meta n'est initialise ` +
+        `(ids observes : ${pixels.ids.join(", ") || "aucun"}, appels restes en file d'amorce : ${pixels.queue}). ` +
+        "Le pixel se charge et ne mesure rien : identifiant vide, malforme, ou appel fbq bloque dans la file avant init.",
+      );
+    } else if (pixels.queue > 0) {
+      errors.push(
+        `APRES acceptation : ${pixels.queue} appel(s) fbq bloque(s) dans la file d'amorce apres initialisation du pixel. ` +
+        "fbevents.js a cesse de vider la file : les evenements empiles ne partiront jamais.",
       );
     }
   }
@@ -549,7 +625,10 @@ server.close();
 // sont bloquantes (elles signifient que la CSP mange les donnees) ; les autres
 // sont signalees pour information, sans faire echouer le check.
 const violations = [...new Map(cspViolations.map((v) => [`${v.directive} ${v.blocked}`, v])).values()];
-const MESURE_RE = /google-analytics|analytics\.google|googletagmanager/i;
+// LOT META-PIXEL-1 : les domaines Meta rejoignent la liste bloquante. Une CSP
+// qui refuse connect.facebook.net mange la mesure publicitaire exactement comme
+// FIX-CSP-GA4 mangeait GA4, et sans plus d'erreur visible cote page.
+const MESURE_RE = /google-analytics|analytics\.google|googletagmanager|facebook\.net|facebook\.com/i;
 for (const v of violations.filter((x) => MESURE_RE.test(x.blocked || ""))) {
   errors.push(`Violation CSP bloquant la mesure : ${v.directive} refuse ${v.blocked}.`);
 }
@@ -565,4 +644,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log("check:cookies OK : pages servies sous la CSP de production ; bannière (Refuser + Accepter) fiable sur mobile ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit /g/collect ABOUTI (2xx) vers un domaine bien présent dans la connect-src, cookie _ga déposé, événement essai_demarre transmis, 0 violation CSP sur la mesure.");
+console.log("check:cookies OK (META-PIXEL-1) : 0 requête Meta avant tout choix et après refus ; après acceptation, fbevents.js chargé en 2xx, pixel Meta RÉELLEMENT initialisé avec son identifiant, file d'amorce fbq vidée, 0 violation CSP sur les domaines Meta.");
 console.log("check:cookies OK (GADS-2) : les 3 conversions portent l'empreinte SHA-256 de l'email quand il existe, 0 email en clair vers Google ; guide_telecharge reporté d'une page à l'autre et abouti en 2xx ; demande_devis préparé à la saisie et émis au submit ; chaîne Stripe étiquetée sur ses 5 issues (ok, timeout, api_vide, erreur, sans_session), 1 seul événement par issue.");
