@@ -140,6 +140,13 @@ await scenario("Accepter", "cookie-accept");
 // « Accepter », gtag.js doit au contraire etre demande. On observe la REQUETE
 // emise (pas sa reponse) : le test ne depend pas d'un acces reseau reel.
 const GOOGLE_HOST = /(^|\.)(google|googletagmanager|google-analytics|doubleclick|googleadservices|gstatic)\./i;
+// LOT META-CONFORMITE : le pixel Meta passe par le MEME interrupteur que GA4,
+// et il doit etre prouve par le MEME test. Un domaine declare mais jamais
+// verifie, c'est une promesse ecrite dans la politique de confidentialite que
+// rien ne tient. Tant que ANALYTICS.metaPixelId est vide, ces requetes n'ont
+// aucune raison d'exister ; le jour ou l'ID est renseigne, elles ne doivent
+// apparaitre qu'apres « Accepter ».
+const META_HOST = /(^|\.)(facebook|facebook\.net|fbcdn)\./i;
 const PAGES = ["/", "/merci-essai", "/guide-google-commercant-local/merci", "/pour/multi-etablissements", "/politique-confidentialite"];
 
 /** Violations CSP remontees par le navigateur pendant tout le scenario. */
@@ -149,12 +156,14 @@ async function networkScenario() {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   const googleReqs = [];
+  const metaReqs = [];
   /** URL -> statut HTTP de la reponse effectivement recue. */
   const responses = new Map();
   page.on("request", (r) => {
     let host = "";
     try { host = new URL(r.url()).hostname; } catch { /* url exotique */ }
     if (GOOGLE_HOST.test(host)) googleReqs.push(r.url());
+    if (META_HOST.test(host)) metaReqs.push(r.url());
   });
   page.on("response", (r) => responses.set(r.url(), r.status()));
 
@@ -186,14 +195,21 @@ async function networkScenario() {
   if (googleReqs.length) {
     errors.push(`AVANT consentement : ${googleReqs.length} requete(s) Google (ex. ${googleReqs[0]}).`);
   }
+  if (metaReqs.length) {
+    errors.push(`AVANT consentement : ${metaReqs.length} requete(s) Meta (ex. ${metaReqs[0]}). Le pixel ne doit rien emettre avant « Accepter ».`);
+  }
 
   // b) Refus : idem, sur toutes les pages, y compris apres navigation.
   await page.goto(base + "/", { waitUntil: "networkidle" });
   await trancherConsentement(page, "cookie-deny", "scenario reseau");
   googleReqs.length = 0;
+  metaReqs.length = 0;
   for (const p of PAGES) await page.goto(base + p, { waitUntil: "networkidle" });
   if (googleReqs.length) {
     errors.push(`APRES refus : ${googleReqs.length} requete(s) Google (ex. ${googleReqs[0]}). Le refus ne doit rien charger.`);
+  }
+  if (metaReqs.length) {
+    errors.push(`APRES refus : ${metaReqs.length} requete(s) Meta (ex. ${metaReqs[0]}). Le refus ne doit rien charger.`);
   }
 
   // c) Acceptation : la mesure doit REELLEMENT partir.

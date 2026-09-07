@@ -160,6 +160,24 @@ if (!csp) {
   if (!script.includes("https://www.googletagmanager.com")) {
     errors.push("CSP script-src : https://www.googletagmanager.com manquant, gtag.js ne pourra pas se charger.");
   }
+  // LOT META-CONFORMITE : meme lecon que FIX-CSP-GA4, appliquee d'avance au
+  // pixel Meta. Le jour ou ANALYTICS.metaPixelId sera renseigne, un domaine
+  // absent de la CSP ne produira aucune erreur visible : le navigateur refusera
+  // la requete en silence et la mesure publicitaire restera vide, exactement
+  // comme GA4 pendant deux jours. On verrouille donc la CSP maintenant, pendant
+  // que le pixel est encore inactif et que l'oubli ne coute rien.
+  const img = directive("img-src");
+  if (!script.includes("https://connect.facebook.net")) {
+    errors.push("CSP script-src : https://connect.facebook.net manquant, fbevents.js ne pourra pas se charger.");
+  }
+  for (const src of ["https://www.facebook.com", "https://connect.facebook.net"]) {
+    if (!connect.includes(src)) {
+      errors.push(`CSP connect-src : ${src} manquant. Les evenements du pixel Meta partant vers ce domaine seront bloques par le navigateur, sans erreur visible.`);
+    }
+  }
+  if (!img.includes("https://www.facebook.com")) {
+    errors.push("CSP img-src : https://www.facebook.com manquant. Le pixel Meta se replie sur une image de suivi lorsque fetch est indisponible ; elle serait bloquee.");
+  }
 }
 
 if (errors.length) {

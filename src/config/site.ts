@@ -110,9 +110,24 @@ export const ANALYTICS = {
   ga4Id: "G-V320LSDY9Q", // flux « Vitrine Stela », www.mystela.fr
   posthogKey: "", // pas de clé au lancement (GA4 seul)
   posthogHost: "https://eu.i.posthog.com",
+  // LOT META-CONFORMITE. Pixel Meta (Facebook / Instagram), destinataire DÉCLARÉ
+  // dans la politique de confidentialité et dans la bannière AVANT d'exister
+  // techniquement. L'ordre compte : un site qui pose un pixel publicitaire sans
+  // l'avoir annoncé est en faute, et c'est un motif de refus classique pour un
+  // compte publicitaire neuf. La déclaration part donc en production d'abord.
+  //
+  // Tant que cet identifiant est VIDE, rien n'est chargé, exactement comme pour
+  // PostHog : aucun script, aucune requête, aucun cookie. Le jour où le compte
+  // est créé, renseigner l'ID ici suffit, et le pixel passera par le MÊME
+  // consentement que GA4 (voir CookieBanner.astro) : jamais avant « Accepter »,
+  // jamais après « Refuser ». La CSP de vercel.json autorise déjà les domaines
+  // nécessaires, pour ne pas rejouer l'incident FIX-CSP-GA4 où la mesure partait
+  // et le navigateur la refusait en silence.
+  metaPixelId: "",
 } as const;
 
-export const analyticsEnabled = () => Boolean(ANALYTICS.ga4Id || ANALYTICS.posthogKey);
+export const analyticsEnabled = () =>
+  Boolean(ANALYTICS.ga4Id || ANALYTICS.posthogKey || ANALYTICS.metaPixelId);
 
 // Charte (source : stella-app/docs/design/stela/). Décision VIT-0 n°7 :
 // #B08A3E = étoile / logo (INTOUCHABLE), #C8992E = accent or secondaire.
