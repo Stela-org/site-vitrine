@@ -52,6 +52,24 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
   // sans jamais déclencher de chargement. Tant que rien n'est branché, les
   // pages empilent dans window.stelaQueue.
   const w = window as any;
+
+  /**
+   * LOT META-EVENTS-1 : correspondance entre les conversions GA4 deja emises par
+   * les pages et les evenements STANDARD du pixel Meta. Standard, et non
+   * personnalise : seuls les noms reconnus par Meta (Lead, CompleteRegistration)
+   * ouvrent l'optimisation automatique des campagnes. Un nom libre serait
+   * accepte sans erreur et ne servirait a rien, c'est-a-dire la meme panne
+   * silencieuse que le lot precedent, un cran plus loin.
+   *
+   * Cette table est le SEUL endroit ou la correspondance existe : les pages
+   * continuent d'appeler track() sans rien savoir de Meta, il n'y a donc pas de
+   * second chemin de detection a maintenir ni de second endroit ou le
+   * consentement pourrait etre oublie.
+   */
+  const META_STANDARD: Record<string, string> = {
+    essai_demarre: "Lead",
+    guide_telecharge: "CompleteRegistration",
+  };
   /** Déclare `user_data` à partir de la première conversion en attente, si elle
       porte une empreinte. Appelé AVANT `config` : voir loadTrackers(). */
   function declarerUserDataEnAttente() {
@@ -80,6 +98,27 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
       gtag("set", "user_data", { sha256_email_address: hash });
     }
     gtag("event", name, rest);
+    envoyerAMeta(name);
+  }
+
+  /**
+   * LOT META-EVENTS-1 : meme conversion, meme instant, deuxieme destinataire.
+   * Appele depuis sendEvent(), donc APRES consentement par construction : c'est
+   * la meme porte que GA4, il n'y en a pas d'autre. Avant « Accepter »,
+   * `stelaSend` n'est pas branche et l'evenement dort dans window.stelaQueue ;
+   * apres « Refuser », `stelaSend` est neutre et la file est jetee.
+   *
+   * AUCUN parametre n'accompagne l'evenement : ni email, ni empreinte de
+   * l'email, ni telephone, ni nom. Le suivi avance de GA4 (GADS-2) fait
+   * voyager `hash` jusqu'ici ; il s'arrete ici. On ne transmet a Meta que le
+   * nom de l'evenement, ce qui suffit a l'optimisation publicitaire.
+   */
+  function envoyerAMeta(name: string) {
+    const evenement = META_STANDARD[name];
+    // `w.fbq` n'existe que si le bloc de chargement du pixel s'est execute,
+    // c'est-a-dire apres « Accepter » et avec un metaPixelId renseigne. Sinon
+    // la conversion part vers GA4 seule, sans erreur.
+    if (evenement && typeof w.fbq === "function") w.fbq("track", evenement);
   }
   function enableEvents() {
     w.stelaSend = sendEvent;
@@ -94,40 +133,19 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
   }
 
   let gaLoaded = false, phLoaded = false, metaLoaded = false;
-  function loadTrackers() {
-    if (cfg.gaId && !gaLoaded) {
-      gaLoaded = true;
-      // Consent Mode v2 : tout passe à « granted » AVANT le chargement de gtag.
-      gtag("consent", "update", {
-        ad_storage: "granted", analytics_storage: "granted",
-        ad_user_data: "granted", ad_personalization: "granted",
-      });
-      const s = document.createElement("script");
-      s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.gaId;
-      document.head.appendChild(s);
-      gtag("js", new Date());
-      // LOT GADS-2 : si une conversion attend déjà en file avec l'empreinte de
-      // l'email (cas courant : la page de merci a appelé track() avant que le
-      // visiteur ne clique « Accepter »), on déclare la donnée utilisateur AVANT
-      // `config`. C'est l'ordre attendu par le tag Google : une donnée déclarée
-      // après coup n'est pas reprise dans la configuration initiale du tag.
-      declarerUserDataEnAttente();
-      // Aucun paramètre superflu, aucun user_id : mesure strictement statistique.
-      gtag("config", cfg.gaId, { anonymize_ip: true });
-      enableEvents();
-    } else if (!cfg.gaId) {
-      disableEvents();
-    }
-    if (cfg.phKey && !phLoaded) {
-      phLoaded = true;
-      const p = document.createElement("script");
-      p.async = true; p.src = cfg.phHost + "/static/array.js";
-      p.addEventListener("load", () => {
-        const ph = (window as any).posthog;
-        if (ph && ph.init) ph.init(cfg.phKey, { api_host: cfg.phHost });
-      });
-      document.head.appendChild(p);
-    }
+  /**
+   * LOT META-EVENTS-1 : le chargement du pixel devient une fonction pour etre
+   * appele AVANT enableEvents(). L'ordre n'est pas cosmetique. Le cas le plus
+   * frequent est celui-ci : le visiteur arrive sur /merci-essai, la page appelle
+   * track("essai_demarre") qui empile dans window.stelaQueue faute de
+   * consentement, puis il clique « Accepter ». enableEvents() vide alors la file
+   * immediatement. Si l'amorce fbq n'est pas encore posee a cet instant, la
+   * conversion part vers GA4 et se perd pour Meta, sans la moindre erreur : un
+   * pixel qui repond et ne mesure pas la conversion, exactement la panne du lot
+   * precedent. On amorce donc fbq d'abord ; sa propre file d'attente absorbe le
+   * Lead le temps que fbevents.js se charge.
+   */
+  function loadMetaPixel() {
     // LOT META-CONFORMITE : pixel Meta, sur EXACTEMENT le même interrupteur que
     // GA4. On n'arrive dans loadTrackers() qu'après « Accepter » : un refus ne
     // passe jamais ici, et un visiteur qui n'a rien choisi non plus. Tant que
@@ -168,6 +186,43 @@ const cfg = JSON.stringify({ gaId: ANALYTICS.ga4Id, phKey: ANALYTICS.posthogKey,
       w2.fbq("init", cfg.metaId);
       w2.fbq("consent", "grant");
       w2.fbq("track", "PageView");
+    }
+  }
+
+  function loadTrackers() {
+    loadMetaPixel();
+    if (cfg.gaId && !gaLoaded) {
+      gaLoaded = true;
+      // Consent Mode v2 : tout passe à « granted » AVANT le chargement de gtag.
+      gtag("consent", "update", {
+        ad_storage: "granted", analytics_storage: "granted",
+        ad_user_data: "granted", ad_personalization: "granted",
+      });
+      const s = document.createElement("script");
+      s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.gaId;
+      document.head.appendChild(s);
+      gtag("js", new Date());
+      // LOT GADS-2 : si une conversion attend déjà en file avec l'empreinte de
+      // l'email (cas courant : la page de merci a appelé track() avant que le
+      // visiteur ne clique « Accepter »), on déclare la donnée utilisateur AVANT
+      // `config`. C'est l'ordre attendu par le tag Google : une donnée déclarée
+      // après coup n'est pas reprise dans la configuration initiale du tag.
+      declarerUserDataEnAttente();
+      // Aucun paramètre superflu, aucun user_id : mesure strictement statistique.
+      gtag("config", cfg.gaId, { anonymize_ip: true });
+      enableEvents();
+    } else if (!cfg.gaId) {
+      disableEvents();
+    }
+    if (cfg.phKey && !phLoaded) {
+      phLoaded = true;
+      const p = document.createElement("script");
+      p.async = true; p.src = cfg.phHost + "/static/array.js";
+      p.addEventListener("load", () => {
+        const ph = (window as any).posthog;
+        if (ph && ph.init) ph.init(cfg.phKey, { api_host: cfg.phHost });
+      });
+      document.head.appendChild(p);
     }
   }
 

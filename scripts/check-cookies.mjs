@@ -149,11 +149,22 @@ const GOOGLE_HOST = /(^|\.)(google|googletagmanager|google-analytics|doubleclick
 const META_HOST = /(^|\.)(facebook|facebook\.net|fbcdn)\./i;
 const PAGES = ["/", "/merci-essai", "/guide-google-commercant-local/merci", "/pour/multi-etablissements", "/politique-confidentialite"];
 
+// LOT META-EVENTS-1, condition MESUREE pour que ce scenario voie quoi que ce
+// soit de Meta. Playwright annonce par defaut « HeadlessChrome » dans l'
+// User-Agent, et fbevents.js filtre ce trafic : le pixel s'initialise, il
+// COMPTE l'evenement (fbq.getState().pixels[0].eventCount augmente) et
+// n'envoie AUCUN beacon vers www.facebook.com/tr. Verifie en isolant le
+// snippet OFFICIEL de Meta, hors de tout code du site : meme silence avec l'UA
+// par defaut, les deux beacons attendus avec un UA de navigateur reel. Sans
+// cette ligne, l'assertion sur Lead et CompleteRegistration serait rouge en
+// permanence pour une raison etrangere au site.
+const UA_NAVIGATEUR_REEL = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
+
 /** Violations CSP remontees par le navigateur pendant tout le scenario. */
 const cspViolations = [];
 
 async function networkScenario() {
-  const ctx = await browser.newContext();
+  const ctx = await browser.newContext({ userAgent: UA_NAVIGATEUR_REEL });
   const page = await ctx.newPage();
   const googleReqs = [];
   const metaReqs = [];
@@ -382,6 +393,56 @@ async function networkScenario() {
         "APRES acceptation sur /merci-essai : l'evenement essai_demarre n'apparait dans aucun hit de collecte " +
         `(hits observes : ${eventHits.length}). La file d'evenements n'est pas videe vers GA4.`,
       );
+    }
+  }
+
+  // LOT META-EVENTS-1 : les MEMES conversions doivent partir vers Meta, sous
+  // leur nom standard. Preuve reseau, pas preuve de code : le pixel Meta emet
+  // ses evenements en appelant https://www.facebook.com/tr/?...&ev=<Nom>. On
+  // lit donc la requete elle-meme. C'est la seule facon de distinguer un pixel
+  // qui mesure d'un pixel qui repond — la panne exacte du lot precedent, qu'un
+  // simple « fbevents.js charge en 200 » ne sait pas voir.
+  const metaEvenement = (nom) => metaReqs.find((u) => /\/tr\/?\?/.test(u) && new URL(u).searchParams.get("ev") === nom);
+  const attendreMetaEvenement = async (nom) => {
+    const limite = Date.now() + 20000;
+    while (Date.now() < limite && !metaEvenement(nom)) await page.waitForTimeout(250);
+    return metaEvenement(nom);
+  };
+  const lead = await attendreMetaEvenement("Lead");
+  if (!lead) {
+    const vus = metaReqs.filter((u) => /\/tr\/?\?/.test(u)).map((u) => new URL(u).searchParams.get("ev"));
+    errors.push(
+      "APRES acceptation sur /merci-essai : aucun evenement Meta « Lead » (essai_demarre) " +
+      `(evenements Meta observes : ${vus.join(", ") || "aucun"}). ` +
+      "Le pixel repond mais ne mesure pas la conversion : Meta ne peut pas distinguer un visiteur qui repart d'un visiteur qui demarre un essai.",
+    );
+  } else if (!/^\d{15,16}$/.test(String(new URL(lead).searchParams.get("id")))) {
+    errors.push(`APRES acceptation : evenement Meta Lead sans identifiant de pixel exploitable (${lead.slice(0, 160)}).`);
+  }
+
+  // Meme preuve sur l'autre conversion, sur sa propre page de merci. Le
+  // consentement est deja accorde : la navigation suffit a la declencher.
+  await page.goto(base + "/guide-google-commercant-local/merci", { waitUntil: "networkidle" });
+  const inscription = await attendreMetaEvenement("CompleteRegistration");
+  if (!inscription) {
+    const vus = metaReqs.filter((u) => /\/tr\/?\?/.test(u)).map((u) => new URL(u).searchParams.get("ev"));
+    errors.push(
+      "APRES acceptation sur /guide-google-commercant-local/merci : aucun evenement Meta « CompleteRegistration » (guide_telecharge) " +
+      `(evenements Meta observes : ${vus.join(", ") || "aucun"}).`,
+    );
+  }
+
+  // Aucune donnee personnelle dans ces evenements. Le suivi avance GA4 fait
+  // voyager l'empreinte SHA-256 de l'email jusqu'a l'emetteur commun ; elle ne
+  // doit pas franchir la porte de Meta, pas plus qu'un email en clair.
+  const INTERDIT = /(^|[^a-z])(em|ph|fn|ln|email|mail)$/i;
+  for (const u of metaReqs.filter((v) => /\/tr\/?\?/.test(v))) {
+    const params = new URL(u).searchParams;
+    for (const [cle, valeur] of params) {
+      const nu = cle.replace(/^(cd|ud)\[?|\]$/g, "");
+      if (INTERDIT.test(nu) || /@/.test(valeur) || /^[0-9a-f]{64}$/.test(valeur)) {
+        errors.push(`Evenement Meta porteur de donnee personnelle : parametre ${cle}=${String(valeur).slice(0, 40)} dans ${u.slice(0, 140)}. Seul le nom de l'evenement doit partir.`);
+      }
     }
   }
   await drainViolations();
@@ -644,5 +705,6 @@ if (errors.length) {
   process.exit(1);
 }
 console.log("check:cookies OK : pages servies sous la CSP de production ; bannière (Refuser + Accepter) fiable sur mobile ; 0 requête Google avant consentement et après refus ; après acceptation, gtag.js chargé, hit /g/collect ABOUTI (2xx) vers un domaine bien présent dans la connect-src, cookie _ga déposé, événement essai_demarre transmis, 0 violation CSP sur la mesure.");
+console.log("check:cookies OK (META-EVENTS-1) : après acceptation, Meta reçoit Lead (essai_demarre) et CompleteRegistration (guide_telecharge), sans aucun paramètre personnel ; après refus, aucune requête Meta.");
 console.log("check:cookies OK (META-PIXEL-1) : 0 requête Meta avant tout choix et après refus ; après acceptation, fbevents.js chargé en 2xx, pixel Meta RÉELLEMENT initialisé avec son identifiant, file d'amorce fbq vidée, 0 violation CSP sur les domaines Meta.");
 console.log("check:cookies OK (GADS-2) : les 3 conversions portent l'empreinte SHA-256 de l'email quand il existe, 0 email en clair vers Google ; guide_telecharge reporté d'une page à l'autre et abouti en 2xx ; demande_devis préparé à la saisie et émis au submit ; chaîne Stripe étiquetée sur ses 5 issues (ok, timeout, api_vide, erreur, sans_session), 1 seul événement par issue.");
