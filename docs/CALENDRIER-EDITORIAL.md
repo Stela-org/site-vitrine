@@ -83,8 +83,8 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 | Semaine | Titre | Cluster | Statut |
 |---|---|---|---|
 | S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | Livré |
-| S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | En relecture (PR) |
-| S15 | Quelles sont les nouveautés Google Business Profile de septembre 2026 ? | google-business-profile | À faire |
+| S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | Livré |
+| S15 | Que faut-il vérifier sur sa fiche Google Business Profile chaque mois ? (repli intemporel, voir la note ci-dessous) | google-business-profile | En relecture (PR) |
 | S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | À faire |
 | S17 | Faut-il activer la messagerie de sa fiche Google Business Profile ? | guide | À faire |
 | S18 | Comment se calcule la note moyenne d'une fiche Google ? | guide | À faire |
@@ -106,6 +106,18 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 > vérifiable au moment de la rédaction, écrire à la place un article intemporel
 > de bonnes pratiques et le signaler dans la Pull Request. Ne jamais inventer une
 > nouveauté.
+
+> S15, repli appliqué le 10/09/2026. Aucune nouveauté Google Business Profile de
+> septembre 2026 n'a pu être vérifiée sur une source primaire au moment de la
+> rédaction : les pages officielles (`support.google.com`, `blog.google`,
+> `developers.google.com`) et la presse spécialisée de référence étaient
+> inaccessibles depuis l'environnement de rédaction, et les seules pages
+> atteignables étaient des articles d'agences reprenant des annonces non
+> vérifiables. La semaine a donc produit l'article intemporel « Que faut-il
+> vérifier sur sa fiche Google Business Profile chaque mois ? ». Le titre
+> d'actualité de septembre 2026 n'est pas reporté : il est abandonné, une
+> actualité périmée n'ayant pas d'intérêt. Les semaines S19 et S23 restent des
+> actualités mensuelles, à traiter avec la même exigence de source primaire.
 
 ## Réserve de sujets (hors planning, à basculer en S25 et suivantes)
 Ces lignes ne sont volontairement pas au statut « À faire » : elles ne seront
