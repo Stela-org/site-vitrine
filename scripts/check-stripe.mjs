@@ -6,18 +6,41 @@
 // À lancer APRÈS le build (lit dist/).
 import { readFileSync, globSync } from "node:fs";
 
-// 1) Les 4 Payment Links LIVE exacts (suffixes …9Zm0f/g/h/i). Source de vérité :
-//    branche héritée « legacy », ancien index.html (ETOILE/CONST × MONTH/YEAR).
-const LINKS = {
-  "Étoile mensuel": "https://buy.stripe.com/4gM6oH9KY4Sx2CRdyO9Zm0f",
-  "Étoile annuel": "https://buy.stripe.com/3cI00j2iw0Ch91f0M29Zm0g",
-  "Constellation mensuel": "https://buy.stripe.com/6oUfZh3mA84J6T72Ua9Zm0h",
-  "Constellation annuel": "https://buy.stripe.com/28E5kD8GU84Jdhv9iy9Zm0i",
-};
+// 1) Les Payment Links LIVE, LUS DANS LA SOURCE et jamais recopiés ici.
+//
+//    LOT PRIX-1 : ils étaient dupliqués dans ce fichier. La duplication a tenu
+//    tant que rien ne changeait ; le jour du changement de grille, ce gardien
+//    aurait vérifié que le build contient les ANCIENS liens, c'est-à-dire
+//    l'exact contraire de ce qu'on lui demande. Un gardien qui recopie ce
+//    qu'il surveille finit toujours par défendre la version d'avant.
+//    Node lit le TypeScript nativement (type stripping, Node >= 22.6), même
+//    mécanique que check:partner.
+let site;
+try {
+  site = await import("../src/config/tarifs.ts");
+} catch (err) {
+  console.error("check:stripe ECHEC : impossible de charger src/config/tarifs.ts depuis Node.");
+  console.error("  " + (err && err.message));
+  process.exit(1);
+}
+const { STRIPE_LINKS, PLANS, stripeLink } = site;
 
-// 2) Montants de référence RÉELS (vérifiés dans Stripe) + durée d'essai. Doivent
-//    apparaître tels quels sur la page tarifs.
-const AMOUNTS = ["49 €", "89 €", "39 €", "79 €", "468 €", "948 €", "7 jours"];
+const LINKS = {};
+for (const [plan, parPeriode] of Object.entries(STRIPE_LINKS)) {
+  for (const [periode, url] of Object.entries(parPeriode)) {
+    LINKS[`${plan} ${periode}`] = url;
+  }
+}
+
+// 2) Montants de référence, DÉRIVÉS de `PLANS`. Doivent apparaître tels quels
+//    sur la page tarifs : c'est ce qui empêche la grille affichée de diverger
+//    de la grille facturée.
+const AMOUNTS = ["7 jours"];
+for (const p of PLANS) {
+  AMOUNTS.push(`${p.monthly} €`);
+  if (p.yearlyPerMonth !== null) AMOUNTS.push(`${p.yearlyPerMonth} €`);
+  if (p.yearlyTotal !== null) AMOUNTS.push(`${p.yearlyTotal} €`);
+}
 
 const htmlFiles = globSync("dist/**/*.html");
 const read = (f) => readFileSync(f, "utf8");
@@ -42,10 +65,17 @@ if (!tarifs) {
     if (!tarifs.html.includes(a)) errors.push(`/tarifs : montant/durée de référence « ${a} » absent.`);
   }
   // Chaque bouton de plan doit porter les 2 variantes (toggle mensuel/annuel).
+  // Chaque offre À ANNUEL porte les deux liens. Polaire n'en a qu'un, et c'est
+  // voulu : lui poser un `data-href-yearly` la ferait pointer vers une URL vide
+  // au premier clic sur « Annuel », c'est-à-dire un tunnel d'achat mort.
+  const aAnnuel = PLANS.filter((p) => p.yearlyTotal !== null).length;
   const monthlyAttrs = (tarifs.html.match(/data-href-monthly=/g) || []).length;
   const yearlyAttrs = (tarifs.html.match(/data-href-yearly=/g) || []).length;
-  if (monthlyAttrs < 2 || yearlyAttrs < 2) {
-    errors.push(`/tarifs : boutons de plan sans double lien mensuel/annuel (data-href-monthly=${monthlyAttrs}, data-href-yearly=${yearlyAttrs}, attendus ≥2 chacun).`);
+  if (monthlyAttrs < aAnnuel || yearlyAttrs < aAnnuel) {
+    errors.push(`/tarifs : boutons de plan sans double lien mensuel/annuel (data-href-monthly=${monthlyAttrs}, data-href-yearly=${yearlyAttrs}, attendus ≥${aAnnuel} chacun).`);
+  }
+  if (yearlyAttrs > aAnnuel) {
+    errors.push(`/tarifs : ${yearlyAttrs} liens annuels pour ${aAnnuel} offre(s) à annuel : une offre sans annuel a reçu un lien vide.`);
   }
 }
 
@@ -69,9 +99,55 @@ for (const { f, html } of all) {
   }
 }
 
+// E. Polaire n'a PAS d'annuel, et l'absence doit rester une absence.
+//    Le compilateur refuse déjà `stripeLink("polaire", "yearly")` ; ce test
+//    couvre l'exécution, que le typage ne protège pas (un appel construit
+//    dynamiquement, un `as any`, un fichier `.astro` non typé au build).
+if (STRIPE_LINKS.polaire?.yearly !== undefined) {
+  errors.push("STRIPE_LINKS.polaire.yearly existe : Polaire n'a pas d'annuel, ce lien mènerait nulle part.");
+}
+if (typeof stripeLink === "function") {
+  const lienPolaireAnnuel = stripeLink("polaire", "yearly");
+  if (!lienPolaireAnnuel.startsWith("undefined")) {
+    errors.push(`stripeLink("polaire","yearly") rend une URL d'apparence valide (${lienPolaireAnnuel.slice(0, 60)}) : elle serait cliquée.`);
+  }
+}
+
+// F. CHAQUE LIEN RÉPOND. C'est le seul volet de ce gardien qui vérifie le
+//    monde réel plutôt que nos fichiers.
+//
+//    POURQUOI CE VOLET EXISTE. Tout le reste de ce script compare des chaînes
+//    entre elles : il resterait vert si les six liens étaient parfaitement
+//    cohérents ET tous désactivés dans Stripe. C'est précisément ce qui vient
+//    d'arriver aux deux anciens liens Étoile, passés `active: false` le 14/09.
+//    Un lien mort ne se voit nulle part, sauf dans le chiffre d'affaires.
+//
+//    `HEAD`, pas `GET` : on veut le code de statut, pas la page. Un lien
+//    désactivé rend 404. Hors ligne ou coupure réseau : on N'ÉCHOUE PAS, on
+//    le DIT — un gardien qui tombe parce que le wifi a hoqueté est un gardien
+//    qu'on finit par ignorer, et celui-ci garde le tunnel d'achat.
+let reseauOk = true;
+const morts = [];
+await Promise.all(
+  Object.entries(LINKS).map(async ([label, url]) => {
+    try {
+      const rep = await fetch(url, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(10000) });
+      if (rep.status !== 200) morts.push(`${label} : HTTP ${rep.status} (${url})`);
+    } catch (e) {
+      reseauOk = false;
+      console.warn(`  [reseau] ${label} injoignable : ${e && e.message}`);
+    }
+  }),
+);
+for (const m of morts) errors.push(`Payment Link qui ne repond plus : ${m}`);
+
 if (errors.length) {
   console.error(`check:stripe ECHEC : ${errors.length} probleme(s) :`);
   [...new Set(errors)].forEach((e) => console.error("  " + e));
   process.exit(1);
 }
-console.log(`check:stripe OK : 4 Payment Links LIVE + montants (49/89/39/79/468/948, 7 jours) + tunnel 2 clics vérifiés (${htmlFiles.length} pages).`);
+const listeMontants = AMOUNTS.filter((a) => a !== "7 jours").join(", ");
+console.log(
+  `check:stripe OK : ${Object.keys(LINKS).length} Payment Links LIVE${reseauOk ? " (tous en 200)" : " (verification reseau indisponible, non bloquante)"}` +
+  ` + montants (${listeMontants}, 7 jours) + tunnel 2 clics verifies (${htmlFiles.length} pages).`,
+);

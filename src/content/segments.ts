@@ -1,8 +1,15 @@
+import { PLANS } from "../config/site";
 // Pages segments : par profil (indépendant, multi-établissements) et par secteur
 // (restaurant, coiffeur, institut, garage, hôtel, extensible). 1 URL = 1
 // intention. VIT-15 : chaque segment porte de quoi bâtir une vraie landing
 // métier (avis d'exemple dans le vocabulaire du métier, tagline, icône pour
 // l'aiguillage de la home).
+
+
+// LOT PRIX-1 : le prix d'appel est LU dans `PLANS`, plus recopié. Il était
+// écrit à la main à deux endroits de ce fichier et disait encore 49 € le jour
+// où la grille est passée à 29 €.
+const PRIX_ETOILE = PLANS.find((p) => p.id === "etoile")!.monthly;
 
 export type SegmentReview = { text: string; reply: string };
 
@@ -20,7 +27,7 @@ export type Segment = {
   reviewExamples: SegmentReview[]; // 2 avis d'exemple du métier (section preuve)
   points: { t: string; d: string }[];
   faq: { q: string; a: string }[];
-  surDevis?: boolean; // tarification sur devis (multi-établissements) : pas de grille 49/89 sur la landing
+  surDevis?: boolean; // tarification sur devis (multi-établissements) : aucune grille de prix sur la landing
 };
 
 export const SEGMENTS: Segment[] = [
@@ -46,7 +53,7 @@ export const SEGMENTS: Segment[] = [
     ],
     points: [
       { t: "Simple dès le premier jour", d: "Tout est pré-réglé pour votre secteur. Vous êtes prêt en quelques minutes." },
-      { t: "Un prix clair", d: "49 € par mois pour commencer, sans engagement. Vous voyez le prix avant d'essayer." },
+      { t: "Un prix clair", d: `${PRIX_ETOILE} € par mois pour commencer, sans engagement. Vous voyez le prix avant d'essayer.` },
       { t: "Conforme, donc tranquille", d: "Aucun filtrage des avis : votre fiche Google reste protégée." },
     ],
     faq: [
@@ -141,7 +148,7 @@ export const SEGMENTS: Segment[] = [
       { t: "Toute l'équipe", d: "Des QR codes par poste, pour impliquer chaque coiffeur." },
     ],
     faq: [
-      { q: "Utile pour un petit salon ?", a: "Oui. L'offre de départ à 49 € par mois convient à un salon indépendant." },
+      { q: "Utile pour un petit salon ?", a: `Oui. L'offre de départ à ${PRIX_ETOILE} € par mois convient à un salon indépendant.` },
       { q: "Puis-je relancer mes clients ?", a: "Oui, par SMS ou WhatsApp, dans le respect du consentement." },
     ],
   },

@@ -1,8 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
-import { SITE , TARIFS_URL } from "../config/site";
+import { PLANS, SITE , TARIFS_URL } from "../config/site";
 import { CITIES } from "../content/cities";
+
+// LOT PRIX-1 : le prix d'appel vient de `PLANS`, jamais recopié.
+const PRIX_ETOILE = PLANS.find((p) => p.id === "etoile")!.monthly;
 
 export function getStaticPaths() {
   return CITIES.map((c) => ({ params: { ville: c.slug }, props: { c } }));
@@ -24,7 +27,7 @@ const faqCommune = [
   },
   {
     q: `Stela convient-il à un restaurant indépendant ${c.prep} ?`,
-    a: `Oui. L'offre de départ à 49 € par mois est pensée pour un établissement indépendant, avec un essai gratuit et sans engagement.`,
+    a: `Oui. L'offre de départ à ${PRIX_ETOILE} € par mois est pensée pour un établissement indépendant, avec un essai gratuit et sans engagement.`,
   },
 ];
 const faq = [...faqCommune, ...c.faqLocale];

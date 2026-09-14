@@ -136,9 +136,17 @@ const MIN_TOTAL = 2500;
 if (mots < MIN_TOTAL) griefs.push(`le fichier entier ne fait que ${mots} mots, seuil ${MIN_TOTAL}.`);
 
 // 3. Des reperes qui ne peuvent pas disparaitre sans que quelque chose soit
-//    casse. Les deux montants sont le coeur de l'offre : s'ils manquent, ce
-//    n'est pas le fichier qui a un probleme, c'est la page Tarifs.
-const REPERES = ["49 €", "89 €", "Étoile", "Constellation"];
+//    casse. Les montants sont le coeur de l'offre : s'ils manquent, ce n'est
+//    pas le fichier qui a un probleme, c'est la page Tarifs.
+//
+//    LOT PRIX-1 : les montants sont LUS dans la grille, plus ecrits ici. Ce
+//    repere valait "49 €" en dur ; au changement de grille il a fait tomber la
+//    CI en disant « la page Tarifs a change », ce qui etait vrai et voulu.
+//    Un repere qui doit etre corrige a la main a chaque changement de prix
+//    finit par etre corrige sans etre relu, ou pire, supprime.
+//    `tarifs.ts` n'a AUCUN import, c'est ce qui permet de le charger ici.
+const { PLANS } = await import("../src/config/tarifs.ts");
+const REPERES = [...PLANS.map((p) => `${p.monthly} €`), ...PLANS.map((p) => p.name)];
 const absents = REPERES.filter((r) => !sortie.includes(r));
 if (absents.length) griefs.push(`repere(s) introuvable(s) dans le fichier : ${absents.join(", ")}. Soit l'extraction a casse, soit la page Tarifs a change.`);
 
