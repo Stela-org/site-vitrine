@@ -1,0 +1,411 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../config/site";
+import Glyph from "../components/Glyph.astro";
+
+// LOT PARTNER-1 §5 : la page du programme d'affiliation.
+//
+// AUCUN PRIX STELA SUR CETTE PAGE, ET C'EST UNE RÈGLE, PAS UN OUBLI. Un
+// partenaire ne vend pas un tarif, il apporte un client ; le prix vit sur
+// /tarifs, qui est la seule page que le catalogue met à jour. Recopier un
+// montant ici en ferait une seconde source de vérité, qui divergerait au
+// premier changement de grille et ferait mentir une page indexée.
+//
+// LE SEUL POURCENTAGE AFFICHÉ EST 30 %, qui est le PLAFOND du programme
+// (`COMMISSION_RATE_MAX` côté application). Les accords réels se signent entre
+// 5 % et 30 % selon ce que le partenaire apporte, et c'est dit sur la page :
+// annoncer 30 % sans le nuancer promettrait à tous le taux de quelques-uns.
+//
+// POLICE DU SITE, pas de pile a part. Un premier jet posait cette page en
+// serif pour la distinguer des pages commercants. Elle serait restee la SEULE
+// page serif d'un site integralement en Plus Jakarta Sans : une page qui ne
+// ressemble pas au site se lit comme une page d'un autre site, ce qui est
+// exactement l'inverse de l'effet cherche sur une page qui demande a des
+// agences de nous faire confiance. Elle herite donc de `global.css`, sans
+// declaration de police propre.
+
+const titre = "Programme partenaires";
+const description =
+  "Agences SEO, freelances Google Business Profile, agences de communication locale : touchez 30 % des abonnements que vous apportez, pendant douze mois.";
+
+const CIBLES = [
+  {
+    nom: "Agences SEO locales",
+    texte:
+      "Vous travaillez déjà la visibilité de commerces sur Google. Les avis sont le levier que vos clients vous réclament et que vous ne pouvez pas produire vous-même.",
+  },
+  {
+    nom: "Freelances Google Business Profile",
+    texte:
+      "Vous optimisez des fiches à la main. Stela prend la collecte d'avis et les réponses, vous gardez le conseil, et l'abonnement continue de vous rapporter.",
+  },
+  {
+    nom: "Agences de communication locale",
+    texte:
+      "Vous gérez la présence en ligne de plusieurs établissements. Un outil de plus à recommander, sans rien à installer ni à maintenir de votre côté.",
+  },
+];
+
+const ETAPES = [
+  {
+    titre: "Vous recevez votre lien",
+    texte:
+      "Un lien à votre code. Un prospect qui clique reste attribué à votre compte pendant quatre-vingt-dix jours, même s'il revient s'abonner trois semaines plus tard.",
+  },
+  {
+    titre: "Votre client s'abonne",
+    texte:
+      "Rien à faire de plus. L'attribution se pose à l'abonnement, automatiquement, et votre client n'a aucune démarche particulière.",
+  },
+  {
+    titre: "Vous suivez, puis vous êtes payé",
+    texte:
+      "Un tableau de bord vous montre vos clients, leur statut et ce qui vous est dû. Le virement part chaque trimestre, sur les montants réellement encaissés.",
+  },
+];
+
+const questions = [
+  {
+    q: "Sur quoi la commission est-elle calculée ?",
+    a: "Sur ce que votre client paie réellement à Stela, hors taxes, une fois la facture encaissée. Un mois remboursé est déduit, un mois impayé n'est pas compté.",
+  },
+  {
+    q: "Pendant combien de temps ?",
+    a: "Douze mois à compter de l'abonnement de chaque client. Le compte à rebours est propre à chaque client : un client apporté en mars rapporte jusqu'en mars de l'année suivante, quel que soit votre ancienneté dans le programme.",
+  },
+  {
+    q: "Le taux est-il toujours de 30 % ?",
+    a: "30 % est le maximum du programme, proposé à qui apporte et accompagne le client. Un apport simple se négocie plus bas. Le taux retenu est écrit dans votre accord et c'est celui qui est appliqué au calcul.",
+  },
+  {
+    q: "Et si mon client arrête ?",
+    a: "La commission s'arrête avec son abonnement. Rien ne vous est redemandé sur ce qui a déjà été versé.",
+  },
+];
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: questions.map((x) => ({
+    "@type": "Question",
+    name: x.q,
+    acceptedAnswer: { "@type": "Answer", text: x.a },
+  })),
+};
+
+// Codes d'erreur renvoyés par l'API, traduits ici en phrases. Même mécanique
+// que /pour/[segment] : le visiteur revient sur un formulaire qui DIT ce qui
+// ne va pas, jamais sur un écran muet.
+const LIBELLES_ERREUR = {
+  nom: "votre nom",
+  structure: "le nom de votre structure",
+  email: "une adresse email valide",
+  clients: "le nombre de clients que vous gérez",
+};
+const erreurs = (Astro.url.searchParams.get("erreur") ?? "")
+  .split(",")
+  .map((c) => LIBELLES_ERREUR[c])
+  .filter(Boolean);
+const envoye = Astro.url.searchParams.get("candidature") === "ok";
+---
+
+<Base title={titre} description={description} path="/partenaires" closing={false} stickyCta={false}>
+  <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
+
+  <section class="pt-hero">
+    <div class="container">
+      <p class="pt-eyebrow"><Glyph /> Programme partenaires</p>
+      <h1>Vos clients gagnent des avis, vous gagnez 30 % pendant un an</h1>
+      <p class="pt-lead">
+        Vous touchez jusqu'à 30 % de chaque abonnement que vous apportez, pendant douze mois. Les versements partent par
+        virement, chaque trimestre. Un tableau de bord vous montre vos clients et ce qui vous est dû, sans avoir à le
+        demander.
+      </p>
+      <a class="btn btn-primary" href="#candidature">Devenir partenaire</a>
+    </div>
+  </section>
+
+  <section class="pt-section">
+    <div class="container">
+      <h2>Pour qui</h2>
+      <div class="pt-grid">
+        {CIBLES.map((c) => (
+          <div class="pt-carte">
+            <h3>{c.nom}</h3>
+            <p>{c.texte}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pt-section pt-section-cream">
+    <div class="container">
+      <h2>Comment ça marche</h2>
+      <ol class="pt-etapes">
+        {ETAPES.map((e, i) => (
+          <li>
+            <span class="pt-num">{i + 1}</span>
+            <div>
+              <h3>{e.titre}</h3>
+              <p>{e.texte}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="pt-section">
+    <div class="container">
+      <div class="pt-questions">
+      <h2>Ce qu'il faut savoir avant de signer</h2>
+      {questions.map((x) => (
+        <div class="pt-question">
+          <h3>{x.q}</h3>
+          <p>{x.a}</p>
+        </div>
+      ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pt-section pt-section-cream" id="candidature">
+    <div class="container">
+      <div class="pt-form-wrap">
+      <h2>Devenir partenaire</h2>
+      {envoye ? (
+        <div class="pt-confirm" id="candidature-confirm">
+          <p class="pt-confirm-titre">Votre candidature est arrivée.</p>
+          <p>
+            Nous la lisons et nous revenons vers vous sous deux jours ouvrés, avec un taux et un lien à votre code. Une
+            question d'ici là : écrivez à <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p class="pt-form-lead">
+            Cinq champs. Nous répondons sous deux jours ouvrés, avec une proposition de taux et votre lien.
+          </p>
+          {erreurs.length > 0 && (
+            <p class="pt-erreur">Il manque {erreurs.join(", ")}.</p>
+          )}
+          <form class="pt-form" method="POST" action="/api/partenaire-candidature">
+            <label>
+              <span>Votre nom</span>
+              <input type="text" name="nom" required maxlength="80" autocomplete="name" />
+            </label>
+            <label>
+              <span>Votre structure</span>
+              <input type="text" name="structure" required maxlength="80" autocomplete="organization" />
+            </label>
+            <label>
+              <span>Votre site</span>
+              <input type="text" name="site" maxlength="120" autocomplete="url" placeholder="Facultatif" />
+            </label>
+            <label>
+              <span>Votre email</span>
+              <input type="email" name="email" required maxlength="120" autocomplete="email" />
+            </label>
+            <label>
+              <span>Nombre de clients que vous gérez</span>
+              <input type="text" name="clients" required maxlength="10" inputmode="numeric" />
+            </label>
+            {/* Piège à robots : invisible, jamais rempli par un humain. Le
+                champ porte un nom que les robots remplissent volontiers. */}
+            <p class="pt-hp" aria-hidden="true">
+              <label>Ne remplissez pas ce champ<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </p>
+            <button class="btn btn-primary" type="submit">Envoyer ma candidature</button>
+            <p class="pt-mentions">
+              Vos informations servent uniquement à étudier votre candidature. Elles ne sont ni revendues ni versées à
+              une liste de diffusion.
+            </p>
+          </form>
+        </>
+      )}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pt-hero {
+    padding: 56px 0 40px;
+  }
+  .pt-eyebrow {
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    /* PAS --brass : le laiton à 14 px sur crème donne 2,92 pour 4,5 requis
+       (check:contraste). Le glyphe étoile, lui, reste décoratif et aria-hidden. */
+    color: var(--royal);
+    margin: 0 0 14px;
+  }
+  .pt-hero h1 {
+    font-size: clamp(30px, 5.2vw, 50px);
+    line-height: 1.12;
+    margin: 0 0 18px;
+    max-width: 17ch;
+  }
+  .pt-lead {
+    font-size: clamp(17px, 2.1vw, 20px);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 62ch;
+    margin: 0 0 26px;
+  }
+
+  .pt-section {
+    padding: 44px 0;
+  }
+  .pt-section-cream {
+    background: var(--cream);
+  }
+  .pt-section h2 {
+    font-size: clamp(23px, 3.2vw, 31px);
+    line-height: 1.2;
+    margin: 0 0 22px;
+  }
+
+  .pt-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .pt-carte {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .pt-carte h3,
+  .pt-etapes h3,
+  .pt-question h3 {
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+  }
+  .pt-carte p,
+  .pt-etapes p,
+  .pt-question p {
+    font-size: 16px;
+    line-height: 1.62;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .pt-etapes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 20px;
+  }
+  .pt-etapes li {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .pt-num {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--surface);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+  }
+
+  .pt-questions {
+    max-width: 72ch;
+  }
+
+  .pt-question {
+    padding: 18px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .pt-form-wrap {
+    max-width: 58ch;
+  }
+
+  .pt-form-lead {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 20px;
+  }
+  .pt-form {
+    display: grid;
+    gap: 16px;
+  }
+  .pt-form label {
+    display: grid;
+    gap: 6px;
+    font-size: 15px;
+  }
+  .pt-form input {
+    font: inherit;
+    font-size: 16px; /* 16 px minimum : en dessous, iOS zoome au focus. */
+    padding: 12px 14px;
+    min-height: 48px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    width: 100%;
+  }
+  .pt-form input:focus-visible {
+    outline: 2px solid var(--royal);
+    outline-offset: 1px;
+  }
+  .pt-form button {
+    justify-self: start;
+    min-height: 48px;
+  }
+  /* Le piège reste dans le flux pour les robots, hors de l'écran pour les
+     humains et hors du parcours clavier. `display:none` serait détecté. */
+  .pt-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .pt-mentions {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .pt-erreur {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--brass);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin: 0 0 18px;
+  }
+  .pt-confirm {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .pt-confirm-titre {
+    font-size: 19px;
+    margin: 0 0 10px;
+  }
+  .pt-confirm p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+</style>
