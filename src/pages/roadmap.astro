@@ -3,9 +3,6 @@ import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import Glyph from "../components/Glyph.astro";
 import roadmap from "../content/roadmap.json";
-import { execFileSync } from "node:child_process";
-import { statSync } from "node:fs";
-import { resolve } from "node:path";
 
 // LOT ROAD-1 : ce qui arrive dans Stela, en public.
 //
@@ -29,37 +26,33 @@ const COLONNES = [
   { statut: "prochain", titre: "Prochain trimestre" },
 ];
 
-const lignesDe = (statut) => roadmap.filter((l) => l.status === statut);
+const lignesDe = (statut) => roadmap.lignes.filter((l) => l.status === statut);
 
-// Date de derniere mise a jour = date du dernier commit qui a touche le JSON.
-// C'est la seule date VRAIE : celle du build changerait a chaque deploiement et
-// annoncerait une mise a jour qui n'a pas eu lieu (meme faute que les lastmod
-// de sitemap corriges au lot VIT-16).
+// ── LOT DETTES-CONCU-1 §D (dette CONCU-D1) ───────────────────────
 //
-// Repli sur la mtime du fichier si git ne repond pas. Un clone superficiel
-// (Vercel clone a depth=1) ne connait que le commit de tete : la date rendue
-// est alors celle du deploiement, approximation assumee plutot qu'une absence.
-// Chemin resolu depuis la RACINE DU PROJET et non depuis `import.meta.url` :
-// ce module est bundle dans dist/.prerender/chunks/ avant d'etre execute, et
-// `import.meta.url` y designe le chunk, pas la source (constat du premier build).
-const CHEMIN_JSON = resolve(process.cwd(), "src/content/roadmap.json");
-function dateMiseAJour() {
-  try {
-    const iso = execFileSync("git", ["log", "-1", "--format=%cI", "--", CHEMIN_JSON], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-    if (iso) return new Date(iso);
-  } catch {
-    /* pas de git (build hors depot) : on retombe sur la mtime */
-  }
-  return statSync(CHEMIN_JSON).mtime;
-}
+// La date venait de `git log -1` sur le JSON. Ca paraissait etre la date la
+// plus VRAIE possible ; c'etait le contraire. Vercel clone a depth=1 : le
+// depot de build ne connait QUE le commit de tete. Le `git log` sur un fichier
+// absent de cet historique rend une chaine vide, on retombait sur la mtime, et
+// la mtime d'un checkout frais est la date du DEPLOIEMENT. La page annoncait
+// donc « mis a jour aujourd'hui » a chaque deploiement, y compris quand la
+// roadmap n'avait pas bouge depuis six semaines - exactement la faute des
+// `lastmod` de sitemap corrigee au lot VIT-16, reproduite ici.
+//
+// La date est desormais ECRITE A LA MAIN dans le JSON, a cote du contenu
+// qu'elle date. C'est la seule facon de la rendre vraie : celui qui modifie
+// une ligne est le seul a savoir si c'est une mise a jour ou une coquille.
+// `scripts/check-roadmap-updated.mjs` refuse le build si elle prend plus de
+// sept jours de retard sur la derniere modification git du fichier : la main
+// humaine reste la source, le gardien l'empeche seulement de l'oublier.
 const majLisible = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
   month: "long",
   year: "numeric",
-}).format(dateMiseAJour());
+  // Fuseau explicite : sans lui, « 2026-09-14 » est lu a minuit UTC et rendu
+  // « 13 septembre » par un serveur a l'ouest de Greenwich.
+  timeZone: "Europe/Paris",
+}).format(new Date(`${roadmap.updated}T12:00:00Z`));
 ---
 <Base
   title="Ce qui arrive dans Stela | Nouveautés"
@@ -116,8 +109,16 @@ const majLisible = new Intl.DateTimeFormat("fr-FR", {
      embarquera pas pour un seul titre : une fonte, c'est une dépendance de
      plus, deux fichiers à servir et un `font-src` à rouvrir. Pile système, donc,
      dessinée par le navigateur, zéro octet téléchargé. */
-  .rm-titre { font-family: Cormorant Garamond, Georgia, Times New Roman, serif;
-    font-weight: 600; letter-spacing: -.01em; }
+  /* LOT DETTES-CONCU-1 §E (dette CONCU-D6) : la pile serif est retiree.
+     Cette page serait restee l'une des deux seules en serif d'un site
+     integralement en Plus Jakarta Sans - et l'autre, /partenaires, l'a deja
+     abandonnee pour cette raison exacte. Une page qui ne ressemble pas au
+     site se lit comme une page d'un autre site.
+
+     Aucune declaration de police ici : le titre herite de `global.css`,
+     comme tous les autres h1 du site. Le poids et le crenage restent, ils
+     n'appartiennent pas a la pile serif. */
+  .rm-titre { font-weight: 600; letter-spacing: -.01em; }
 
   .rm-hero { padding-block: clamp(24px, 4vw, 48px) clamp(16px, 2.5vw, 24px); }
   .rm-grille-section { padding-top: 0; }
