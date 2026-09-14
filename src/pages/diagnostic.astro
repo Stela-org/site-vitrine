@@ -28,6 +28,10 @@ const faq = [
     a: "Parce que l'API publique de Google ne publie pas les réponses du propriétaire. Nous pourrions l'estimer ; nous préférons ne pas inventer un chiffre. Un diagnostic ne vaut que s'il ne dit que ce qu'il mesure.",
   },
   {
+    q: "Pourquoi seulement trois IA et une seule question ?",
+    a: "Parce qu'une mesure honnête coûte cher : chaque question posée à un moteur est facturée, et nous préférons l'offrir à tout le monde plutôt qu'à ceux qui laissent leur email. Trois moteurs et une question suffisent à savoir si vous existez pour eux. Le module complet dans Stela suit vos requêtes chaque semaine, et vous montre comment elles bougent.",
+  },
+  {
     q: "Faut-il donner son email pour voir le résultat ?",
     a: "Non. Le diagnostic s'affiche en entier, immédiatement. L'email sert uniquement à recevoir le rapport si vous le souhaitez, et rien n'est conservé tant que vous ne le donnez pas.",
   },
@@ -195,6 +199,21 @@ const faqLd = {
   #dg-out .dg-jauge-fill { height: 100%; background: var(--brass); border-radius: 999px; }
 
   #dg-out .dg-constats { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .8rem; }
+
+  /* LOT APERCU-1 : « Et dans les IA ? ». Le titre de section en serif, comme
+     la roadmap : c'est la typographie de la vitrine (charte 2.4, Cormorant sur
+     la vitrine, Jakarta dans le produit). Le filet laiton separe les trois
+     lignes, et c'est son seul usage autorise : un trait, jamais du texte. */
+  #dg-out .dg-ia { margin-top: 1.6rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+  #dg-out .dg-ia-titre { font-family: Cormorant Garamond, Georgia, Times New Roman, serif;
+    font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 0 0 .8rem; }
+  #dg-out .dg-ia-liste { list-style: none; padding: 0; margin: 0; }
+  #dg-out .dg-ia-ligne { display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: baseline;
+    padding: .65rem 0; border-top: 1px solid var(--brass); }
+  #dg-out .dg-ia-ligne:first-child { border-top: none; }
+  #dg-out .dg-ia-nom { color: var(--ink); font-weight: 600; font-size: .98rem; }
+  #dg-out .dg-ia-etat { color: var(--text-secondary); font-size: .95rem; }
+  #dg-out .dg-ia-note { margin: .9rem 0 0; font-size: 13px; color: var(--text-muted); }
   #dg-out .dg-constat { display: flex; gap: .7rem; align-items: flex-start; font-size: .95rem; color: var(--text-secondary); }
   #dg-out .dg-mark { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; display: inline-flex;
     align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; margin-top: .05rem; }
@@ -442,9 +461,80 @@ const faqLd = {
     }
     carte.appendChild(ul);
     if (d.stela) carte.appendChild(blocStela(d.stela));
+    carte.appendChild(blocIa(d.ia));
     carte.appendChild(suites(placeId));
     out.appendChild(carte);
     carte.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  /**
+   * LOT APERCU-1 : « Et dans les IA ? ».
+   *
+   * Trois lignes, une par moteur, et rien de plus. On montre ce que les
+   * concurrents gardent derriere un email : les NOMS de ceux qui sont cites a
+   * votre place.
+   *
+   * CE QUI N'EST JAMAIS ECRIT ICI : le texte de la reponse d'une IA. Le
+   * serveur n'en envoie pas, et cette fonction n'en afficherait pas. On rend
+   * des noms d'etablissements, un rang, rien d'autre.
+   *
+   * `null` (app injoignable, timeout, plafond atteint) donne trois lignes
+   * « Indisponible pour le moment », jamais « pas cite » : la premiere est une
+   * information sur nous, la seconde une information sur le visiteur. Les
+   * confondre, c'est annoncer une mauvaise nouvelle fausse.
+   */
+  function blocIa(ia) {
+    const bloc = document.createElement("section");
+    bloc.className = "dg-ia";
+
+    const h = document.createElement("h3");
+    h.className = "dg-ia-titre";
+    h.textContent = "Et dans les IA ?";
+    bloc.appendChild(h);
+
+    const moteurs = ia && Array.isArray(ia.engines) && ia.engines.length
+      ? ia.engines
+      : ["ChatGPT", "Perplexity", "Gemini"].map((name) => ({ name, status: "unavailable", position: null, others: [] }));
+
+    const ul = document.createElement("ul");
+    ul.className = "dg-ia-liste";
+    for (const m of moteurs) {
+      const li = document.createElement("li");
+      li.className = "dg-ia-ligne";
+
+      const nom = document.createElement("span");
+      nom.className = "dg-ia-nom";
+      nom.textContent = m.name;
+
+      const etat = document.createElement("span");
+      etat.className = "dg-ia-etat";
+      etat.textContent = phraseMoteur(m);
+
+      li.append(nom, etat);
+      ul.appendChild(li);
+    }
+    bloc.appendChild(ul);
+
+    if (ia && ia.query) {
+      const note = document.createElement("p");
+      note.className = "dg-ia-note";
+      note.textContent = `Mesuré aujourd'hui sur la question : \u201C${ia.query}\u201D. Une seule question, un seul jour : c'est un indice, pas un verdict.`;
+      bloc.appendChild(note);
+    }
+
+    return bloc;
+  }
+
+  /** La phrase d'une ligne. Une seule redaction, trois etats, aucun autre. */
+  function phraseMoteur(m) {
+    if (m.status === "unavailable") return "Indisponible pour le moment";
+    if (m.status === "cited") {
+      return m.position ? `Cité en ${m.position === 1 ? "1re" : m.position + "e"} position` : "Cité";
+    }
+    const autres = Array.isArray(m.others) ? m.others.filter(Boolean) : [];
+    return autres.length
+      ? `Pas cité · cités à votre place : ${autres.join(", ")}`
+      : "Pas cité";
   }
 
   /**
