@@ -3,6 +3,8 @@ import Base from "../layouts/Base.astro";
 import { SITE, PLANS, stripeLink } from "../config/site";
 import TripleZero from "../components/TripleZero.astro";
 import Glyph from "../components/Glyph.astro";
+// LOT PARRAIN-1 : lecture du code de parrainage ?p=ref_XXXXXXXX (volet A).
+import ReferralCode from "../components/ReferralCode.astro";
 
 // Gel saisonnier (VIT-17) : positions des étoiles décoratives du ciel, en
 // pourcentage du bloc. Le délai d'endormissement est échelonné de 150 à 600 ms
@@ -148,6 +150,7 @@ const faqLd = {
       </div>
     </div>
   </section>
+  <ReferralCode />
 </Base>
 
 <style>
