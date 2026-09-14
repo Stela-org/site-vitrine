@@ -1,0 +1,234 @@
+---
+import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Glyph from "../components/Glyph.astro";
+import roadmap from "../content/roadmap.json";
+import { execFileSync } from "node:child_process";
+import { statSync } from "node:fs";
+import { resolve } from "node:path";
+
+// LOT ROAD-1 : ce qui arrive dans Stela, en public.
+//
+// Trois colonnes, dix lignes au maximum, et une regle de copy qui commande
+// tout le reste : chaque ligne dit ce que le GERANT OBTIENT. Jamais un code de
+// lot, jamais un nom de table, jamais « nous developpons ». C'est la meme
+// regle que sur le reste de la vitrine (vendre un resultat, jamais une tache),
+// appliquee a l'endroit ou elle est la plus facile a trahir : une roadmap
+// ecrite par ceux qui la construisent parle naturellement leur langue.
+//
+// Le contenu vit dans src/content/roadmap.json et s'alimente A LA MAIN. Il
+// n'est JAMAIS genere depuis le depot de l'application : nos codes de lots ne
+// sortent pas d'ici.
+//
+// Aucune animation sur cette page, volontairement. Une roadmap est une liste
+// qu'on lit ; elle n'a rien a reveler.
+
+const COLONNES = [
+  { statut: "livre", titre: "Livré ce mois" },
+  { statut: "en_cours", titre: "En cours" },
+  { statut: "prochain", titre: "Prochain trimestre" },
+];
+
+const lignesDe = (statut) => roadmap.filter((l) => l.status === statut);
+
+// Date de derniere mise a jour = date du dernier commit qui a touche le JSON.
+// C'est la seule date VRAIE : celle du build changerait a chaque deploiement et
+// annoncerait une mise a jour qui n'a pas eu lieu (meme faute que les lastmod
+// de sitemap corriges au lot VIT-16).
+//
+// Repli sur la mtime du fichier si git ne repond pas. Un clone superficiel
+// (Vercel clone a depth=1) ne connait que le commit de tete : la date rendue
+// est alors celle du deploiement, approximation assumee plutot qu'une absence.
+// Chemin resolu depuis la RACINE DU PROJET et non depuis `import.meta.url` :
+// ce module est bundle dans dist/.prerender/chunks/ avant d'etre execute, et
+// `import.meta.url` y designe le chunk, pas la source (constat du premier build).
+const CHEMIN_JSON = resolve(process.cwd(), "src/content/roadmap.json");
+function dateMiseAJour() {
+  try {
+    const iso = execFileSync("git", ["log", "-1", "--format=%cI", "--", CHEMIN_JSON], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (iso) return new Date(iso);
+  } catch {
+    /* pas de git (build hors depot) : on retombe sur la mtime */
+  }
+  return statSync(CHEMIN_JSON).mtime;
+}
+const majLisible = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(dateMiseAJour());
+---
+<Base
+  title="Ce qui arrive dans Stela | Nouveautés"
+  description="Ce que Stela a livré ce mois, ce qui est en cours, et ce qui arrive le trimestre prochain. Chaque ligne dit ce que vous y gagnez."
+  path="/roadmap"
+>
+  <div class="container"><Breadcrumb items={[{ label: "Nouveautés" }]} /></div>
+
+  <section class="rm-hero">
+    <div class="container" style="max-width:760px;">
+      <p class="eyebrow">Nouveautés</p>
+      <h1 class="rm-titre">Ce qui arrive dans Stela</h1>
+      <p class="lead">
+        Ce qui est arrivé ce mois-ci, ce qu'on est en train de finir, et ce qui vient
+        après. Une ligne par chose que vous obtenez, pas par chantier ouvert chez nous.
+      </p>
+    </div>
+  </section>
+
+  <section class="rm-grille-section">
+    <div class="container">
+      <div class="rm-grille">
+        {COLONNES.map((col) => (
+          <div class="rm-col">
+            <h2 class="rm-col-titre">{col.titre}</h2>
+            <ul class="rm-liste">
+              {lignesDe(col.statut).map((l) => (
+                <li class="rm-ligne">
+                  <h3 class="rm-ligne-titre">
+                    {col.statut === "livre" && <Glyph class="rm-etoile" size="0.85em" />}
+                    <span>{l.title}</span>
+                  </h3>
+                  <p class="rm-resultat">{l.result}</p>
+                  {col.statut === "prochain" && (
+                    <div class="rm-vote" data-vote={l.id}>
+                      <button type="button" class="rm-vote-btn" data-vote-btn>Ça m'intéresse</button>
+                      <span class="rm-vote-compte" data-vote-compte aria-live="polite"></span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <p class="rm-maj">Mis à jour le {majLisible}.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Serif de la vitrine. Le site n'embarque aucune fonte serif et n'en
+     embarquera pas pour un seul titre : une fonte, c'est une dépendance de
+     plus, deux fichiers à servir et un `font-src` à rouvrir. Pile système, donc,
+     dessinée par le navigateur, zéro octet téléchargé. */
+  .rm-titre { font-family: Cormorant Garamond, Georgia, Times New Roman, serif;
+    font-weight: 600; letter-spacing: -.01em; }
+
+  .rm-hero { padding-block: clamp(24px, 4vw, 48px) clamp(16px, 2.5vw, 24px); }
+  .rm-grille-section { padding-top: 0; }
+
+  /* Trois colonnes qui passent l'une sous l'autre à 640 px (règle du lot). */
+  .rm-grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: start; }
+  @media (max-width: 640px) { .rm-grille { grid-template-columns: 1fr; gap: 2rem; } }
+
+  .rm-col { background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.35rem 1.1rem; }
+  .rm-col-titre { font-size: .82rem; text-transform: uppercase; letter-spacing: .1em;
+    font-weight: 800; color: var(--text-secondary); margin: 0 0 .25rem; }
+
+  .rm-liste { list-style: none; margin: 0; padding: 0; }
+
+  /* Filet laiton entre les lignes, jamais au-dessus de la première ni sous la
+     dernière : le filet sépare, il n'encadre pas. Token --brass de global.css. */
+  .rm-ligne { padding-block: 1.05rem; }
+  .rm-ligne + .rm-ligne { border-top: 1px solid var(--brass); }
+  .rm-ligne:last-child { padding-bottom: .35rem; }
+
+  .rm-ligne-titre { display: flex; align-items: baseline; gap: .45rem;
+    font-size: 1rem; font-weight: 700; color: var(--ink); margin: 0 0 .3rem; }
+  /* L'étoile est un glyphe décoratif (aria-hidden dans Glyph.astro) : elle
+     marque le livré, elle ne porte aucun texte. Le laiton y est à sa place. */
+  .rm-etoile { color: var(--brass); flex: none; }
+  .rm-resultat { font-size: .93rem; color: var(--text-secondary); margin: 0; }
+
+  .rm-vote { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: .7rem; }
+  .rm-vote-btn { font: inherit; font-size: .85rem; font-weight: 700; color: var(--ink);
+    background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: .38rem .8rem; cursor: pointer; }
+  .rm-vote-btn:hover { border-color: var(--ink); }
+  .rm-vote-btn:focus-visible { outline: 2px solid var(--royal); outline-offset: 2px; }
+  .rm-vote-btn[disabled] { cursor: default; color: var(--text-secondary); }
+  .rm-vote-btn[disabled]:hover { border-color: var(--border); }
+  .rm-vote-compte { font-size: .82rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+  .rm-maj { margin: 1.75rem 0 0; font-size: .85rem; color: var(--text-muted); }
+</style>
+
+<script>
+  // Vote « Ça m'intéresse », progressive enhancement. Sans JavaScript, la page
+  // reste entièrement lisible : seul le bouton devient inerte, et une roadmap
+  // se lit sans voter. Le compteur n'est donc jamais rendu au build (il serait
+  // figé à la date du déploiement) : il vient de /api/roadmap-vote.
+  const SEUIL_PAR_DEFAUT = 3;
+  const blocs = Array.from(document.querySelectorAll("[data-vote]"));
+
+  if (blocs.length) {
+    const bloc = (id) => blocs.find((b) => b.dataset.vote === id);
+
+    // Le compteur ne s'affiche qu'à partir du seuil. En dessous, on n'écrit pas
+    // « 1 » : un compteur à 1 dit surtout que personne ne s'y intéresse.
+    const peindre = (el, n, seuil, aVote) => {
+      const btn = el.querySelector("[data-vote-btn]");
+      const compte = el.querySelector("[data-vote-compte]");
+      if (aVote) {
+        btn.textContent = "Merci";
+        btn.disabled = true;
+      }
+      if (typeof n !== "number") { compte.textContent = ""; return; }
+      compte.textContent = n >= seuil
+        ? `${n} personnes attendent ça`
+        : "Soyez le premier";
+    };
+
+    const charger = async () => {
+      try {
+        const r = await fetch("/api/roadmap-vote", { headers: { Accept: "application/json" } });
+        const d = await r.json();
+        if (!d.disponible) return;
+        const seuil = d.seuil || SEUIL_PAR_DEFAUT;
+        const votes = d.votes || [];
+        for (const el of blocs) {
+          const id = el.dataset.vote;
+          peindre(el, d.compteurs?.[id] ?? 0, seuil, votes.includes(id));
+        }
+      } catch {
+        /* compteur indisponible : les boutons restent utilisables, sans chiffre. */
+      }
+    };
+
+    for (const el of blocs) {
+      const btn = el.querySelector("[data-vote-btn]");
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          const r = await fetch("/api/roadmap-vote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: el.dataset.vote }),
+          });
+          const d = await r.json();
+          if (d.votes) {
+            peindre(el, d.compteur, SEUIL_PAR_DEFAUT, true);
+          } else {
+            // Vote non enregistré : on le dit, et on rend le bouton.
+            btn.disabled = false;
+            el.querySelector("[data-vote-compte]").textContent =
+              d.erreur === "trop_de_votes"
+                ? "Trop de votes d'affilée. Réessayez plus tard."
+                : "Vote indisponible pour le moment.";
+          }
+        } catch {
+          btn.disabled = false;
+          el.querySelector("[data-vote-compte]").textContent = "La connexion a échoué.";
+        }
+      });
+    }
+
+    charger();
+  }
+</script>
