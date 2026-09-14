@@ -1,0 +1,41 @@
+---
+// LOT PARRAIN-1 §A - propagation du code de PARRAINAGE. Aucun markup :
+// uniquement un script bundlé par Astro (servi en 'self', compatible avec la
+// CSP stricte), sur le même modèle que `PartnerCode.astro`.
+//
+// Monté sur `/tarifs` uniquement : c'est la page que le lien de parrainage
+// désigne (`mystela.fr/tarifs?p=ref_XXXXXXXX`), et la seule qui porte des
+// boutons d'achat.
+---
+<script>
+  import { referralCodeFromSearch, writeReferralCookie, referralCodeFromCookie, decorateStripeUrl } from "../lib/referral";
+  import { readPartnerCode } from "../lib/partner";
+
+  // 1. Arrivée : ?p=ref_XXXXXXXX valide -> cookie 30 jours. Un code au mauvais
+  //    format est ignoré et ne remplace pas un code déjà mémorisé.
+  const capture = referralCodeFromSearch(window.location.search);
+  if (capture) writeReferralCookie(capture);
+
+  // 2. Clic sur un bouton d'achat : le Payment Link est décoré à la volée. Le
+  //    HTML statique n'est jamais réécrit : sans JavaScript, le lien reste un
+  //    lien Stripe normal, et le tunnel d'achat ne régresse pas.
+  const decorer = (event: Event) => {
+    const cible = event.target;
+    if (!(cible instanceof Element)) return;
+    const lien = cible.closest("a[href]");
+    if (!(lien instanceof HTMLAnchorElement)) return;
+
+    // ATTENTION : LE PARTENAIRE PASSE DEVANT, TOUJOURS. Un partenaire est un contrat
+    // d'apport avec une commission due ; un parrainage est un cadeau. On lit
+    // donc son code AVANT de décorer, plutôt que de compter sur l'ordre
+    // d'exécution des deux écouteurs - qui n'est garanti par rien.
+    if (readPartnerCode()) return;
+
+    const code = referralCodeFromCookie(document.cookie);
+    if (!code) return;
+    const suivant = decorateStripeUrl(lien.href, code);
+    if (suivant !== lien.href) lien.href = suivant;
+  };
+  document.addEventListener("click", decorer, true);
+  document.addEventListener("auxclick", decorer, true);
+</script>
