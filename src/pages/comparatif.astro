@@ -1,6 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
+import { PLANS } from "../config/site";
+
+// LOT PRIX-1 : les trois prix sont LUS dans `PLANS`. Cette page vend la
+// transparence tarifaire : un prix faux ici coûte plus cher qu'ailleurs.
+const PRIX_ETOILE = PLANS.find((p) => p.id === "etoile")!.monthly;
+const PRIX_CONSTELLATION = PLANS.find((p) => p.id === "constellation")!.monthly;
+const PRIX_POLAIRE = PLANS.find((p) => p.id === "polaire")!.monthly;
 
 // Comparatif GÉNÉRIQUE : on ne cite aucune marque concurrente. Colonne Stela =
 // vendeuse et exacte. Colonne « les autres solutions » = pratiques COURANTES du
@@ -9,7 +16,7 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 // VIT-10 : tableau à scan visuel. Chaque cellule porte une marque ✓ (vert) ou
 // ✗ (rouge) + une phrase courte, pour comprendre d'un coup d'oeil.
 const rows = [
-  { critere: "Prix affichés en clair", stela: "49 € et 89 € par mois, tout compris", stelaOk: true, autre: "Souvent sur devis", autreOk: false },
+  { critere: "Prix affichés en clair", stela: `${PRIX_ETOILE} €, ${PRIX_CONSTELLATION} € et ${PRIX_POLAIRE} € par mois, tout compris`, stelaOk: true, autre: "Souvent sur devis", autreOk: false },
   { critere: "Essayer sans rendez-vous commercial", stela: "7 jours gratuits, tout seul", stelaOk: true, autre: "Démonstration souvent obligatoire", autreOk: false },
   { critere: "Prêt en 10 minutes", stela: "Compte créé et prêt tout de suite", stelaOk: true, autre: "Mise en route parfois longue", autreOk: false },
   { critere: "100 % conforme aux règles de Google", stela: "Tous les avis, jamais de tri", stelaOk: true, autre: "Tri des avis parfois proposé, interdit par Google", autreOk: false },
@@ -22,7 +29,7 @@ const rows = [
 const faq = [
   { q: "Google interdit-il de filtrer les avis selon la note ?", a: "Oui. Les règles de Google interdisent de solliciter uniquement les clients satisfaits ou de décourager les avis négatifs. Un outil qui trie les avis selon la satisfaction expose votre fiche à une suppression d'avis, voire à une sanction." },
   { q: "Peut-on offrir un cadeau contre un avis ?", a: "Non. Google interdit les avis obtenus contre une récompense, un jeu ou une remise. Stela ne propose aucune mécanique de ce type." },
-  { q: "Pourquoi Stela affiche-t-il ses prix ?", a: "Parce que la transparence fait partie de notre positionnement. Vous connaissez le prix (49 € ou 89 € par mois) et vous essayez sans passer par une démonstration obligatoire." },
+  { q: "Pourquoi Stela affiche-t-il ses prix ?", a: `Parce que la transparence fait partie de notre positionnement. Vous connaissez le prix (${PRIX_ETOILE} €, ${PRIX_CONSTELLATION} € ou ${PRIX_POLAIRE} € par mois) et vous essayez sans passer par une démonstration obligatoire.` },
 ];
 const faqLd = {
   "@context": "https://schema.org", "@type": "FAQPage",

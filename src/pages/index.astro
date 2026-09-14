@@ -1,6 +1,10 @@
 ---
 import Base from "../layouts/Base.astro";
 import { SITE, PLANS, stripeLink, PRODUCT_VIDEOS } from "../config/site";
+
+// LOT PRIX-1 : les prix par identifiant, pour que la FAQ et la section Polaire
+// les LISENT au lieu de les recopier.
+const PRIX = Object.fromEntries(PLANS.map((p) => [p.id, p])) as Record<(typeof PLANS)[number]["id"], (typeof PLANS)[number]>;
 import ProductVideo from "../components/ProductVideo.astro";
 import { FEATURES } from "../content/features";
 import { SEGMENTS } from "../content/segments";
@@ -85,7 +89,9 @@ const faq = [
   },
   {
     q: "Combien coûte Stela ?",
-    a: "Deux offres transparentes. Constellation, la plus complète et la plus choisie : 79 € par mois en annuel (948 € par an, soit 120 € d'économie), ou 89 € par mois sans engagement de durée. Étoile, pour commencer : 39 € par mois en annuel (468 € par an), ou 49 € par mois. Dans tous les cas : essai gratuit de 7 jours, sans engagement, annulable en un clic.",
+    // LOT PRIX-1 : construite depuis `PLANS`. Recopiée à la main, cette
+    // réponse a annoncé 49 € pendant tout le temps où la grille disait 29 €.
+    a: `Trois offres transparentes. Constellation, la plus complète et la plus choisie : ${PRIX.constellation.yearlyPerMonth} € par mois en annuel (${PRIX.constellation.yearlyTotal} € par an, soit ${PRIX.constellation.yearlySave} € d'économie), ou ${PRIX.constellation.monthly} € par mois sans engagement de durée. Étoile, pour commencer : ${PRIX.etoile.yearlyPerMonth} € par mois en annuel (${PRIX.etoile.yearlyTotal} € par an), ou ${PRIX.etoile.monthly} € par mois. Polaire, si vous ne voulez rien faire vous-même : ${PRIX.polaire.monthly} € par mois, accompagnement compris, sans annuel ni essai. Étoile et Constellation : essai gratuit de 7 jours, sans engagement, annulable en un clic.`,
   },
   {
     q: "Pour quels commerces ?",
@@ -416,8 +422,15 @@ const websiteLd = {
         </label>
       </div>
 
+      {/* LOT PRIX-1 : la home garde DEUX colonnes. Polaire a sa propre section
+          juste en dessous, et ce n'est pas un rangement, c'est une décision de
+          vente : mise en troisième colonne, elle entrerait en comparaison de
+          prix avec les deux autres et perdrait à coup sûr. Ce qu'elle vend
+          n'est pas une case de plus, c'est de ne rien avoir à faire.
+          Le filtre porte sur la DONNÉE (`yearlyTotal !== null`, donc les offres
+          à essai et à annuel), jamais sur `p.id`. */}
       <div class="grid-plans reveal-stagger">
-        {PLANS.map((p) => (
+        {PLANS.filter((p) => p.yearlyTotal !== null).map((p) => (
           <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
             {p.highlight && <span class="plan-badge">Recommandée</span>}
             <h3 class="plan-name">{p.name}</h3>
@@ -441,6 +454,25 @@ const websiteLd = {
         ))}
       </div>
       <p class="tarifs-foot">Paiement sécurisé via Stripe. Essai gratuit de 7 jours, sans engagement, annulable en un clic.</p>
+
+      {/* Polaire, en résultat et jamais en tâche : trois lignes de ce que le
+          gérant OBTIENT, pas de ce que Corentin fait de ses journées. */}
+      <div class="polaire-bloc card">
+        <div class="polaire-txt">
+          <p class="polaire-eyebrow">L&apos;étoile qui guide</p>
+          <h3 class="polaire-t">Vous ne voulez rien faire vous-même ? Polaire.</h3>
+          <ul class="polaire-list">
+            <li>Votre fiche Google configurée pour vous dès le premier jour</li>
+            <li>Vos photos et vos actualités publiées chaque semaine</li>
+            <li>Un point de 20 minutes par mois sur vos chiffres</li>
+          </ul>
+          <p class="polaire-prix">{PRIX.polaire.monthly} € par mois, sans engagement, sans essai.</p>
+        </div>
+        <div class="polaire-cta">
+          <a class="btn btn-primary" href={stripeLink("polaire", "monthly", "home")}>Commencer avec Corentin</a>
+          <a class="btn btn-ghost" href="/polaire">Comment ça se passe</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -689,6 +721,15 @@ const websiteLd = {
   .plan-price .per { color: var(--text-muted); font-weight: 600; margin-left: .25rem; }
   .plan-note { font-size: .82rem; color: var(--text-muted); min-height: 1.2em; margin-top: 0; }
   .plan-cta { margin-top: 1.25rem; justify-content: center; }
+  .polaire-bloc { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between; max-width: 900px; margin: 1.5rem auto 0; text-align: left; }
+  .polaire-txt { flex: 1 1 380px; }
+  .polaire-eyebrow { margin: 0 0 .35rem; font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--royal); }
+  .polaire-t { margin: 0 0 .7rem; font-size: 1.3rem; line-height: 1.25; }
+  .polaire-list { margin: 0 0 .8rem; padding-left: 1.1rem; }
+  .polaire-list li { font-size: .95rem; line-height: 1.6; color: var(--text-secondary); }
+  .polaire-prix { margin: 0; font-size: .95rem; font-weight: 600; }
+  .polaire-cta { display: flex; flex-direction: column; gap: .6rem; flex: 0 1 auto; }
+  @media (max-width: 640px) { .polaire-cta { width: 100%; } }
   .tarifs-foot { text-align: center; color: var(--text-muted); font-size: .9rem; margin-top: 1.5rem; }
 
   .faq-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }

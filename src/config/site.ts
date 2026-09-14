@@ -149,33 +149,12 @@ export const TRIAL_DAYS = 7;
 // L'achat se fait SUR LA VITRINE : bouton de plan → ces liens → Stripe Checkout.
 // NE JAMAIS les remplacer par un lien vers l'app : ce sont les liens LIVE actifs.
 // Les 4 suffixes exacts (…9Zm0f/g/h/i) sont vérifiés par le gate check:stripe.
-export const STRIPE_LINKS = {
-  etoile: {
-    monthly: "https://buy.stripe.com/4gM6oH9KY4Sx2CRdyO9Zm0f",
-    yearly: "https://buy.stripe.com/3cI00j2iw0Ch91f0M29Zm0g",
-  },
-  constellation: {
-    monthly: "https://buy.stripe.com/6oUfZh3mA84J6T72Ua9Zm0h",
-    yearly: "https://buy.stripe.com/28E5kD8GU84Jdhv9iy9Zm0i",
-  },
-} as const;
+// La grille tarifaire vit dans `./tarifs.ts` (module sans import, lisible par
+// le gardien check:stripe dans Node nu) et est ré-exportée ici : toutes les
+// pages continuent d'importer depuis `site.ts`.
+export { STRIPE_LINKS, PLANS, stripeLink } from "./tarifs";
+export type { PlanId, Billing } from "./tarifs";
 
-export type PlanId = "etoile" | "constellation";
-export type Billing = "monthly" | "yearly";
-
-// Lien de paiement d'un plan pour une période, avec UTM (les Payment Links
-// Stripe conservent les paramètres ?utm_*). NB : pas de ?prefilled_email ici,
-// la vitrine ne capte aucun email avant le checkout (double opt-in guide à part).
-export function stripeLink(plan: PlanId, billing: Billing, campaign = "site"): string {
-  const p = new URLSearchParams();
-  p.set("utm_source", "vitrine");
-  p.set("utm_campaign", campaign);
-  return `${STRIPE_LINKS[plan][billing]}?${p.toString()}`;
-}
-
-// Tunnel « 2 clics » : toute page → section Tarifs → Stripe Checkout. Les CTA
-// génériques (« Essayer gratuitement ») pointent ICI, jamais vers un lien de
-// plan direct (le choix du plan EST l'entrée de l'essai).
 export const TARIFS_URL = "/tarifs";
 
 // Porte d'entrée du client DÉJÀ inscrit (lien « Se connecter » de la nav).
@@ -233,47 +212,6 @@ export const COLORS = {
   textSecondary: "#4A5568",
   textMuted: "#6C6558",
 } as const;
-
-// Offres, source de vérité : montants RÉELS vérifiés dans Stripe (décision actée).
-// Mensuel : Étoile 49 €, Constellation 89 €. Annuel : Étoile 468 €/an (39 €/mois),
-// Constellation 948 €/an (79 €/mois) → dans les deux cas 120 € d'économie/an.
-// L'achat se fait sur la vitrine (STRIPE_LINKS). Le gate check:stripe verrouille
-// ces montants : un changement Stripe force une mise à jour consciente de la vitrine.
-export const PLANS = [
-  {
-    id: "etoile",
-    name: "Étoile",
-    monthly: 49,
-    yearlyPerMonth: 39, // 468 €/an
-    yearlyTotal: 468,
-    yearlySave: 120, // 12 x 49 - 468
-    tagline: "Récoltez plus d'avis Google et répondez sans effort.",
-    features: [
-      "Plus d'avis Google, sans jamais trier vos clients",
-      "Vos réponses écrites toutes seules en 10 secondes",
-      "Un client déçu ? On le rattrape avant qu'il parte",
-      "Votre tableau de bord et vos QR codes prêts à l'emploi",
-    ],
-  },
-  {
-    id: "constellation",
-    name: "Constellation",
-    monthly: 89,
-    yearlyPerMonth: 79, // 948 €/an
-    yearlyTotal: 948,
-    yearlySave: 120, // 12 x 89 - 948
-    tagline: "Soyez vu partout et faites revenir vos clients.",
-    features: [
-      "Tout ce qu'il y a dans Étoile, et en plus :",
-      "Vos avis Google, TripAdvisor et TheFork au même endroit",
-      "Vous apparaissez dans ChatGPT et les autres IA",
-      "Toutes vos réservations réunies au même endroit",
-      "Se relie à votre caisse (Square, Zelty, TheFork) pour mesurer ce que ça rapporte",
-      "Des SMS et WhatsApp pour faire revenir vos clients",
-    ],
-    highlight: true,
-  },
-] as const;
 
 // Nova : l'assistante IA de Stela (rédige les réponses aux avis dans le produit).
 // Nommée et vendue sur la vitrine (champ lexical stellaire sobre).

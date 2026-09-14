@@ -8,7 +8,7 @@ import { SITE, PLANS } from "../config/site";
   path="/cgv"
   closing={false}
   heading="Conditions générales de vente"
-  updated="juillet 2026"
+  updated="14 septembre 2026"
 >
   <h2>1. Objet</h2>
   <p>
@@ -21,15 +21,31 @@ import { SITE, PLANS } from "../config/site";
 
   <h2>2. Offres et tarifs</h2>
   <p>Les abonnements sont proposés aux tarifs suivants, sans frais d'installation :</p>
+  {/* LOT PRIX-1 : la grille est DÉRIVÉE de `PLANS`, et chaque ligne dit ce qui
+      la concerne. Un `{p.yearlyTotal} € par an` uniforme aurait écrit
+      « Polaire : 139 € par mois, ou null € par an » dans un document
+      contractuel. C'est exactement le genre de phrase qui ne se relit pas. */}
   <ul>
     {PLANS.map((p) => (
-      <li>{p.name} : {p.monthly} € par mois, ou {p.yearlyTotal} € par an en facturation annuelle (soit 120 € d'économie sur l'année).</li>
+      <li>
+        {p.name} : {p.monthly} € par mois
+        {p.yearlyTotal !== null
+          ? `, ou ${p.yearlyTotal} € par an en facturation annuelle (soit ${p.yearlySave} € d'économie sur l'année).`
+          : ", sans facturation annuelle. Cette formule comprend une prestation d'accompagnement assurée par l'éditeur."}
+      </li>
     ))}
   </ul>
+  <p>Ces tarifs s'entendent hors taxes.</p>
   <p>
-    Chaque nouvel abonnement débute par un essai gratuit de 7 jours, sans engagement et annulable en
-    un clic. La carte bancaire est demandée au moment du paiement afin d'assurer la continuité du
-    service : aucun débit n'intervient avant la fin de l'essai.
+    Les formules Étoile et Constellation débutent par un essai gratuit de 7 jours, sans engagement et
+    annulable en un clic. La carte bancaire est demandée au moment du paiement afin d'assurer la
+    continuité du service : aucun débit n'intervient avant la fin de l'essai. La formule Polaire ne
+    comporte pas d'essai : l'accompagnement démarre le jour de la souscription et le premier
+    prélèvement intervient à cette même date.
+  </p>
+  <p>
+    Un abonnement souscrit avant une évolution de la grille tarifaire conserve son prix. Les tarifs
+    ci-dessus s'appliquent aux souscriptions postérieures au 14 septembre 2026.
   </p>
 
   <h2>3. Paiement</h2>
@@ -40,8 +56,8 @@ import { SITE, PLANS } from "../config/site";
 
   <h2>4. Résiliation</h2>
   <p>
-    Les formules Étoile et Constellation, mensuelles comme annuelles, sont sans engagement et
-    résiliables à tout moment avant la prochaine échéance. Les avis Google collectés restent
+    Les formules Étoile, Constellation et Polaire sont sans engagement et résiliables à tout moment
+    avant la prochaine échéance. Les avis Google collectés restent
     acquis à l'établissement, même après résiliation.
   </p>
 

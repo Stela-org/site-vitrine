@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import { SITE, analyticsEnabled } from "../config/site";
+import { SITE, PLANS, analyticsEnabled } from "../config/site";
 import { sameAsField } from "../lib/sameAs";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
@@ -64,11 +64,22 @@ const appLd = {
   // prospect à séduire. Le positionnement n'est pas retiré du site pour autant,
   // il reste la ligne du pied de page, à sa place, sur une surface humaine.
   description: SITE.definition,
+  // LOT PRIX-1 : les offres sont DÉRIVÉES de `PLANS`, plus recopiées. Elles
+  // annonçaient encore 49 € et 468 € à Google le jour où la grille est passée
+  // à 29 € et 228 €, et c'est le pire endroit pour un prix faux : un moteur le
+  // reprend tel quel et l'affiche dans ses résultats, longtemps.
+  //
+  // L'offre sur devis (groupes de plus de cinq établissements) n'est
+  // volontairement PAS ici : elle n'a pas de prix, et un `Offer` sans `price`
+  // dans cette liste ne dirait rien d'utile. Elle vit dans le JSON-LD de
+  // `/tarifs`, avec sa mention « sur devis ».
   offers: [
-    { "@type": "Offer", name: "Étoile", price: "49", priceCurrency: "EUR", category: "mensuel" },
-    { "@type": "Offer", name: "Constellation", price: "89", priceCurrency: "EUR", category: "mensuel" },
-    { "@type": "Offer", name: "Étoile (annuel)", price: "468", priceCurrency: "EUR", category: "annuel" },
-    { "@type": "Offer", name: "Constellation (annuel)", price: "948", priceCurrency: "EUR", category: "annuel" },
+    ...PLANS.map((p) => ({
+      "@type": "Offer", name: p.name, price: String(p.monthly), priceCurrency: "EUR", category: "mensuel",
+    })),
+    ...PLANS.filter((p) => p.yearlyTotal !== null).map((p) => ({
+      "@type": "Offer", name: `${p.name} (annuel)`, price: String(p.yearlyTotal), priceCurrency: "EUR", category: "annuel",
+    })),
   ],
 };
 ---

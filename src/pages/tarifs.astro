@@ -24,7 +24,12 @@ const perDay = (monthly: number) => (monthly / 30).toFixed(2).replace(".", ",");
 
 const faq = [
   { q: "L'essai est-il vraiment gratuit ?", a: "Oui. Vous bénéficiez de 7 jours d'essai gratuit, sans engagement, annulable en un clic. La carte est demandée au paiement pour assurer la continuité du service à la fin de l'essai, et vous n'êtes débité qu'au 8e jour si vous continuez." },
-  { q: "Combien coûte l'abonnement annuel ?", a: "Étoile revient à 468 € par an (soit 39 € par mois) et Constellation à 948 € par an (soit 79 € par mois) : dans les deux cas, 120 € d'économie sur l'année par rapport au mensuel." },
+    // LOT PRIX-1 : seuls les CHIFFRES de cette réponse changent (228 € au lieu
+  // de 468 €, 19 € au lieu de 39 €). L'entrée « avantages clients » posée
+  // juste en dessous par RESTES-1 n'est pas touchée, ni aucune autre.
+  // Laisser 468 € ici aurait fait mentir la page qui vend la transparence des
+  // prix, sur la ligne même qui annonce le prix.
+  { q: "Combien coûte l'abonnement annuel ?", a: "Étoile revient à 228 € par an (soit 19 € par mois) et Constellation à 948 € par an (soit 79 € par mois) : dans les deux cas, 120 € d'économie sur l'année par rapport au mensuel. Polaire n'est pas proposée en annuel." },
   { q: "Et si je ne suis pas satisfait ?", a: "Vous êtes couvert deux fois : 7 jours d'essai gratuit pour tester sans payer, puis 30 jours satisfait ou remboursé une fois abonné. Remboursement intégral sur simple demande." },
   { q: "Puis-je changer d'offre ?", a: "Oui, vous passez d'Étoile à Constellation à tout moment depuis votre espace client." },
   { q: "Où se fait le paiement ?", a: "Directement ici, en toute sécurité via Stripe. Après le paiement, vous recevez votre email de première connexion pour brancher votre fiche Google." },
@@ -42,7 +47,7 @@ const faqLd = {
 ---
 <Base
   title="Tarifs transparents | Stela"
-  description="Deux offres claires : Étoile 49 €/mois, Constellation 89 €/mois. Essai gratuit de 7 jours, sans engagement, annulable en un clic. Prix affichés."
+  description="Trois offres claires : Étoile 29 €/mois, Constellation 89 €/mois, Polaire 139 €/mois avec accompagnement. Essai gratuit de 7 jours. Prix affichés."
   path="/tarifs"
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
@@ -86,30 +91,83 @@ const faqLd = {
         </div>
 
         <div class="grid-plans">
-          {PLANS.map((p) => (
-            <div class={`card plan${p.highlight ? " plan-hl" : ""}`}>
+          {/* LOT PRIX-1 : trois colonnes. La distinction se lit dans les
+              DONNÉES (`yearlyTotal === null` = pas d'annuel, `noTrial` = pas
+              d'essai), jamais sur `p.id === "polaire"` : une quatrième offre
+              demain tomberait dans la bonne branche sans qu'on y pense, et le
+              jour où Polaire gagnerait un annuel, une seule valeur changerait. */}
+          {PLANS.map((p) => {
+            const annuel = p.yearlyTotal !== null;
+            const essai = !("noTrial" in p && p.noTrial);
+            const eyebrow = "eyebrow" in p ? p.eyebrow : null;
+            return (
+            <div class={`card plan${p.highlight ? " plan-hl" : ""}${annuel ? "" : " plan-accomp"}`}>
               {p.highlight && <span class="plan-badge">Recommandée</span>}
+              {eyebrow && <span class="plan-eyebrow">{eyebrow}</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-tag">{p.tagline}</p>
               <p class="plan-price">
-                <span class="amount amount-m">{p.monthly} €</span>
-                <span class="amount amount-y">{p.yearlyPerMonth} €</span>
+                <span class={annuel ? "amount amount-m" : "amount"}>{p.monthly} €</span>
+                {annuel && <span class="amount amount-y">{p.yearlyPerMonth} €</span>}
                 <span class="per">/ mois</span>
               </p>
               {p.highlight && <p class="plan-perday">soit moins de 3 € par jour ({perDay(p.monthly)} €)</p>}
-              <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois (120 € d'économie).</p>
+              {annuel && <p class="plan-note plan-note-y">Soit {p.yearlyTotal} € par an, facturé en une fois ({p.yearlySave} € d'économie).</p>}
+              {/* « Pas d'annuel » EN PREMIER, et pas seulement « sans essai » : quand le
+                  sélecteur est sur Annuel, les deux autres colonnes affichent leur
+                  équivalent mensuel et celle-ci affiche son prix mensuel plein. Sans
+                  cette phrase, 139 € se lirait comme un tarif annuel avantageux. */}
+              {!essai && <p class="plan-note">Pas d&apos;annuel : {p.monthly} € par mois quel que soit le choix ci-dessus. Sans engagement et sans essai, l&apos;accompagnement démarre le jour de la souscription.</p>}
               {p.highlight && <p class="plan-wheel">Inclut la roue cadeau, 100 % conforme aux règles de Google.</p>}
               <ul class="check-list">
                 {p.features.map((ft) => <li>{ft}</li>)}
               </ul>
-              <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
-                data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
-                data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
-                href={stripeLink(p.id, "monthly", "tarifs")}
-                aria-label={`Essai gratuit 7 jours, offre ${p.name}`}>Essai gratuit 7 jours</a>
+              {/* Qui s'en occupe. Un accompagnement se vend par la personne qui
+                  le rend, pas par la liste de ce qu'elle fait : sans nom, la
+                  promesse « on s'en occupe » ne vaut rien. */}
+              {!essai && (
+                <div class="plan-qui">
+                  <p class="plan-qui-t">Qui s&apos;en occupe ?</p>
+                  <p class="plan-qui-d"><strong>Corentin</strong>, cofondateur de Stela. C&apos;est lui qui configure votre établissement, publie vos actualités et vous appelle chaque mois.</p>
+                </div>
+              )}
+              {annuel ? (
+                <a class={`btn ${p.highlight ? "btn-primary" : "btn-ghost"} plan-cta`} data-plan-cta
+                  data-href-monthly={stripeLink(p.id, "monthly", "tarifs")}
+                  data-href-yearly={stripeLink(p.id, "yearly", "tarifs")}
+                  href={stripeLink(p.id, "monthly", "tarifs")}
+                  aria-label={`Essai gratuit 7 jours, offre ${p.name}`}>Essai gratuit 7 jours</a>
+              ) : (
+                /* PAS de `data-plan-cta` ni de `data-href-yearly` : le bouton du
+                   haut bascule mensuel/annuel, et Polaire n'a pas d'annuel.
+                   L'inclure lui ferait pointer un lien vide au premier clic
+                   sur « Annuel », c'est-à-dire un tunnel d'achat mort. */
+                <a class="btn btn-ghost plan-cta"
+                  href={stripeLink(p.id, "monthly", "tarifs")}
+                  aria-label={`Commencer avec Corentin, offre ${p.name}`}>Commencer avec Corentin</a>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
+      </div>
+
+      {/* LOT PRIX-1 : l'offre sur devis, pour les groupes.
+          SOBRE ET SANS PRIX, délibérément. Un montant affiché ici serait faux
+          pour presque tout le monde (un groupe de six ne se facture pas comme
+          un groupe de trente) et deviendrait la seule chose que le visiteur
+          retiendrait. Le JSON-LD de cette offre ne porte donc pas de `price`
+          non plus : annoncer un prix à Google qu'on ne pratique pas est
+          exactement ce que la page « prix affichés » reproche aux autres.
+          Le lien ouvre le parcours devis EXISTANT (DEVIS-1 à 6), avec le
+          nombre d'établissements pré-rempli à 6 : la première question est
+          déjà répondue quand le formulaire s'affiche. */}
+      <div class="devis-bandeau card">
+        <div>
+          <p class="devis-bandeau-t">Plus de 5 établissements ?</p>
+          <p class="devis-bandeau-d">Une offre sur devis, un seul tableau de bord, un seul interlocuteur.</p>
+        </div>
+        <a class="btn btn-ghost" href="/pour/multi-etablissements?etablissements=6#devis">Demander un devis</a>
       </div>
 
       {/* Garantie 30 jours (GO Nicolas) : sous les cartes. */}
@@ -178,6 +236,9 @@ const faqLd = {
   .guarantee-badge { flex: none; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; border-radius: 999px; padding: .3rem .7rem; }
   .guarantee p { margin: 0; color: var(--text-secondary); font-size: .95rem; }
   .guarantee strong { color: var(--ink); }
+  .devis-bandeau { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; max-width: 1080px; margin: 1.25rem auto 0; text-align: left; }
+  .devis-bandeau-t { margin: 0 0 .2rem; font-size: 1.05rem; font-weight: 700; }
+  .devis-bandeau-d { margin: 0; font-size: .92rem; color: var(--text-secondary); }
   .compare-link { text-align: center; margin-top: 1rem; }
   /* 4,43 contre 4,5 requis avec l'ancien #2D6CDF : sept centiemes manquaient. */
   .compare-link a { font-weight: 700; color: var(--royal); }
@@ -198,8 +259,18 @@ const faqLd = {
   #tarifs:has(.billing-input:checked) .amount-y { display: inline; }
   #tarifs:has(.billing-input:checked) .plan-note-y { display: block; }
 
-  .grid-plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 780px; margin-inline: auto; text-align: left; }
+  /* LOT PRIX-1 : trois colonnes. `auto-fit` + `minmax` plutôt qu'un
+     `repeat(3, 1fr)` : à 1000 px, trois colonnes de 1fr donneraient des cartes
+     trop étroites pour leurs listes de bénéfices, et le texte se casserait mot
+     par mot. Ici elles passent d'elles-mêmes à deux puis à une. */
+  .grid-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; max-width: 1080px; margin-inline: auto; text-align: left; }
   @media (max-width: 720px) { .grid-plans { grid-template-columns: 1fr; } }
+  /* L'accroche de Polaire. PAS de laiton : à cette taille sur crème il tombe
+     sous le seuil AA (check:contraste l'a mesuré à 2,92 pour 4,5 requis). */
+  .plan-eyebrow { align-self: flex-start; font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--royal); margin-bottom: .35rem; }
+  .plan-qui { margin-top: .9rem; padding: .75rem .85rem; background: var(--cream); border-radius: var(--radius-sm); }
+  .plan-qui-t { margin: 0 0 .3rem; font-size: .84rem; font-weight: 700; }
+  .plan-qui-d { margin: 0; font-size: .84rem; line-height: 1.5; color: var(--text-secondary); }
   .plan { display: flex; flex-direction: column; }
   /* Un seul trait laiton, propre à toutes les tailles (fini le double bord :
      l'ancien ::before masqué doublait la bordure de la carte). */

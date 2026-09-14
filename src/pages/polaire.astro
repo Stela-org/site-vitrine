@@ -1,0 +1,180 @@
+---
+import Base from "../layouts/Base.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import { SITE, PLANS, stripeLink } from "../config/site";
+
+// LOT PRIX-1 volet E : la page de l'offre accompagnée.
+//
+// ELLE RACONTE, ELLE N'ÉNUMÈRE PAS. Une liste de fonctionnalités ne vend pas
+// un accompagnement : ce que le gérant achète, c'est de ne plus avoir à y
+// penser, et ça se montre en décrivant ce qui se passe réellement, le premier
+// jour, la semaine, le mois. Chaque ligne dit ce qu'il OBTIENT, jamais ce que
+// Corentin fait de ses journées.
+//
+// Le prix est LU dans `PLANS` : c'est la seule source de la vitrine.
+
+const polaire = PLANS.find((p) => p.id === "polaire")!;
+const constellation = PLANS.find((p) => p.id === "constellation")!;
+
+// Titre : 43 caractères, sous la limite de 60.
+const titre = "Polaire : on s'occupe de tout | Stela";
+const description = `L'offre accompagnée de Stela : ${polaire.monthly} € par mois, votre fiche Google configurée, vos actualités publiées et un point mensuel. Sans engagement.`;
+
+const offerLd = {
+  "@context": "https://schema.org",
+  "@type": "Offer",
+  name: "Polaire",
+  description: polaire.tagline,
+  price: String(polaire.monthly),
+  priceCurrency: "EUR",
+  category: "mensuel",
+  availability: "https://schema.org/InStock",
+  url: new URL("/polaire", SITE.url).href,
+  seller: { "@type": "Organization", name: SITE.brand, url: SITE.url },
+};
+
+const ETAPES = [
+  {
+    titre: "Le premier jour",
+    texte:
+      "Corentin vous appelle sous 48 heures. Il prend la main sur votre fiche Google, vos QR codes, vos canaux de collecte et la liste de vos voisins. Vous n'avez rien à installer et rien à paramétrer : à la fin de l'appel, votre établissement collecte des avis.",
+  },
+  {
+    titre: "Chaque semaine",
+    texte:
+      "Vous lui envoyez vos photos par message, quand vous y pensez. Il écrit et publie vos actualités sur votre fiche Google, relit les réponses aux avis avant qu'elles partent, et corrige ce qui doit l'être. Votre fiche vit sans que vous y touchiez.",
+  },
+  {
+    titre: "Chaque mois",
+    texte:
+      "Vingt minutes au téléphone, à une heure qui vous arrange. Ce que vos avis ont bougé, ce que vos voisins ont fait, et les deux ou trois gestes qui feront la différence le mois suivant. Vous raccrochez en sachant où vous en êtes.",
+  },
+];
+
+const questions = [
+  {
+    q: "Qu'est-ce que je dois fournir ?",
+    a: "Un accès à votre fiche Google, et vos photos quand vous en prenez. Rien d'autre. Si vous n'avez pas encore la main sur votre fiche, Corentin s'occupe aussi de la récupérer.",
+  },
+  {
+    q: "Puis-je passer à Constellation ensuite ?",
+    a: `Oui, à tout moment, depuis votre espace client. Vous gardez tout ce qui a été mis en place et vous continuez seul, à ${constellation.monthly} € par mois. Rien n'est perdu, rien n'est à refaire.`,
+  },
+  {
+    q: "Combien de temps pour être en place ?",
+    a: "Votre fiche collecte des avis le jour de l'appel. Le reste, les actualités, les canaux, les voisins, est en place dans la semaine.",
+  },
+];
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: questions.map((x) => ({
+    "@type": "Question",
+    name: x.q,
+    acceptedAnswer: { "@type": "Answer", text: x.a },
+  })),
+};
+---
+
+{/* NI bandeau collant NI bloc de closing : les deux promettent « essai
+    gratuit 7 jours », et Polaire n'a pas d'essai. Les laisser aurait fait
+    dire à la page l'inverse de ce qu'elle explique, deux fois. */}
+<Base title={titre} description={description} path="/polaire" closing={false} stickyCta={false}>
+  <script type="application/ld+json" set:html={JSON.stringify(offerLd)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
+
+  <div class="container"><Breadcrumb items={[{ label: "Tarifs", href: "/tarifs" }, { label: "Polaire" }]} /></div>
+
+  <section class="pol-hero">
+    <div class="container">
+      <p class="pol-eyebrow">L&apos;étoile qui guide</p>
+      <h1>Votre fiche Google s&apos;occupe d&apos;elle-même. Corentin s&apos;en charge.</h1>
+      <p class="pol-lead">
+        Vous gardez tout ce que fait Constellation, et vous n&apos;y touchez pas. {polaire.monthly} € par mois, sans
+        engagement, sans essai : l&apos;accompagnement démarre le jour de la souscription.
+      </p>
+      <div class="pol-cta">
+        <a class="btn btn-primary" href={stripeLink("polaire", "monthly", "polaire")}>Commencer avec Corentin</a>
+        <a class="btn btn-ghost" href="/tarifs">Comparer les trois offres</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="pol-section">
+    <div class="container">
+      <h2>Comment ça se passe</h2>
+      <ol class="pol-etapes">
+        {ETAPES.map((e, i) => (
+          <li>
+            <span class="pol-num">{i + 1}</span>
+            <div>
+              <h3>{e.titre}</h3>
+              <p>{e.texte}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="pol-section pol-section-cream">
+    <div class="container">
+      <div class="pol-qui">
+        <p class="pol-qui-t">Qui s&apos;en occupe</p>
+        <p class="pol-qui-d">
+          <strong>Corentin</strong>, cofondateur de Stela. Pas une équipe anonyme ni un prestataire : la même personne
+          vous appelle chaque mois et connaît votre établissement. C&apos;est aussi pourquoi Polaire est plafonnée à dix
+          établissements accompagnés.
+        </p>
+        <p class="pol-qui-lien"><a href="/notre-histoire">Notre histoire &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pol-section">
+    <div class="container pol-questions">
+      <h2>Trois questions avant de commencer</h2>
+      {questions.map((x) => (
+        <div class="pol-question">
+          <h3>{x.q}</h3>
+          <p>{x.a}</p>
+        </div>
+      ))}
+      <div class="pol-fin">
+        <a class="btn btn-primary" href={stripeLink("polaire", "monthly", "polaire-bas")}>Commencer avec Corentin</a>
+        <p class="pol-fin-note">{polaire.monthly} € par mois. Sans engagement : vous arrêtez quand vous voulez.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pol-hero { padding: 48px 0 36px; }
+  .pol-eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--royal); margin: 0 0 .8rem; }
+  .pol-hero h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.14; margin: 0 0 1rem; max-width: 20ch; }
+  .pol-lead { font-size: clamp(16px, 2vw, 19px); line-height: 1.6; color: var(--text-secondary); max-width: 60ch; margin: 0 0 1.4rem; }
+  .pol-cta { display: flex; gap: .7rem; flex-wrap: wrap; }
+
+  .pol-section { padding: 40px 0; }
+  .pol-section-cream { background: var(--cream); }
+  .pol-section h2 { font-size: clamp(22px, 3vw, 30px); line-height: 1.2; margin: 0 0 1.3rem; }
+
+  .pol-etapes { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.2rem; max-width: 72ch; }
+  .pol-etapes li { display: flex; gap: 1rem; align-items: flex-start; }
+  .pol-num { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 999px; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-size: .95rem; }
+  .pol-etapes h3 { font-size: 1.05rem; margin: 0 0 .35rem; }
+  .pol-etapes p { font-size: .97rem; line-height: 1.62; color: var(--text-secondary); margin: 0; }
+
+  .pol-qui { max-width: 62ch; }
+  .pol-qui-t { margin: 0 0 .5rem; font-size: 1.1rem; font-weight: 700; }
+  .pol-qui-d { margin: 0 0 .6rem; font-size: .97rem; line-height: 1.62; color: var(--text-secondary); }
+  .pol-qui-lien { margin: 0; font-size: .92rem; }
+
+  .pol-questions { max-width: 72ch; }
+  .pol-question { padding: 1.1rem 0; border-top: 1px solid var(--border); }
+  .pol-question h3 { font-size: 1.02rem; margin: 0 0 .4rem; }
+  .pol-question p { font-size: .97rem; line-height: 1.62; color: var(--text-secondary); margin: 0; }
+  .pol-fin { margin-top: 1.6rem; }
+  .pol-fin-note { margin: .7rem 0 0; font-size: .9rem; color: var(--text-muted); }
+</style>
