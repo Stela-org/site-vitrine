@@ -1,0 +1,44 @@
+[
+  {
+    "id": "note-face-aux-voisins",
+    "status": "en_cours",
+    "title": "Votre note face à vos trois voisins",
+    "result": "Sous chaque note, celle de vos voisins : vous savez en une seconde si vous gagnez."
+  },
+  {
+    "id": "ce-que-les-ia-disent",
+    "status": "livre",
+    "title": "Ce que les IA disent de vous",
+    "result": "ChatGPT, Perplexity et Gemini : cité ou pas, et qui l'est à votre place."
+  },
+  {
+    "id": "mouvements-des-voisins",
+    "status": "en_cours",
+    "title": "Les mouvements de vos voisins",
+    "result": "Un voisin gagne 12 avis ou passe devant vous : vous le lisez le matin même."
+  },
+  {
+    "id": "actualites-sur-google",
+    "status": "en_cours",
+    "title": "Vos actualités publiées sur Google",
+    "result": "Une actualité par semaine sur votre fiche, avec vos photos."
+  },
+  {
+    "id": "position-rue-par-rue",
+    "status": "prochain",
+    "title": "Votre position, rue par rue",
+    "result": "Une carte de votre quartier : où l'on vous trouve, où l'on ne vous trouve pas encore."
+  },
+  {
+    "id": "mois-offert-parrainage",
+    "status": "prochain",
+    "title": "Un mois offert quand vous parrainez",
+    "result": "Un établissement voisin s'abonne grâce à vous : un mois offert pour vous deux."
+  },
+  {
+    "id": "cinq-gestes-du-mois",
+    "status": "prochain",
+    "title": "Cinq gestes qui feront la différence ce mois-ci",
+    "result": "Pas de score : les cinq choses à faire, et ce qu'elles rapportent."
+  }
+]

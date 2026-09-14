@@ -21,7 +21,16 @@ import Logo from "./Logo.astro";
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Ouvrir ou fermer le menu" />
     <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
     <nav class="nav-links" aria-label="Navigation principale">
-      {NAV_LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      {/* LOT ROAD-1 : « Nouveautés » se pose ICI, juste après « Fonctionnalités »,
+          et non dans NAV_LINKS : `src/config/site.ts` est tenu par un autre lot
+          en cours et deux lots ne se partagent pas un fichier. Le rendu est le
+          même ; la place dans la barre est la même. */}
+      {NAV_LINKS.map((l) => (
+        <Fragment>
+          <a href={l.href}>{l.label}</a>
+          {l.href === "/fonctionnalites" && <a href="/roadmap">Nouveautés</a>}
+        </Fragment>
+      ))}
       {/* Version DESKTOP : à sa place conventionnelle, juste avant le CTA,
           séparée des rubriques par un filet vertical. Posé entre le logo et
           les rubriques (première version), il flottait comme un élément
