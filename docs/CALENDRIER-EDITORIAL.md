@@ -84,8 +84,8 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 |---|---|---|---|
 | S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | Livré |
 | S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | Livré |
-| S15 | Que faut-il vérifier sur sa fiche Google Business Profile chaque mois ? (repli intemporel, voir la note ci-dessous) | google-business-profile | En relecture (PR) |
-| S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | À faire |
+| S15 | Que faut-il vérifier sur sa fiche Google Business Profile chaque mois ? (repli intemporel, voir la note ci-dessous) | google-business-profile | Livré |
+| S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | En relecture (PR) |
 | S17 | Faut-il activer la messagerie de sa fiche Google Business Profile ? | guide | À faire |
 | S18 | Comment se calcule la note moyenne d'une fiche Google ? | guide | À faire |
 | S19 | Quelles sont les nouveautés Google Business Profile d'octobre 2026 ? | google-business-profile | À faire |
@@ -100,6 +100,11 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 > des sujets encore absents du blog. Aucun doublon avec les 15 articles en
 > ligne : les photos, la messagerie, le calcul de la note, le multi-établissements
 > et les métiers hors restauration n'ont jamais été traités.
+
+> Statut S15 corrigé le 14/09/2026 : la ligne était restée à « En relecture
+> (PR) » alors que sa Pull Request est mergée et l'article en production. Même
+> cause que la correction du 31/08, même remède : « En relecture (PR) » ne
+> désigne qu'une Pull Request réellement ouverte.
 
 > Rappel pour les semaines S15, S19 et S23 : si aucune actualité Google Business
 > Profile réelle, sourcée et pertinente pour des lecteurs français n'est
