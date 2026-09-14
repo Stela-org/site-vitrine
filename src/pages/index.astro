@@ -148,6 +148,12 @@ const websiteLd = {
         <p class="hero-diag">
           Pas encore décidé ? <a href="/diagnostic">Diagnostiquez gratuitement votre fiche Google</a>.
         </p>
+        {/* LOT APERCU-1 : ce que le diagnostic montre EN PLUS depuis ce lot, en
+            une ligne et sans lien propre. Le lien est juste au-dessus ; deux
+            liens vers la meme page se disputeraient le clic. */}
+        <p class="hero-diag hero-diag-ia">
+          … et ce que ChatGPT, Perplexity et Gemini disent de vous.
+        </p>
         <div class="hero-trust"><TripleZero /></div>
       </div>
       <div class="hero-visual">
@@ -461,6 +467,9 @@ const websiteLd = {
   .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; }
   .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.75rem 0 1rem; }
   .hero-diag { font-size: .92rem; color: var(--text-muted); margin: .9rem 0 1.1rem; }
+  /* LOT APERCU-1 : la ligne suit immediatement la precedente, dont elle est la
+     suite de phrase. Elle ne reprend donc pas sa marge haute. */
+  .hero-diag-ia { margin-top: -.7rem; }
   .hero-trust { font-size: .9rem; color: var(--text-muted); margin: 0; }
   /* Cluster visuel du hero : téléphone + carte d'avis flottante. */
   .hero-visual { position: relative; min-height: 520px; display: flex; align-items: center; justify-content: center; }

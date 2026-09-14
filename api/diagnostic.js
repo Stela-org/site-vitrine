@@ -23,6 +23,7 @@ import {
   kvPret,
   ipClient,
   cleJour,
+  apercuIa,
 } from "../lib/diagnostic.js";
 
 // Plafonds. Par IP pour arreter un curieux, globaux pour borner la facture meme
@@ -98,6 +99,12 @@ export default async function handler(req, res) {
     }
 
     const { score, constats } = diagnostiquer(metriques);
+
+    // LOT APERCU-1 : l'apercu IA part avec le diagnostic, en un seul
+    // aller-retour. `null` = indisponible, jamais un resultat invente ; le
+    // diagnostic Google s'affiche de toute facon.
+    const ia = await apercuIa(placeId);
+
     return json(res, 200, {
       // LOT DIAG-2 : l'identite diagnostiquee part avec les CHIFFRES BRUTS
       // mesures. Le cas reel : deux « Cosy » differents, l'un analyse ici,
@@ -114,6 +121,7 @@ export default async function handler(req, res) {
       verdict: verdict(score, metriques),
       constats,
       stela: ceQueStelaChange(constats, metriques),
+      ia,
     });
   }
 
