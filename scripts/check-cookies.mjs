@@ -710,16 +710,61 @@ server.close();
 // s'ajoute ICI, nommement et avec sa raison ecrite — jamais en re-elargissant
 // une regle generale.
 const violations = [...new Map(cspViolations.map((v) => [`${v.directive} ${v.blocked}`, v])).values()];
-/** Exceptions explicites. Vide, et c'est voulu : chaque entree doit etre motivee. */
-const VIOLATIONS_TOLEREES = [];
+
+// LOT FIX-CSP-1, la seule exception, et sa geographie.
+// gtag envoie le pixel Google Signals (`/ads/ga-audiences`) sur le domaine
+// Google du PAYS DU NAVIGATEUR : www.google.ca depuis un runner canadien,
+// www.google.be depuis la Belgique. Les runners GitHub changent de region
+// sans prevenir, et la CSP ne sait pas jouer de joker sur un TLD : la liste
+// de vercel.json sera donc toujours incomplete quelque part.
+//
+// Ce pixel-la, et lui seul, degrade sans casser : la MESURE part par
+// connect-src (/g/collect, /measurement/conversion) et reste intacte ; ce
+// qui se perd est l'AUDIENCE de remarketing, pour les visiteurs de ce pays.
+// Faire echouer le gate sur la region du runner rendrait main rouge au
+// hasard du placement GitHub, sans rien dire du site. On le nomme donc, on
+// l'affiche, et on n'en meurt pas. Toute autre violation reste un echec :
+// une mesure refusee est une donnee perdue.
+const SIGNALS_PIXEL = /^https:\/\/www\.google\.[a-z]{2,3}(?:\.[a-z]{2})?\/ads\/ga-audiences(?:[?/]|$)/;
+const IMG_SRC = cspDirective("img-src");
+
+/** Hote d'une URL de violation, ou "" si elle est illisible. */
+const hoteDe = (url) => { try { return new URL(url).origin; } catch { return ""; } };
+
+/**
+ * Verdict d'une violation : "avertissement" pour le pixel Signals d'un pays
+ * absent de l'img-src, "echec" pour tout le reste.
+ */
+function classerViolation(v) {
+  if (v.directive !== "img-src") return "echec";
+  if (!SIGNALS_PIXEL.test(v.blocked || "")) return "echec";
+  // Hors liste seulement : si le TLD y figurait, il n'y aurait pas de
+  // violation du tout, et une violation malgre la liste serait un vrai defaut.
+  if (IMG_SRC.includes(hoteDe(v.blocked))) return "echec";
+  return "avertissement";
+}
+
+const avertissements = [];
 for (const v of violations) {
-  const toleree = VIOLATIONS_TOLEREES.some((e) => e.directive === v.directive && e.test.test(v.blocked || ""));
-  if (toleree) continue;
+  if (classerViolation(v) === "avertissement") {
+    const tld = hoteDe(v.blocked).replace(/^https:\/\/www\.google\./, "") || "inconnu";
+    avertissements.push(
+      `pixel Google Signals refuse pour le pays du runner : ${tld} ; ` +
+      "mesure de conversion intacte, audience de remarketing perdue pour ce pays. " +
+      `Pour la recuperer, ajouter https://www.google.${tld} a l'img-src de vercel.json.`,
+    );
+    continue;
+  }
   errors.push(
     `Violation CSP : ${v.directive} refuse ${v.blocked}. ` +
     "Le navigateur a refuse cette requete en silence, sans erreur cote page. " +
     "Si elle porte de la mesure, la donnee est PERDUE : ajouter le domaine a la directive concernee dans vercel.json.",
   );
+}
+
+if (avertissements.length) {
+  console.warn(`check:cookies AVERTISSEMENT (FIX-CSP-1) : ${avertissements.length} pixel(s) d'audience refuse(s) :`);
+  avertissements.forEach((a) => console.warn("  " + a));
 }
 
 if (errors.length) {
