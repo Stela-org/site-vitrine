@@ -1,0 +1,545 @@
+---
+// LOT ETAB-1 : page web officielle de Nūage Burger Gennevilliers.
+//
+// Cette page est le site web déclaré dans la fiche Google Business Profile de
+// l'établissement. Le domaine de l'enseigne ne sert qu'un gabarit vide : le
+// déclarer desservirait la fiche. Deux lecteurs comptent donc ici, dans cet
+// ordre : un client arrivé depuis la fiche, qui doit trouver adresse,
+// horaires, carte et façon de commander en quelques secondes, et un moteur ou
+// une IA, qui doit pouvoir citer des faits exacts.
+//
+// RÈGLES DE CONTENU, toutes issues du brief et vérifiées sur la fiche réelle :
+//   - aucun numéro de téléphone tant que la ligne n'existe pas ;
+//   - aucune date d'ouverture tant qu'elle n'est pas confirmée ;
+//   - aucun avis, aucune note, aucun témoignage : ni affichés, ni balisés.
+//     Recopier la note Google dans un `aggregateRating` est un avis
+//     auto-déclaré, interdit par les règles de Google ;
+//   - aucune description produit inventée : seules trois sont fournies ;
+//   - pas de coordonnées `geo` : aucune n'a été vérifiée.
+//
+// Page STATIQUE et en dur, sans JavaScript : la CSP interdit les scripts
+// inline et le contenu doit se lire sans exécution. La généralisation à
+// d'autres établissements est proposée en PR, pas implémentée ici.
+import Base from "../layouts/Base.astro";
+import { SITE } from "../config/site";
+import { sameAsField } from "../lib/sameAs";
+
+const PATH = "/nuage-burger-gennevilliers";
+const URL_PAGE = new URL(PATH, SITE.url).href;
+
+const NOM = "Nūage Burger";
+const ADRESSE = { rue: "49 rue de la Couture d'Auxerre", cp: "92230", ville: "Gennevilliers" };
+const ADRESSE_LIGNE = `${ADRESSE.rue}, ${ADRESSE.cp} ${ADRESSE.ville}`;
+// Un lien, pas une carte intégrée : une iframe serait une ressource tierce
+// chargée d'office (refusée par la CSP et par check:analytics).
+const ITINERAIRE = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${NOM}, ${ADRESSE_LIGNE}`)}`;
+
+const HORAIRES = [
+  { jour: "Lundi", schema: "Monday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Mardi", schema: "Tuesday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Mercredi", schema: "Wednesday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Jeudi", schema: "Thursday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Vendredi", schema: "Friday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Samedi", schema: "Saturday", ouvre: "11:30", ferme: "23:30" },
+  { jour: "Dimanche", schema: "Sunday", ouvre: "12:30", ferme: "23:30" },
+];
+const heure = (h: string) => h.replace(":", "h");
+
+const PAIEMENTS = ["Carte bancaire", "Sans contact", "Ticket Restaurant", "Swile", "Pluxee", "Bimpli"];
+const SERVICES = ["20 places assises", "Service à table", "Wi-Fi gratuit", "Toilettes", "Accès PMR"];
+
+const RESEAUX = [
+  { nom: "Instagram", url: "https://www.instagram.com/nuageburger", icone: "instagram" },
+  { nom: "Facebook", url: "https://www.facebook.com/nuageburger", icone: "facebook" },
+  { nom: "TikTok", url: "https://www.tiktok.com/@nuageburger", icone: "tiktok" },
+];
+// Livraison : Uber Eats et Deliveroo ne sont pas encore ouverts à
+// Gennevilliers. La liste est VIDE et le bloc ne s'affiche pas ; à l'ouverture,
+// il suffit d'y ajouter { nom, url } pour que les liens apparaissent sous
+// « Commander ». Ne jamais y mettre une URL non active.
+const LIVRAISON: { nom: string; url: string }[] = [];
+
+const MENU_INCLUS = "Servi avec frites maison + boisson au choix.";
+
+type Burger = { nom: string; seul: string; menu: string; desc?: string };
+const BURGERS: Burger[] = [
+  { nom: "ORIGINAL", seul: "10,50", menu: "14,90" },
+  { nom: "CHEESEBURGER", seul: "10,50", menu: "14,90", desc: "Pain nuage, smash black Angus (100g), American cheese, pickles, oignons, sauce ketchup, sauce french mustard." },
+  { nom: "BIG BACON", seul: "13,90", menu: "17,90" },
+  { nom: "PEPPER", seul: "13,90", menu: "17,90" },
+  { nom: "HONEY", seul: "13,90", menu: "17,90" },
+  { nom: "WHITE CHICKEN", seul: "13,90", menu: "17,90" },
+  { nom: "SPICY CHICKEN", seul: "13,90", menu: "17,90" },
+  { nom: "CREAMY CHICKEN", seul: "13,90", menu: "17,90" },
+  { nom: "MANGO CHICKEN", seul: "13,90", menu: "17,90" },
+  { nom: "VEGGIE", seul: "15,90", menu: "19,90" },
+  { nom: "BOEING", seul: "17,90", menu: "21,90", desc: "Pain nuage, smash black Angus (250g), salade, American cheese, oignons crispy, sauce BBQ cream." },
+];
+
+type Ligne = { nom: string; prix: string; desc?: string };
+const FORMULES: Ligne[] = [
+  { nom: "BOX DÉCOUVERTE", prix: "24,90", desc: "4 Baby Nuages : Bacon, Spicy, Raclette et Honey." },
+  { nom: "MENU DUO SMASH", prix: "23,90" },
+  { nom: "MENU DUO MIX", prix: "23,90" },
+  { nom: "MENU ENFANT", prix: "8,00" },
+];
+const COTE: Ligne[] = [
+  { nom: "FRITES maison", prix: "3,90" },
+  { nom: "FRITES CHEDDAR", prix: "5,40" },
+  { nom: "NUGGETS x4", prix: "6,00" },
+  { nom: "TENDERS x4", prix: "8,00" },
+];
+const DESSERTS: Ligne[] = [
+  { nom: "NUAGE AU NUTELLA", prix: "6,90" },
+  { nom: "TIRANUAGE NUTELLA", prix: "6,90" },
+  { nom: "SUNDAE CARAMEL", prix: "5,90" },
+];
+const BOISSONS: Ligne[] = [{ nom: "Boissons 33 cl", prix: "2,50" }];
+const CARTE_SIMPLE = [
+  { titre: "Box et menus duo", id: "formules", lignes: FORMULES },
+  { titre: "Accompagnements", id: "accompagnements", lignes: COTE },
+  { titre: "Desserts", id: "desserts", lignes: DESSERTS },
+  { titre: "Boissons", id: "boissons", lignes: BOISSONS },
+];
+
+// Espace insécable avant « ? » : sans elle, le point d'interrogation peut
+// partir seul à la ligne sur téléphone (vu à 375 px).
+const FAQ_BRUTE = [
+  { q: "Quels sont les horaires de Nūage Burger à Gennevilliers ?",
+    a: "Du lundi au samedi de 11h30 à 23h30, et le dimanche de 12h30 à 23h30." },
+  { q: "Où se trouve le restaurant et comment y accéder ?",
+    a: `Au ${ADRESSE_LIGNE}. Le stationnement est payant dans la rue, et le restaurant est accessible aux personnes à mobilité réduite.` },
+  { q: "Quels moyens de paiement sont acceptés ?",
+    a: "La carte bancaire, le paiement sans contact et les titres-restaurant Ticket Restaurant, Swile, Pluxee et Bimpli." },
+  { q: "Y a-t-il une option végétarienne ?",
+    a: "Oui, la carte propose le burger VEGGIE, à 15,90 € seul ou 19,90 € en menu." },
+  { q: "Peut-on manger sur place ?",
+    a: "Oui. La salle compte 20 places assises, avec service à table, Wi-Fi gratuit et toilettes." },
+  { q: "Nūage Burger livre-t-il à Gennevilliers ?",
+    a: "Pas encore : la livraison n'est pas disponible à Gennevilliers pour le moment. Les commandes se passent sur place, avec service à table." },
+  { q: "Que comprend un menu ?",
+    a: `Chaque menu est ${MENU_INCLUS.charAt(0).toLowerCase()}${MENU_INCLUS.slice(1)}` },
+  { q: "Quelle est la fourchette de prix ?",
+    a: "Comptez entre 10 et 20 € par personne. Les burgers vont de 10,50 € à 17,90 € seuls, et de 14,90 € à 21,90 € en menu." },
+  { q: "Y a-t-il un menu enfant ?",
+    a: "Oui, le menu enfant est à 8,00 €." },
+];
+const FAQ = FAQ_BRUTE.map((f) => ({ q: f.q.replace(/ \?$/, "\u00a0?"), a: f.a }));
+
+const restaurantLd = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "@id": `${URL_PAGE}#restaurant`,
+  name: NOM,
+  url: URL_PAGE,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: ADRESSE.rue,
+    postalCode: ADRESSE.cp,
+    addressLocality: ADRESSE.ville,
+    addressRegion: "Île-de-France",
+    addressCountry: "FR",
+  },
+  openingHoursSpecification: HORAIRES.map((h) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: `https://schema.org/${h.schema}`,
+    opens: h.ouvre,
+    closes: h.ferme,
+  })),
+  servesCuisine: "Hamburger",
+  priceRange: "10–20 €",
+  hasMenu: `${URL_PAGE}#carte`,
+  ...sameAsField(RESEAUX.map((r) => r.url)),
+  paymentAccepted: PAIEMENTS.join(", "),
+  currenciesAccepted: "EUR",
+  publicAccess: true,
+  isAccessibleForFree: false,
+  amenityFeature: ["Service à table", "Wi-Fi gratuit", "Toilettes", "Accès PMR"].map((name) => ({
+    "@type": "LocationFeatureSpecification", name, value: true,
+  })),
+};
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+
+const TITRE = "Nūage Burger Gennevilliers : carte, prix et horaires";
+const DESCRIPTION = "Nūage Burger, 49 rue de la Couture d'Auxerre à Gennevilliers : smash black Angus au pain nuage, frites maison, service à table. Carte, prix, horaires.";
+---
+<Base title={TITRE} description={DESCRIPTION} path={PATH} closing={false} stickyCta={false}>
+  <script type="application/ld+json" set:html={JSON.stringify(restaurantLd)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(faqLd)} is:inline />
+
+  <div class="nb">
+    <section class="nb-hero" aria-labelledby="nb-titre">
+      <svg class="nb-nuage" viewBox="0 0 240 120" aria-hidden="true" focusable="false">
+        <path d="M58 104h128a34 34 0 0 0 2-68 46 46 0 0 0-86-10 32 32 0 0 0-44 26 26 26 0 0 0 0 52z" />
+      </svg>
+      <div class="container nb-hero-in">
+        <p class="nb-lieu">Gennevilliers <span aria-hidden="true">·</span> Hauts-de-Seine</p>
+        <h1 id="nb-titre">{NOM}</h1>
+        <p class="nb-lead">Smash black Angus, pain nuage et frites maison, servis à table.</p>
+
+        <dl class="nb-faits">
+          <div class="nb-fait">
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z M12 7a3 3 0 1 0 0 6a3 3 0 1 0 0-6z" /></svg>Adresse</dt>
+            <dd>{ADRESSE.rue}<br />{ADRESSE.cp} {ADRESSE.ville}</dd>
+          </div>
+          <div class="nb-fait">
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20a10 10 0 1 0 0 20z M12 6v6l4 2" /></svg>Horaires</dt>
+            <dd>Lundi au samedi&nbsp;: 11h30 à 23h30<br />Dimanche&nbsp;: 12h30 à 23h30</dd>
+          </div>
+          <div class="nb-fait">
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6.5A7 7 0 1 0 18 17.5 M4 10h9 M4 14h9" /></svg>Prix</dt>
+            <dd>10 à 20 € par personne</dd>
+          </div>
+          <div class="nb-fait">
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8z M9 8V6a3 3 0 0 1 6 0v2" /></svg>Commander</dt>
+            <dd>
+              Sur place, avec service à table.
+              {LIVRAISON.length > 0 ? (
+                <ul class="nb-livraison">
+                  {LIVRAISON.map((l) => <li><a href={l.url} rel="noopener">{l.nom}</a></li>)}
+                </ul>
+              ) : (
+                <><br />Livraison pas encore disponible ici.</>
+              )}
+            </dd>
+          </div>
+        </dl>
+
+        <div class="nb-actions">
+          <a class="nb-btn nb-btn-plein" href="#carte">Voir la carte</a>
+          <a class="nb-btn nb-btn-contour" href={ITINERAIRE} rel="noopener">Itinéraire</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="carte" class="nb-carte" aria-labelledby="nb-carte-titre">
+      <div class="container nb-etroit reveal">
+        <h2 id="nb-carte-titre">La carte</h2>
+        <p class="nb-note">Chaque burger se commande seul ou en menu. Prix en euros.</p>
+
+        <h3 id="burgers">Burgers</h3>
+        <table class="nb-table">
+          <caption class="nb-sr">Burgers : prix seul et prix en menu</caption>
+          <thead>
+            <tr><th scope="col">Burger</th><th scope="col" class="nb-prix">Seul</th><th scope="col" class="nb-prix">Menu</th></tr>
+          </thead>
+          <tbody>
+            {BURGERS.map((b) => (
+              <tr>
+                <th scope="row">
+                  <span class="nb-nom">{b.nom}</span>
+                  {b.desc && <span class="nb-desc">{b.desc}</span>}
+                </th>
+                <td class="nb-prix">{b.seul}&nbsp;€</td>
+                <td class="nb-prix">{b.menu}&nbsp;€</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="nb-inclus">{MENU_INCLUS}</p>
+
+        <div class="nb-grille">
+          {CARTE_SIMPLE.map((s) => (
+            <div class="nb-bloc">
+              <h3 id={s.id}>{s.titre}</h3>
+              <ul class="nb-lignes">
+                {s.lignes.map((l) => (
+                  <li>
+                    <span class="nb-ligne">
+                      <span class="nb-nom">{l.nom}</span>
+                      <span class="nb-prix">{l.prix}&nbsp;€</span>
+                    </span>
+                    {l.desc && <span class="nb-desc">{l.desc}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="infos" class="nb-infos" aria-labelledby="nb-infos-titre">
+      <div class="container nb-etroit reveal">
+        <h2 id="nb-infos-titre">Infos pratiques</h2>
+        <div class="nb-grille">
+          <div class="nb-bloc">
+            <h3>Horaires</h3>
+            <table class="nb-table nb-horaires">
+              <caption class="nb-sr">Horaires d'ouverture, jour par jour</caption>
+              <tbody>
+                {HORAIRES.map((h) => (
+                  <tr><th scope="row">{h.jour}</th><td>{heure(h.ouvre)} à {heure(h.ferme)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="nb-bloc">
+            <h3>Adresse et accès</h3>
+            <address class="nb-adresse">{NOM}<br />{ADRESSE.rue}<br />{ADRESSE.cp} {ADRESSE.ville}</address>
+            <p>Stationnement payant dans la rue. Accès PMR.</p>
+            <p><a class="nb-lien" href={ITINERAIRE} rel="noopener">Ouvrir l'itinéraire</a></p>
+          </div>
+          <div class="nb-bloc">
+            <h3>Sur place</h3>
+            <ul class="nb-puces">{SERVICES.map((s) => <li>{s}</li>)}</ul>
+          </div>
+          <div class="nb-bloc">
+            <h3>Paiements acceptés</h3>
+            <ul class="nb-puces">{PAIEMENTS.map((p) => <li>{p}</li>)}</ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="nb-faq" aria-labelledby="nb-faq-titre">
+      <div class="container nb-etroit reveal">
+        <h2 id="nb-faq-titre">Questions fréquentes</h2>
+        <div class="nb-questions">
+          {FAQ.map((f) => (
+            <div class="nb-question">
+              <h3>{f.q}</h3>
+              <p>{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="suivre" class="nb-suivre" aria-labelledby="nb-suivre-titre">
+      <div class="container nb-etroit">
+        <h2 id="nb-suivre-titre">Suivre {NOM}</h2>
+        <ul class="nb-reseaux">
+          {RESEAUX.map((r) => (
+            <li>
+              <a href={r.url} rel="noopener">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  {r.icone === "instagram" && <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z M17.5 6.5h.01" />}
+                  {r.icone === "facebook" && <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />}
+                  {r.icone === "tiktok" && <path d="M9 12a4 4 0 1 0 4 4V2h3a5 5 0 0 0 5 5" />}
+                </svg>
+                {r.nom}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <aside class="nb-edition" aria-label="Éditeur de la page">
+      <div class="container nb-etroit">
+        <p>Page éditée par <a href="/">Stela</a> pour {NOM}, à partir des informations de l'établissement.</p>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  /* Identité Nūage Burger, portée par la page seule. Les tokens globaux de
+     global.css ne sont JAMAIS redéfinis : tout vit sous le préfixe --nb-, sur
+     le conteneur .nb. Le laiton Stela n'apparaît nulle part ici.
+     Ciel profond pour les aplats, blanc nuage pour les surfaces, caramel tiré
+     de la croûte du smash pour l'accent. Chaque paire texte/fond ci-dessous a
+     été mesurée : 4,5:1 minimum, dans les deux thèmes. */
+  .nb {
+    --nb-sky: #0B3A63;
+    --nb-sky-deep: #082C4D;
+    --nb-cloud: #FFFBF4;
+    --nb-surface: #FFFFFF;
+    --nb-mist: #EAF1F7;
+    --nb-ink: #0F2238;
+    --nb-text2: #3D4F63;
+    --nb-crust: #C4661F;
+    --nb-crust-ink: #9A4A12;
+    --nb-on-sky: #FFFBF4;
+    --nb-on-sky2: #C9DAEA;
+    --nb-crust-on-sky: #F2A968;
+    --nb-btn: #F2A968;
+    --nb-btn-ink: #082C4D;
+    --nb-nuage: rgba(255, 251, 244, .07);
+    --nb-radius: 18px;
+
+    background: var(--nb-cloud);
+    color: var(--nb-ink);
+  }
+
+  /* Thème sombre. Le reste du site n'en a pas : la barre de navigation et le
+     pied de page Stela restent clairs, seul le corps de la page bascule. */
+  @media (prefers-color-scheme: dark) {
+    .nb {
+      --nb-sky: #0B2744;
+      --nb-sky-deep: #061A2E;
+      --nb-cloud: #081726;
+      --nb-surface: #0E2236;
+      --nb-mist: #132C44;
+      --nb-ink: #EEF3F8;
+      --nb-text2: #B4C4D4;
+      --nb-crust: #E8935A;
+      --nb-crust-ink: #F2A968;
+      --nb-nuage: rgba(255, 251, 244, .05);
+    }
+  }
+
+  /* Les règles globales h1-h3 et p imposent l'encre et le gris Stela : on les
+     reprend dans la portée de la page. */
+  .nb h1, .nb h2, .nb h3 { color: var(--nb-ink); }
+  .nb p { color: var(--nb-text2); }
+  .nb svg { display: inline-block; }
+
+  .nb-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .nb a:focus-visible, .nb-btn:focus-visible {
+    outline: 3px solid var(--nb-crust); outline-offset: 3px; border-radius: 8px;
+  }
+  /* Sur l'aplat ciel, le caramel foncé tombe sous 3:1 : l'anneau s'éclaircit. */
+  .nb-hero a:focus-visible { outline-color: var(--nb-crust-on-sky); }
+
+  /* Bandeau d'ouverture */
+  .nb-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--nb-sky);
+    color: var(--nb-on-sky);
+    padding-block: clamp(28px, 5vw, 56px);
+  }
+  .nb-nuage {
+    position: absolute;
+    width: min(520px, 90vw);
+    right: -6%;
+    top: -18px;
+    fill: var(--nb-nuage);
+    pointer-events: none;
+  }
+  .nb-hero-in { position: relative; }
+  .nb-hero h1 { color: var(--nb-on-sky); margin-bottom: .25em; }
+  /* `.nb .nb-lieu` et non `.nb-lieu` : la règle `.nb p` ci-dessus l'emporte
+     sinon, et peint ce libellé en gris sur le ciel (1,39, relevé par
+     check:contraste). */
+  .nb .nb-lieu {
+    margin: 0 0 .5rem;
+    color: var(--nb-crust-on-sky);
+    font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .nb .nb-lead { color: var(--nb-on-sky2); font-size: 1.1rem; max-width: 40ch; margin-bottom: 1.25rem; }
+
+  .nb-faits {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .6rem;
+    margin: 0 0 1.25rem;
+  }
+  @media (min-width: 640px) { .nb-faits { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .nb-faits { grid-template-columns: repeat(4, 1fr); } }
+  .nb-fait {
+    background: var(--nb-sky-deep);
+    border-radius: 14px;
+    padding: .8rem 1rem;
+  }
+  .nb-fait dt {
+    display: flex; align-items: center; gap: .45rem;
+    color: var(--nb-crust-on-sky);
+    font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: .25rem;
+  }
+  .nb-fait dd { margin: 0; color: var(--nb-on-sky); line-height: 1.45; font-weight: 500; }
+  .nb-fait svg, .nb-reseaux svg {
+    width: 1.15em; height: 1.15em; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .nb-livraison { margin: .3rem 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .nb-livraison a { color: var(--nb-on-sky); text-decoration: underline; }
+
+  .nb-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .nb-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 48px; padding: .7rem 1.3rem; border-radius: 999px;
+    font-weight: 700; font-size: 1rem;
+  }
+  .nb-btn:hover { text-decoration: none; }
+  .nb .nb-btn-plein { background: var(--nb-btn); color: var(--nb-btn-ink); }
+  .nb .nb-btn-contour { border: 2px solid var(--nb-on-sky); color: var(--nb-on-sky); }
+
+  /* Sections */
+  .nb-etroit { max-width: 900px; }
+  .nb-carte { background: var(--nb-cloud); }
+  .nb-infos { background: var(--nb-mist); }
+  .nb-faq { background: var(--nb-cloud); }
+  .nb-suivre { background: var(--nb-cloud); padding-top: 0; }
+
+  .nb h3 { margin-top: 1.4rem; }
+  .nb-note, .nb-inclus { font-size: .95rem; }
+  .nb .nb-inclus { color: var(--nb-ink); font-weight: 600; margin-top: .6rem; }
+
+  .nb-table { width: 100%; border-collapse: collapse; }
+  .nb-table th, .nb-table td {
+    padding: .6rem .25rem;
+    border-bottom: 1px solid var(--nb-mist);
+    text-align: left;
+    vertical-align: top;
+  }
+  .nb-table thead th {
+    color: var(--nb-text2);
+    font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .nb-table tbody th { font-weight: 700; color: var(--nb-ink); }
+  .nb-nom { display: block; font-weight: 700; color: var(--nb-ink); letter-spacing: .01em; }
+  .nb-desc { display: block; margin-top: .2rem; font-weight: 400; font-size: .9rem; line-height: 1.45; color: var(--nb-text2); }
+  .nb .nb-prix {
+    text-align: right; white-space: nowrap;
+    color: var(--nb-crust-ink); font-weight: 700; font-variant-numeric: tabular-nums;
+    padding-left: .6rem;
+  }
+  .nb-table thead .nb-prix { color: var(--nb-text2); }
+
+  .nb-grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: .9rem;
+    margin-top: 1.2rem;
+  }
+  .nb-bloc {
+    background: var(--nb-surface);
+    border: 1px solid var(--nb-mist);
+    border-radius: var(--nb-radius);
+    padding: 1rem 1.1rem;
+  }
+  .nb-bloc h3 { margin-top: 0; }
+  .nb-bloc p { margin-bottom: .5rem; }
+  .nb-lignes { list-style: none; margin: 0; padding: 0; }
+  .nb-lignes li { padding: .45rem 0; border-bottom: 1px solid var(--nb-mist); }
+  .nb-lignes li:last-child { border-bottom: 0; }
+  .nb-ligne { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+  .nb-ligne .nb-nom { min-width: 0; }
+
+  .nb-horaires th, .nb-horaires td { padding: .35rem .1rem; }
+  .nb-horaires td { text-align: right; color: var(--nb-ink); font-variant-numeric: tabular-nums; }
+  .nb-adresse { font-style: normal; color: var(--nb-ink); line-height: 1.5; margin-bottom: .6rem; }
+  .nb .nb-lien { color: var(--nb-crust-ink); font-weight: 700; text-decoration: underline; }
+  .nb-puces { margin: 0; padding-left: 1.1rem; color: var(--nb-ink); }
+  .nb-puces li { padding: .15rem 0; }
+  .nb-puces li::marker { color: var(--nb-crust); }
+
+  .nb-questions { display: grid; gap: 0; }
+  .nb-question { border-top: 1px solid var(--nb-mist); padding-block: .9rem .2rem; }
+  .nb-question h3 { margin: 0 0 .3rem; font-size: 1.05rem; }
+
+  .nb-reseaux { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .nb .nb-reseaux a {
+    display: inline-flex; align-items: center; gap: .5rem;
+    min-height: 44px; padding: .5rem 1rem; border-radius: 999px;
+    border: 1px solid var(--nb-mist); background: var(--nb-surface);
+    color: var(--nb-ink); font-weight: 600;
+  }
+
+  .nb-edition { background: var(--nb-mist); padding-block: 1rem; }
+  .nb .nb-edition p { margin: 0; font-size: .85rem; }
+  .nb .nb-edition a { color: var(--nb-crust-ink); font-weight: 600; text-decoration: underline; }
+</style>

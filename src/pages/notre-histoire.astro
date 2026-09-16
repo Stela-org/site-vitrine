@@ -97,6 +97,7 @@ const aboutLd = {
 
       <h2>Aujourd'hui, Stela</h2>
       <p>Derrière Stela, il y a une vraie agence spécialisée en e-réputation et en référencement local (SEO) : des spécialistes qui accompagnent des commerçants au quotidien, pas seulement un logiciel. Stela est notre produit phare, celui qui réunit la collecte d'avis, les réponses assistées par IA, la réservation, la fidélisation et la visibilité dans les moteurs IA, pour tous les commerces locaux. Toujours avec la même règle : la conformité n'est pas une option, c'est le moteur.</p>
+      <p>Nous éditons aussi la page web de certains établissements que nous accompagnons, comme celle de <a href="/nuage-burger-gennevilliers">Nūage Burger à Gennevilliers</a>.</p>
     </div>
   </section>
 </Base>
@@ -109,6 +110,8 @@ const aboutLd = {
   .story h2 { margin-top: 1.5rem; margin-bottom: .4rem; }
   .story h2:first-child { margin-top: 0; }
   .story p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 .6rem; }
+  /* LOT ETAB-1 : un lien au fil du texte doit se distinguer sans la couleur seule. */
+  .story p a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
   /* VIT-13 §1 : phrase de transition « personnes -> œuvre », en tête de l'histoire. */
   .story-bridge { margin: 0 0 1rem; color: var(--ink); font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
 

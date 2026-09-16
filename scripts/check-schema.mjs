@@ -19,6 +19,18 @@ const REQUIRED = {
   // une page-données sans licence lisible par machine n'est pas citable
   // proprement, et Google prévient qu'il peut durcir ce signal.
   Dataset: ["name", "description", "license", "creator"],
+  // LOT ETAB-1 : sans cette entrée, un bloc Restaurant n'était contrôlé sur
+  // RIEN, puisque les types absents de ce dictionnaire passent en silence.
+  // Ce sont les trois champs dont une fiche locale ne peut pas se passer.
+  Restaurant: ["name", "address", "openingHoursSpecification"],
+};
+
+// LOT ETAB-1 : champs INTERDITS par type. Recopier sa note Google dans son
+// propre balisage est un avis auto-déclaré, que les règles de Google excluent
+// des résultats enrichis et peuvent sanctionner. La page d'un établissement
+// client ne porte donc ni note ni avis, et l'oubli ne doit pas pouvoir revenir.
+const FORBIDDEN = {
+  Restaurant: ["aggregateRating", "review"],
 };
 
 const errors = [];
@@ -43,6 +55,9 @@ for (const file of htmlFiles) {
       const req = REQUIRED[type];
       if (req) for (const f of req) {
         if (node[f] === undefined) errors.push(`${file}: ${type}.${f} manquant`);
+      }
+      for (const f of FORBIDDEN[type] ?? []) {
+        if (node[f] !== undefined) errors.push(`${file}: ${type}.${f} interdit (avis auto-déclaré)`);
       }
     }
   }
