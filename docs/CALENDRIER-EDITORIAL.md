@@ -85,8 +85,8 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 | S13 | Sur quelles sources les IA s'appuient-elles pour recommander un commerce local ? (pilier GEO 4) | geo | Livré |
 | S14 | Quelles photos faut-il mettre sur sa fiche Google, et à quelle fréquence ? | guide | Livré |
 | S15 | Que faut-il vérifier sur sa fiche Google Business Profile chaque mois ? (repli intemporel, voir la note ci-dessous) | google-business-profile | Livré |
-| S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | En relecture (PR) |
-| S17 | Faut-il activer la messagerie de sa fiche Google Business Profile ? | guide | À faire |
+| S16 | Comment remplir sa fiche Google pour qu'une IA la comprenne ? (pilier GEO 5) | geo | Livré |
+| S17 | Faut-il activer la messagerie de sa fiche Google Business Profile ? | guide | En relecture (PR) |
 | S18 | Comment se calcule la note moyenne d'une fiche Google ? | guide | À faire |
 | S19 | Quelles sont les nouveautés Google Business Profile d'octobre 2026 ? | google-business-profile | À faire |
 | S20 | Pourquoi le texte des avis compte-t-il plus que la note pour être cité par une IA ? (pilier GEO 6) | geo | À faire |
@@ -100,6 +100,18 @@ puiser la réponse chez nous. Voir la doctrine answer engineering plus bas.
 > des sujets encore absents du blog. Aucun doublon avec les 15 articles en
 > ligne : les photos, la messagerie, le calcul de la note, le multi-établissements
 > et les métiers hors restauration n'ont jamais été traités.
+
+> Statut S16 corrigé le 17/09/2026 : la ligne était restée à « En relecture
+> (PR) » alors que sa Pull Request est mergée et l'article en production. Même
+> cause et même remède que les corrections du 31/08 et du 14/09.
+
+> S17, note de rédaction du 17/09/2026 : l'article répond que la messagerie de
+> la fiche Google Business Profile ne peut plus être activée, Google l'ayant
+> fermée le 31/07/2024 après avoir bloqué les nouvelles conversations le
+> 15/07/2024. Les sources primaires (`support.google.com`, `developers.google.com`)
+> restaient inaccessibles depuis l'environnement de rédaction, comme au 10/09 :
+> l'article renvoie donc vers l'accueil de l'aide Google Business Profile plutôt
+> que vers une page profonde dont l'URL n'a pas pu être vérifiée.
 
 > Statut S15 corrigé le 14/09/2026 : la ligne était restée à « En relecture
 > (PR) » alors que sa Pull Request est mergée et l'article en production. Même
