@@ -75,7 +75,7 @@
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!etablissements/|_next/).*)",
       "headers": [
         {
           "key": "Strict-Transport-Security",
@@ -102,6 +102,66 @@
           "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://app.mystela.fr; img-src 'self' data: https://www.facebook.com https://www.googletagmanager.com https://www.google.fr https://www.google.com https://www.google.ca https://www.google.be https://www.google.ch https://www.google.lu https://www.google.de https://www.google.co.uk https://www.google.es https://www.google.it; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://www.googletagmanager.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://connect.facebook.net; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://region1.analytics.google.com https://stats.g.doubleclick.net https://eu.i.posthog.com https://eu-assets.i.posthog.com https://www.facebook.com https://connect.facebook.net https://www.google.com https://www.google.ca https://www.google.be https://www.google.ch https://www.google.lu https://www.google.de https://www.google.co.uk https://www.google.es https://www.google.it; upgrade-insecure-requests"
         }
       ]
+    },
+    {
+      "source": "/etablissements/:path*",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()"
+        }
+      ]
+    },
+    {
+      "source": "/_next/:path*",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/etablissements/:path*",
+      "destination": "https://app.mystela.fr/etablissements/:path*"
+    },
+    {
+      "source": "/_next/:path*",
+      "destination": "https://app.mystela.fr/_next/:path*"
     }
   ]
 }
